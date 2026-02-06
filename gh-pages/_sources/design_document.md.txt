@@ -3209,8 +3209,6 @@ The use of `tlm::tlm_target_socket` for TLB translation logic is **appropriate**
 
 ---
 
----
-
 ## 9. Detailed Implementation Architecture
 
 ### 9.1 Class Hierarchy and Relationships
