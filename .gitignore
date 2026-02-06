@@ -1,0 +1,11 @@
+docs/_build/doctrees/
+*.pyc
+__pycache__/
+.vscode/
+*.swp
+.DS_Store
+*.gcno
+*.gcda
+*.o
+*.so
+FastBuild/
