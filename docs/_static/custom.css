@@ -1,0 +1,300 @@
+/* Keraunos PCIe Tile Documentation - Custom Styling */
+
+/* Increase content width for better diagram visibility */
+div.document {
+    max-width: 1400px;
+    margin: auto;
+}
+
+div.body {
+    max-width: 100%;
+}
+
+/* Mermaid diagram styling */
+.mermaid {
+    text-align: center;
+    margin: 30px auto;
+    padding: 25px;
+    background-color: #f9f9f9;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    max-width: 1400px;
+}
+
+/* Make Mermaid diagrams larger and responsive */
+.mermaid svg {
+    max-width: 100%;
+    min-width: 800px;
+    width: 100%;
+    height: auto;
+    font-size: 16px !important;
+}
+
+/* Increase font sizes in Mermaid diagrams */
+.mermaid .nodeLabel,
+.mermaid .edgeLabel {
+    font-size: 16px !important;
+    font-weight: 500;
+}
+
+.mermaid .label text {
+    font-size: 16px !important;
+}
+
+.mermaid .cluster-label {
+    font-size: 18px !important;
+    font-weight: bold;
+}
+
+/* Ensure section 3.1 diagram (and all complex diagrams) are extra large */
+.section#detailed-block-diagram .mermaid svg,
+.section#complete-system-architecture .mermaid svg {
+    min-width: 1200px;
+    font-size: 18px !important;
+}
+
+.section#complete-system-architecture .mermaid .nodeLabel {
+    font-size: 18px !important;
+}
+
+/* Table styling */
+table.docutils {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+}
+
+table.docutils th {
+    background-color: #3498db;
+    color: white;
+    padding: 10px;
+    text-align: left;
+    font-weight: bold;
+}
+
+table.docutils td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+table.docutils tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table.docutils tr:hover {
+    background-color: #e8f4f8;
+}
+
+/* Code blocks */
+div.highlight {
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+    overflow-x: auto;
+}
+
+pre {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Headers */
+h1 {
+    color: #2c3e50;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 10px;
+    margin-top: 30px;
+}
+
+h2 {
+    color: #34495e;
+    border-bottom: 2px solid #95a5a6;
+    padding-bottom: 8px;
+    margin-top: 25px;
+}
+
+h3 {
+    color: #16a085;
+    margin-top: 20px;
+}
+
+/* Links */
+a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+/* Navigation sidebar */
+div.sphinxsidebarwrapper {
+    padding: 15px;
+}
+
+div.sphinxsidebar h3 {
+    font-size: 1.2em;
+    color: #2c3e50;
+    margin-top: 10px;
+}
+
+/* Admonitions (notes, warnings, etc.) */
+div.admonition {
+    margin: 20px 0;
+    padding: 15px;
+    border-left: 4px solid #3498db;
+    background-color: #ecf8ff;
+}
+
+div.warning {
+    border-left-color: #e74c3c;
+    background-color: #fdf2f2;
+}
+
+div.note {
+    border-left-color: #16a085;
+    background-color: #f0fdf4;
+}
+
+/* Improve readability */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Sequence diagram styling */
+.mermaid .actor {
+    stroke: #3498db;
+    fill: #ecf8ff;
+}
+
+.mermaid .messageLine0 {
+    stroke: #2c3e50;
+    stroke-width: 2;
+}
+
+/* Footer */
+div.footer {
+    text-align: center;
+    padding: 20px;
+    color: #7f8c8d;
+    border-top: 1px solid #bdc3c7;
+    margin-top: 40px;
+}
+
+/* Section numbers */
+.section {
+    margin-bottom: 30px;
+}
+
+/* Highlighted code inline */
+code.literal {
+    background-color: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #c7254e;
+}
+
+/* Improve TOC tree styling */
+.toctree-wrapper ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.toctree-wrapper li {
+    margin: 8px 0;
+}
+
+.toctree-wrapper a {
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+/* Definition lists */
+dl dt {
+    font-weight: bold;
+    color: #2c3e50;
+    margin-top: 10px;
+}
+
+dl dd {
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+/* Field lists (metadata) */
+table.field-list {
+    width: auto;
+    border: none;
+}
+
+table.field-list td {
+    border: none;
+    padding: 5px 10px;
+}
+
+/* Responsive design for diagrams */
+@media (max-width: 1200px) {
+    div.document {
+        max-width: 100%;
+        padding: 0 20px;
+    }
+}
+
+/* Print styling */
+@media print {
+    .mermaid {
+        page-break-inside: avoid;
+    }
+    
+    table {
+        page-break-inside: avoid;
+    }
+    
+    h1, h2, h3 {
+        page-break-after: avoid;
+    }
+}
+
+/* Search highlighting */
+.highlighted {
+    background-color: #ffff00;
+    padding: 2px;
+}
+
+/* Version badge */
+.version-badge {
+    background-color: #27ae60;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+/* Status indicators */
+.status-released {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.status-draft {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+/* Diagram legends */
+.diagram-legend {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    font-style: italic;
+    margin-top: 5px;
+    text-align: center;
+}

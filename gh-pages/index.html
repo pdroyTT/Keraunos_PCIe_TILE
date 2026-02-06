@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Keraunos PCIe Tile Documentation &#8212; Keraunos PCIe Tile v1.0</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="https://unpkg.com/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script>
+mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis',
+        nodeSpacing: 70,
+        rankSpacing: 70,
+        padding: 20
+    },
+    fontSize: 16,
+    themeVariables: {
+        fontSize: '16px',
+        primaryColor: '#e1f5ff',
+        primaryTextColor: '#000',
+        primaryBorderColor: '#3498db',
+        lineColor: '#2c3e50',
+        secondaryColor: '#fff4e1',
+        tertiaryColor: '#ffe1f5'
+    }
+});
+</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Keraunos PCIe Tile - High-Level Design" href="hld.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Keraunos PCIe Tile</a></h1>
+
+
+
+<p class="blurb">SystemC/TLM2.0 PCIe Tile Design and Verification</p>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Design Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hld.html">Keraunos PCIe Tile - High-Level Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="systemc_design.html">Keraunos PCIE Tile SystemC/TLM2.0 Design Document</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Verification Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="testplan.html">Keraunos PCIE Tile SystemC/TLM2.0 Testplan</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="hld.html" title="next chapter">Keraunos PCIe Tile - High-Level Design</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="keraunos-pcie-tile-documentation">
+<h1>Keraunos PCIe Tile Documentation<a class="headerlink" href="#keraunos-pcie-tile-documentation" title="Permalink to this heading">¶</a></h1>
+<p><strong>SystemC/TLM2.0 Implementation - Version 1.0</strong></p>
+<p>Welcome to the comprehensive documentation for the Keraunos PCIe Tile, a high-performance PCIe interconnect bridge implemented in SystemC/TLM2.0.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
+<p>The Keraunos PCIe Tile provides a sophisticated bridge between Network-on-Chip (NOC), System Management Network (SMN), and PCIe controller interfaces. This documentation covers:</p>
+<ul class="simple">
+<li><p><strong>High-Level Design</strong> - Architecture, block diagrams, and system integration</p></li>
+<li><p><strong>SystemC Implementation</strong> - Detailed low-level design and implementation specifics</p></li>
+<li><p><strong>Test Plan &amp; Verification</strong> - Comprehensive test coverage and verification results</p></li>
+</ul>
+</section>
+<section id="key-features">
+<h2>Key Features<a class="headerlink" href="#key-features" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>3 Fabric Switches</strong> - NOC-PCIE, NOC-IO, SMN-IO routing infrastructure</p></li>
+<li><p><strong>8 Translation Lookaside Buffers (TLBs)</strong> - 5 inbound + 3 outbound address translation</p></li>
+<li><p><strong>MSI-X Relay Unit</strong> - Message Signaled Interrupt handling with 16 vectors</p></li>
+<li><p><strong>System Information Interface (SII)</strong> - Configuration tracking and interrupt generation</p></li>
+<li><p><strong>Clock &amp; Reset Control</strong> - Comprehensive power management</p></li>
+<li><p><strong>76 Test Cases</strong> - 100% functional coverage with 251 assertions</p></li>
+</ul>
+</section>
+<section id="documentation-structure">
+<h2>Documentation Structure<a class="headerlink" href="#documentation-structure" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Design Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hld.html">Keraunos PCIe Tile - High-Level Design</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#introduction">1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#architecture-overview">2. Architecture Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#detailed-block-diagram">3. Detailed Block Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#data-flow-paths">4. Data Flow Paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#module-descriptions">5. Module Descriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#address-map">6. Address Map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#clock-and-reset-strategy">7. Clock and Reset Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#interface-specifications">8. Interface Specifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#known-limitations-and-findings">9. Known Limitations and Findings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#test-coverage-summary">10. Test Coverage Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hld.html#references">11. References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="systemc_design.html">Keraunos PCIE Tile SystemC/TLM2.0 Design Document</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#sphinx-setup-instructions">Sphinx Setup Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#key-implementation-features">⭐ Key Implementation Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#introduction">1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#refactored-architecture-overview-new">1.5 Refactored Architecture Overview ⭐ NEW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#system-overview">2. System Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#architecture">3. Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#component-design">4. Component Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#interface-specifications">5. Interface Specifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#id16">6. Implementation Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#modeling-approach">7. Modeling Approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#performance-considerations">8. Performance Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#dependencies-and-requirements">9. Dependencies and Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#detailed-implementation-architecture">9. Detailed Implementation Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#implementation-guide">10. Implementation Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#test-infrastructure">11. Test Infrastructure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#migration-from-original-design">12. Migration from Original Design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#known-limitations-and-future-work">13. Known Limitations and Future Work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#lessons-learned-and-best-practices">14. Lessons Learned and Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#appendix-a-implemented-components-summary">Appendix A: Implemented Components Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#appendix-b-address-map-summary">Appendix B: Address Map Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systemc_design.html#appendix-c-acronyms-and-abbreviations">Appendix C: Acronyms and Abbreviations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Verification Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="testplan.html">Keraunos PCIE Tile SystemC/TLM2.0 Testplan</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#introduction">1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#test-traceability-matrix">1.5 Test Traceability Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#test-environment">2. Test Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#test-strategy">3. Test Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#inbound-tlb-test-cases">4. Inbound TLB Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#outbound-tlb-test-cases">5. Outbound TLB Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#msi-relay-unit-test-cases">6. MSI Relay Unit Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#integration-test-cases">7. Integration Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#switch-test-cases">8. Switch Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#sii-block-test-cases">9. SII Block Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#config-register-block-test-cases">10. Config Register Block Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#clock-reset-test-cases">11. Clock &amp; Reset Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#pll-cgm-test-cases">12. PLL/CGM Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#pcie-phy-test-cases">13. PCIE PHY Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#external-interface-test-cases">14. External Interface Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#top-level-integration-test-cases">15. Top-Level Integration Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#end-to-end-test-cases">16. End-to-End Test Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#coverage-goals">17. Coverage Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#id3">16. Coverage Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#test-infrastructure">17. Test Infrastructure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#regression-testing">18. Regression Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#appendix-a-unit-integration-test-case-summary-sections-4-15">Appendix A: Unit/Integration Test Case Summary (Sections 4-15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#appendix-a-2-end-to-end-test-case-summary-section-16-implemented-in-keranous-pcie-tiletest-cc">Appendix A.2: End-to-End Test Case Summary (Section 16) — Implemented in <code class="docutils literal notranslate"><span class="pre">Keranous_pcie_tileTest.cc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="testplan.html#appendix-b-test-execution-plan">Appendix B: Test Execution Plan</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="quick-links">
+<h2>Quick Links<a class="headerlink" href="#quick-links" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+<section id="document-information">
+<h2>Document Information<a class="headerlink" href="#document-information" title="Permalink to this heading">¶</a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">Version<span class="colon">:</span></dt>
+<dd class="field-odd"><p>1.0</p>
+</dd>
+<dt class="field-even">Date<span class="colon">:</span></dt>
+<dd class="field-even"><p>February 2026</p>
+</dd>
+<dt class="field-odd">Status<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Released</p>
+</dd>
+<dt class="field-even">Test Coverage<span class="colon">:</span></dt>
+<dd class="field-even"><p>76 tests, 251 assertions, 0 failures</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2026, Keraunos PCIe Tile Team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

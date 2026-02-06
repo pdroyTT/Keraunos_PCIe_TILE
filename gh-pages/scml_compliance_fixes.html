@@ -1,0 +1,475 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>SCML Compliance Fixes &#8212; Keraunos PCIe Tile v1.0</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="https://unpkg.com/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <script>
+mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    securityLevel: 'loose',
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis',
+        nodeSpacing: 70,
+        rankSpacing: 70,
+        padding: 20
+    },
+    fontSize: 16,
+    themeVariables: {
+        fontSize: '16px',
+        primaryColor: '#e1f5ff',
+        primaryTextColor: '#000',
+        primaryBorderColor: '#3498db',
+        lineColor: '#2c3e50',
+        secondaryColor: '#fff4e1',
+        tertiaryColor: '#ffe1f5'
+    }
+});
+</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Keraunos PCIe Tile</a></h1>
+
+
+
+<p class="blurb">SystemC/TLM2.0 PCIe Tile Design and Verification</p>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Design Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hld.html">Keraunos PCIe Tile - High-Level Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="systemc_design.html">Keraunos PCIE Tile SystemC/TLM2.0 Design Document</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Verification Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="testplan.html">Keraunos PCIE Tile SystemC/TLM2.0 Testplan</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="scml-compliance-fixes">
+<h1>SCML Compliance Fixes<a class="headerlink" href="#scml-compliance-fixes" title="Permalink to this heading">¶</a></h1>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="scml-compliance-fixes-implementation-guide">
+<h1>SCML Compliance Fixes - Implementation Guide<a class="headerlink" href="#scml-compliance-fixes-implementation-guide" title="Permalink to this heading">¶</a></h1>
+<p>This document provides specific code fixes to achieve SCML compliance for the Keraunos PCIE Tile implementation.</p>
+<hr class="docutils" />
+<section id="fix-1-add-port-adapter-for-tlb-configuration-socket">
+<h2>Fix 1: Add Port Adapter for TLB Configuration Socket<a class="headerlink" href="#fix-1-add-port-adapter-for-tlb-configuration-socket" title="Permalink to this heading">¶</a></h2>
+<section id="file-include-keraunos-pcie-inbound-tlb-h">
+<h3>File: <code class="docutils literal notranslate"><span class="pre">include/keraunos_pcie_inbound_tlb.h</span></code><a class="headerlink" href="#file-include-keraunos-pcie-inbound-tlb-h" title="Permalink to this heading">¶</a></h3>
+<p><strong>Current Code:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TLBSysIn0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">target_socket</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="w"> </span><span class="n">config_socket</span><span class="p">;</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="k">protected</span><span class="o">:</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">memory</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tlb_memory_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p><strong>Fixed Code:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;scml2/tlm2_gp_target_adapter.h&gt;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TLBSysIn0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">target_socket</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="w"> </span><span class="n">config_socket</span><span class="p">;</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="k">protected</span><span class="o">:</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">tlm2_gp_target_adapter</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="w"> </span><span class="n">config_adapter_</span><span class="p">;</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">memory</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tlb_memory_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+<section id="file-src-keraunos-pcie-inbound-tlb-cpp">
+<h3>File: <code class="docutils literal notranslate"><span class="pre">src/keraunos_pcie_inbound_tlb.cpp</span></code><a class="headerlink" href="#file-src-keraunos-pcie-inbound-tlb-cpp" title="Permalink to this heading">¶</a></h3>
+<p><strong>Current Code:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TLBSysIn0</span><span class="o">::</span><span class="n">TLBSysIn0</span><span class="p">(</span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module_name</span><span class="w"> </span><span class="n">name</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">sc_module</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">entries_</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">tlb_memory_</span><span class="p">(</span><span class="s">&quot;tlb_memory&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Initialize TLB entries</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Bind TLM sockets</span>
+<span class="w">    </span><span class="n">inbound_socket</span><span class="p">.</span><span class="n">register_b_transport</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">TLBSysIn0</span><span class="o">::</span><span class="n">b_transport</span><span class="p">);</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Fixed Code:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">TLBSysIn0</span><span class="o">::</span><span class="n">TLBSysIn0</span><span class="p">(</span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module_name</span><span class="w"> </span><span class="n">name</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">sc_module</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">config_adapter_</span><span class="p">(</span><span class="s">&quot;config_adapter&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">entries_</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">tlb_memory_</span><span class="p">(</span><span class="s">&quot;tlb_memory&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Initialize TLB entries</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">entries_</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">entry</span><span class="p">.</span><span class="n">valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">        </span><span class="n">entry</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">entry</span><span class="p">.</span><span class="n">attr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Bind SCML adapter to socket and memory</span>
+<span class="w">    </span><span class="n">config_adapter_</span><span class="p">(</span><span class="n">config_socket</span><span class="p">);</span>
+<span class="w">    </span><span class="n">config_adapter_</span><span class="p">(</span><span class="n">tlb_memory_</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Bind TLM sockets for translation logic (passthrough)</span>
+<span class="w">    </span><span class="n">inbound_socket</span><span class="p">.</span><span class="n">register_b_transport</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">TLBSysIn0</span><span class="o">::</span><span class="n">b_transport</span><span class="p">);</span>
+<span class="w">    </span><span class="n">inbound_socket</span><span class="p">.</span><span class="n">register_transport_dbg</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">TLBSysIn0</span><span class="o">::</span><span class="n">transport_dbg</span><span class="p">);</span>
+<span class="w">    </span><span class="n">inbound_socket</span><span class="p">.</span><span class="n">register_get_direct_mem_ptr</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">TLBSysIn0</span><span class="o">::</span><span class="n">get_direct_mem_ptr</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Apply Same Fix To:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TLBAppIn0</span></code> class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TLBAppIn1</span></code> class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TLBSysOut0</span></code> class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TLBAppOut0</span></code> class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TLBAppOut1</span></code> class</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="fix-2-add-port-adapter-for-msi-relay-csr-socket">
+<h2>Fix 2: Add Port Adapter for MSI Relay CSR Socket<a class="headerlink" href="#fix-2-add-port-adapter-for-msi-relay-csr-socket" title="Permalink to this heading">¶</a></h2>
+<section id="file-include-keraunos-pcie-msi-relay-h">
+<h3>File: <code class="docutils literal notranslate"><span class="pre">include/keraunos_pcie_msi_relay.h</span></code><a class="headerlink" href="#file-include-keraunos-pcie-msi-relay-h" title="Permalink to this heading">¶</a></h3>
+<p><strong>Current Code:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MsiRelayUnit</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">target_socket</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="w"> </span><span class="n">csr_apb_socket</span><span class="p">;</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">target_socket</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="w"> </span><span class="n">msi_apb_socket</span><span class="p">;</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="k">protected</span><span class="o">:</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">memory</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p><strong>Fixed Code:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;scml2/tlm2_gp_target_adapter.h&gt;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MsiRelayUnit</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">target_socket</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="w"> </span><span class="n">csr_apb_socket</span><span class="p">;</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">target_socket</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="w"> </span><span class="n">msi_apb_socket</span><span class="p">;</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="k">protected</span><span class="o">:</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">tlm2_gp_target_adapter</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="w"> </span><span class="n">csr_adapter_</span><span class="p">;</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">tlm2_gp_target_adapter</span><span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="w"> </span><span class="n">msi_adapter_</span><span class="p">;</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">memory</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+<section id="file-src-keraunos-pcie-msi-relay-cpp">
+<h3>File: <code class="docutils literal notranslate"><span class="pre">src/keraunos_pcie_msi_relay.cpp</span></code><a class="headerlink" href="#file-src-keraunos-pcie-msi-relay-cpp" title="Permalink to this heading">¶</a></h3>
+<p><strong>Current Code:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">MsiRelayUnit</span><span class="p">(</span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module_name</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">num_vectors</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">sc_module</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">num_vectors_</span><span class="p">(</span><span class="n">num_vectors</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msix_table_</span><span class="p">(</span><span class="n">num_vectors</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msix_pba_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msi_outstanding_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">(</span><span class="s">&quot;csr_memory&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Initialize MSI-X table entries</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Bind TLM sockets</span>
+<span class="w">    </span><span class="n">csr_apb_socket</span><span class="p">.</span><span class="n">register_b_transport</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">csr_b_transport</span><span class="p">);</span>
+<span class="w">    </span><span class="n">msi_apb_socket</span><span class="p">.</span><span class="n">register_b_transport</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">msi_b_transport</span><span class="p">);</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Fixed Code:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">MsiRelayUnit</span><span class="p">(</span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module_name</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">num_vectors</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">sc_module</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">csr_adapter_</span><span class="p">(</span><span class="s">&quot;csr_adapter&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msi_adapter_</span><span class="p">(</span><span class="s">&quot;msi_adapter&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">num_vectors_</span><span class="p">(</span><span class="n">num_vectors</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msix_table_</span><span class="p">(</span><span class="n">num_vectors</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msix_pba_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msi_outstanding_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">(</span><span class="s">&quot;csr_memory&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Initialize MSI-X table entries</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">msix_table_</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">entry</span><span class="p">.</span><span class="n">address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">entry</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">entry</span><span class="p">.</span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Bind SCML adapters to sockets and memory</span>
+<span class="w">    </span><span class="n">csr_adapter_</span><span class="p">(</span><span class="n">csr_apb_socket</span><span class="p">);</span>
+<span class="w">    </span><span class="n">csr_adapter_</span><span class="p">(</span><span class="n">csr_memory_</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// MSI adapter for msi_receiver register (special handling)</span>
+<span class="w">    </span><span class="n">msi_adapter_</span><span class="p">(</span><span class="n">msi_apb_socket</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Note: msi_apb_socket routes to msi_receiver, may need custom callback</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Register SC_THREAD for MSI thrower process</span>
+<span class="w">    </span><span class="n">SC_THREAD</span><span class="p">(</span><span class="n">msi_thrower_process</span><span class="p">);</span>
+<span class="w">    </span><span class="n">sensitive</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msix_enable</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msix_mask</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">setip</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Note:</strong> For <code class="docutils literal notranslate"><span class="pre">msi_apb_socket</span></code>, you may need a custom callback since it routes specifically to <code class="docutils literal notranslate"><span class="pre">msi_receiver</span></code> register. Consider:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Option 1: Use callback on memory for msi_receiver offset</span>
+<span class="n">csr_memory_</span><span class="p">.</span><span class="n">set_write_callback</span><span class="p">(</span><span class="n">MSI_RECEIVER_OFFSET</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">memory_callback_base</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">msi_receiver_write_callback</span><span class="p">));</span>
+
+<span class="c1">// Option 2: Keep manual transport for msi_apb_socket (acceptable for special routing)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="fix-3-use-scml-register-objects-for-msi-relay-optional-enhancement">
+<h2>Fix 3: Use SCML Register Objects for MSI Relay (Optional Enhancement)<a class="headerlink" href="#fix-3-use-scml-register-objects-for-msi-relay-optional-enhancement" title="Permalink to this heading">¶</a></h2>
+<section id="id1">
+<h3>File: <code class="docutils literal notranslate"><span class="pre">include/keraunos_pcie_msi_relay.h</span></code><a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<p><strong>Enhanced Code:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;scml2/reg.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;scml2/bitfield.h&gt;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MsiRelayUnit</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="k">protected</span><span class="o">:</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">memory</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// SCML register objects</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">msi_receiver_reg_</span><span class="p">;</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">msi_outstanding_reg_</span><span class="p">;</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">msix_pba_reg_</span><span class="p">;</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">msix_table_addr_reg_</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">msix_table_data_reg_</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<span class="w">    </span><span class="n">scml2</span><span class="o">::</span><span class="n">bitfield</span><span class="w"> </span><span class="n">msix_table_mask_bit_</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Callbacks for register access</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">msi_receiver_write_callback</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">old_value</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">new_value</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">msi_outstanding_read_callback</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">msix_pba_read_callback</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>File: <code class="docutils literal notranslate"><span class="pre">src/keraunos_pcie_msi_relay.cpp</span></code><a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<p><strong>Enhanced Constructor:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">MsiRelayUnit</span><span class="p">(</span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module_name</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">num_vectors</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">sc_module</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">csr_adapter_</span><span class="p">(</span><span class="s">&quot;csr_adapter&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">num_vectors_</span><span class="p">(</span><span class="n">num_vectors</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">(</span><span class="s">&quot;csr_memory&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msi_receiver_reg_</span><span class="p">(</span><span class="s">&quot;msi_receiver&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">,</span><span class="w"> </span><span class="n">MSI_RECEIVER_OFFSET</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msi_outstanding_reg_</span><span class="p">(</span><span class="s">&quot;msi_outstanding&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">,</span><span class="w"> </span><span class="n">MSI_OUTSTANDING_OFFSET</span><span class="p">)</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">msix_pba_reg_</span><span class="p">(</span><span class="s">&quot;msix_pba&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">,</span><span class="w"> </span><span class="n">MSIX_PBA_OFFSET</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Bind adapter</span>
+<span class="w">    </span><span class="n">csr_adapter_</span><span class="p">(</span><span class="n">csr_apb_socket</span><span class="p">);</span>
+<span class="w">    </span><span class="n">csr_adapter_</span><span class="p">(</span><span class="n">csr_memory_</span><span class="p">);</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Configure register callbacks</span>
+<span class="w">    </span><span class="n">msi_receiver_reg_</span><span class="p">.</span><span class="n">set_write_callback</span><span class="p">(</span>
+<span class="w">        </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg_callback_base</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">msi_receiver_write_callback</span><span class="p">));</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="n">msi_outstanding_reg_</span><span class="p">.</span><span class="n">set_read_callback</span><span class="p">(</span>
+<span class="w">        </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg_callback_base</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">msi_outstanding_read_callback</span><span class="p">));</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="n">msix_pba_reg_</span><span class="p">.</span><span class="n">set_read_callback</span><span class="p">(</span>
+<span class="w">        </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg_callback_base</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">msix_pba_read_callback</span><span class="p">));</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Initialize MSI-X table registers</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_vectors_</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">table_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MSIX_TABLE_BASE_OFFSET</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">MSIX_TABLE_ENTRY_SIZE</span><span class="p">);</span>
+<span class="w">        </span><span class="n">msix_table_addr_reg_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;msix_table_addr&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">,</span><span class="w"> </span><span class="n">table_offset</span><span class="p">);</span>
+<span class="w">        </span><span class="n">msix_table_data_reg_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scml2</span><span class="o">::</span><span class="n">reg</span><span class="o">&lt;</span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;msix_table_data&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">csr_memory_</span><span class="p">,</span><span class="w"> </span><span class="n">table_offset</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span>
+<span class="w">        </span><span class="n">msix_table_mask_bit_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scml2</span><span class="o">::</span><span class="n">bitfield</span><span class="p">(</span><span class="s">&quot;msix_table_mask&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msix_table_data_reg_</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1">// Initialize MSI-X table entries</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">msix_table_</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">entry</span><span class="p">.</span><span class="n">address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">entry</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">entry</span><span class="p">.</span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="n">SC_THREAD</span><span class="p">(</span><span class="n">msi_thrower_process</span><span class="p">);</span>
+<span class="w">    </span><span class="n">sensitive</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msix_enable</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">msix_mask</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">setip</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">msi_receiver_write_callback</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">old_value</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">new_value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Extract interrupt vector index from data[15:0]</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">vector_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">new_value</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFFFF</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vector_index</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">num_vectors_</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">set_pba_bit</span><span class="p">(</span><span class="n">vector_index</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">uint32_t</span><span class="w"> </span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">msi_outstanding_read_callback</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">msi_outstanding_</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">uint32_t</span><span class="w"> </span><span class="n">MsiRelayUnit</span><span class="o">::</span><span class="n">msix_pba_read_callback</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">msix_pba_</span><span class="p">.</span><span class="n">to_uint</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Benefits:</strong></p>
+<ul class="simple">
+<li><p>Automatic transaction handling</p></li>
+<li><p>Watchpoint support for debugging</p></li>
+<li><p>Structured register access</p></li>
+<li><p>Coverage support</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="fix-4-consider-scml-initiator-sockets-optional">
+<h2>Fix 4: Consider SCML Initiator Sockets (Optional)<a class="headerlink" href="#fix-4-consider-scml-initiator-sockets-optional" title="Permalink to this heading">¶</a></h2>
+<section id="id3">
+<h3>File: <code class="docutils literal notranslate"><span class="pre">include/keraunos_pcie_inbound_tlb.h</span></code><a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<p><strong>Current:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">tlm</span><span class="o">::</span><span class="n">tlm_initiator_socket</span><span class="o">&lt;</span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">translated_socket</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><strong>Optional Enhancement:</strong></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">scml2</span><span class="o">::</span><span class="n">initiator_socket</span><span class="o">&lt;</span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">translated_socket</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><strong>Benefits:</strong></p>
+<ul class="simple">
+<li><p>Built-in DMI handler</p></li>
+<li><p>Quantum keeper support</p></li>
+<li><p>Simplified read/write APIs</p></li>
+</ul>
+<p><strong>Note:</strong> This is optional - TLM2.0 sockets are functionally correct.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="summary-of-required-changes">
+<h2>Summary of Required Changes<a class="headerlink" href="#summary-of-required-changes" title="Permalink to this heading">¶</a></h2>
+<section id="critical-must-fix-for-scml-compliance">
+<h3>Critical (Must Fix for SCML Compliance)<a class="headerlink" href="#critical-must-fix-for-scml-compliance" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>✅ Add <code class="docutils literal notranslate"><span class="pre">scml2::tlm2_gp_target_adapter</span></code> for all configuration sockets</p></li>
+<li><p>✅ Bind adapters to sockets and memory objects</p></li>
+<li><p>✅ Update constructors to initialize adapters</p></li>
+</ol>
+</section>
+<section id="recommended-for-better-scml-integration">
+<h3>Recommended (For Better SCML Integration)<a class="headerlink" href="#recommended-for-better-scml-integration" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>⚠️ Use <code class="docutils literal notranslate"><span class="pre">scml2::reg</span></code> objects for MSI Relay registers</p></li>
+<li><p>⚠️ Consider <code class="docutils literal notranslate"><span class="pre">scml2::initiator_socket</span></code> for initiator ports</p></li>
+<li><p>⚠️ Add quantum keeper for temporal decoupling (if needed)</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="testing-after-fixes">
+<h2>Testing After Fixes<a class="headerlink" href="#testing-after-fixes" title="Permalink to this heading">¶</a></h2>
+<p>After implementing these fixes, verify:</p>
+<ol class="arabic simple">
+<li><p><strong>Configuration Access:</strong> TLB configuration registers accessible via APB socket</p></li>
+<li><p><strong>MSI Relay CSR:</strong> CSR registers accessible via APB socket</p></li>
+<li><p><strong>Memory Binding:</strong> Transactions automatically routed to memory objects</p></li>
+<li><p><strong>Callbacks:</strong> Register callbacks triggered on access</p></li>
+<li><p><strong>DMI Support:</strong> Direct memory interface works (if enabled)</p></li>
+</ol>
+<hr class="docutils" />
+<p><strong>Document End</strong></p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2026, Keraunos PCIe Tile Team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/scml_compliance_fixes.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
