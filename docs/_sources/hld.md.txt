@@ -108,7 +108,552 @@ graph TB
 
 ---
 
-## 3. Detailed Block Diagram
+## 3. Theory of Operation
+
+This section describes the operational modes and transaction flows of the Keraunos PCIe Tile.
+
+### 3.1 Operational Modes
+
+The PCIe Tile operates in several distinct modes:
+
+#### Normal Operation Mode
+- **System Ready**: `system_ready` register bit set to 1
+- **Application Paths Enabled**: `pcie_inbound_app_enable` and `pcie_outbound_app_enable` set as needed
+- **No Isolation**: `isolate_req` signal deasserted
+- **Clocks Running**: Both `pcie_core_clk` and `axi_clk` active
+- **No Reset**: `cold_reset_n` and `warm_reset_n` asserted (active high)
+
+In this mode, all data paths are operational and transactions flow freely between NOC, PCIe, and SMN domains.
+
+#### Isolation Mode
+- **Triggered By**: Assertion of `isolate_req` signal
+- **Effect**: Clears `system_ready`, `pcie_inbound_app_enable`, and `pcie_outbound_app_enable`
+- **Data Path**: All PCIe controller transactions return `TLM_ADDRESS_ERROR_RESPONSE` (DECERR)
+- **Recovery Limitation**: Deasserting `isolate_req` does NOT automatically restore enables (requires cold reset + software reconfiguration)
+- **Use Case**: Power domain isolation, fault containment
+
+#### Bypass Mode
+- **Condition**: `system_ready=0` but `pcie_inbound_app_enable=1` or `pcie_outbound_app_enable=1`
+- **Routing**: Uses route 0xE or 0xF to access status register directly
+- **Purpose**: Allow status monitoring without full system initialization
+- **Limited Functionality**: Only status register readable; normal data paths blocked
+
+#### Reset Modes
+
+**Cold Reset:**
+- **Trigger**: `cold_reset_n` signal deasserted (active low)
+- **Scope**: Resets SII block (`pcie_sii_reset_ctrl_`) and reset control module (`pcie_reset_ctrl_`)
+- **Does NOT Reset**: Configuration registers, TLB entries, switch enables
+- **Recovery**: Requires software reconfiguration after reset
+
+**Warm Reset:**
+- **Trigger**: `warm_reset_n` signal deasserted (active low)
+- **Scope**: Similar to cold reset but may preserve certain configuration state
+- **Note**: Current implementation behavior similar to cold reset
+
+### 3.2 Initialization and Boot Sequence
+
+```{mermaid}
+sequenceDiagram
+    participant SMN as SMN Host
+    participant Tile as PCIe Tile
+    participant Switch as NOC-PCIE Switch
+    participant TLB as TLB Units
+    participant SII as SII Block
+    participant PCIE as PCIe Controller
+
+    Note over Tile: Power-On / Cold Reset
+    SMN->>Tile: Deassert cold_reset_n
+    Tile->>SII: Reset SII state
+    Tile->>Switch: system_ready=0, enables=0
+    
+    Note over Tile: Configuration Phase
+    SMN->>Switch: Write system_ready=1
+    Switch->>Switch: Enable routing logic
+    
+    SMN->>TLB: Configure inbound TLB entries
+    Note over TLB: Set valid bits, page masks, base addresses
+    
+    SMN->>TLB: Configure outbound TLB entries
+    Note over TLB: Set application path translations
+    
+    SMN->>Switch: Write pcie_inbound_app_enable=1
+    SMN->>Switch: Write pcie_outbound_app_enable=1
+    Switch->>Switch: Enable application data paths
+    
+    Note over Tile: Normal Operation
+    PCIE->>Switch: Inbound transaction
+    Switch->>TLB: Address translation
+    TLB->>Switch: Translated address
+    Switch->>PCIE: Transaction complete
+```
+
+**Initialization Steps:**
+
+1. **Reset Phase**
+   - Assert `cold_reset_n` to bring tile to known state
+   - SII block clears all CII tracking state
+   - Switch enables default to 0
+
+2. **System Ready Configuration**
+   - SMN writes `system_ready=1` to status register (offset 0x0)
+   - Enables basic routing logic in switches
+   - Status register becomes readable via routes 0xE and 0xF
+
+3. **TLB Configuration**
+   - Configure inbound TLBs (Sys In0, Sys In1, App In0/1/2)
+   - Set valid bits, page sizes, base addresses, address masks
+   - Configure outbound TLBs (Sys Out, App Out0/1)
+   - Set AxUSER fields for NOC routing
+
+4. **Data Path Enablement**
+   - Write `pcie_inbound_app_enable=1` for PCIe→NOC application paths
+   - Write `pcie_outbound_app_enable=1` for NOC→PCIe application paths
+   - System enters normal operation mode
+
+### 3.3 Inbound Data Flow (PCIe to NOC)
+
+**Transaction Path: PCIe Controller → NOC-PCIE Switch → Inbound TLB → NOC-IO Switch → NOC**
+
+```{mermaid}
+sequenceDiagram
+    participant PCIE as PCIe Controller
+    participant NOCP as NOC-PCIE Switch
+    participant TLB as Inbound TLB
+    participant NOCI as NOC-IO Switch
+    participant NOC as NOC Network
+
+    PCIE->>NOCP: b_transport(addr[63:0], data)
+    Note over NOCP: Check system_ready
+    
+    alt system_ready == 0
+        NOCP->>PCIE: TLM_ADDRESS_ERROR_RESPONSE
+    else Route bits [63:60]
+        NOCP->>NOCP: Decode route (0x0,0x1,0x4,0x6,0x7)
+        
+        alt Application path (0x0, 0x1, 0x6, 0x7)
+            Note over NOCP: Check pcie_inbound_app_enable
+            alt Enable == 0
+                NOCP->>PCIE: TLM_ADDRESS_ERROR_RESPONSE
+            else Enable == 1
+                NOCP->>TLB: translate_and_forward(addr)
+                Note over TLB: Calculate index = (addr >> shift) & page_mask
+                Note over TLB: Check valid bit
+                
+                alt valid == 0
+                    TLB->>NOCP: TLM_ADDRESS_ERROR_RESPONSE
+                    NOCP->>PCIE: DECERR
+                else valid == 1
+                    TLB->>TLB: new_addr = entry.addr + offset
+                    TLB->>TLB: Set AxUSER field
+                    TLB->>NOCI: forward(new_addr, AxUSER)
+                    NOCI->>NOC: b_transport(translated_addr)
+                    NOC->>NOCI: TLM_OK_RESPONSE
+                    NOCI->>TLB: Success
+                    TLB->>NOCP: Success
+                    NOCP->>PCIE: TLM_OK_RESPONSE
+                end
+            end
+        else System path (0x4)
+            NOCP->>TLB: translate_and_forward(addr)
+            Note over TLB: System TLB (smaller pages)
+            TLB->>NOCI: forward(translated_addr)
+            NOCI->>NOC: b_transport
+            NOC->>PCIE: Response propagates back
+        end
+    end
+```
+
+**Key Steps:**
+
+1. **PCIe Controller Transaction**
+   - Transaction arrives at `pcie_controller_target` socket
+   - 64-bit address with route field [63:60]
+
+2. **NOC-PCIE Switch Routing**
+   - Check `system_ready` flag (blocks if 0)
+   - Decode route bits [63:60]
+   - For application paths: check `pcie_inbound_app_enable`
+   - For system paths: always allowed if `system_ready=1`
+
+3. **TLB Translation**
+   - Extract page index: `(addr >> shift) & page_mask`
+   - Look up TLB entry
+   - Check `valid` bit
+   - Calculate translated address: `base_addr + offset`
+   - Set AxUSER field for NOC routing
+
+4. **NOC-IO Switch Forwarding**
+   - Forward translated address to NOC
+   - Preserve AxUSER field
+   - Return response to PCIe controller
+
+### 3.4 Outbound Data Flow (NOC to PCIe)
+
+**Transaction Path: NOC → NOC-IO Switch → Outbound TLB → NOC-PCIE Switch → PCIe Controller**
+
+```{mermaid}
+sequenceDiagram
+    participant NOC as NOC Network
+    participant NOCI as NOC-IO Switch
+    participant TLB as Outbound TLB
+    participant NOCP as NOC-PCIE Switch
+    participant PCIE as PCIe Controller
+
+    NOC->>NOCI: b_transport(noc_addr, data)
+    NOCI->>TLB: translate_address()
+    
+    Note over TLB: Calculate TLB index
+    Note over TLB: Check valid bit
+    
+    alt valid == 0
+        TLB->>NOCI: TLM_ADDRESS_ERROR_RESPONSE
+        NOCI->>NOC: DECERR
+    else valid == 1
+        TLB->>TLB: pcie_addr = entry.addr + offset
+        TLB->>TLB: Convert 64-bit to 52-bit
+        
+        alt Application path
+            Note over NOCP: Check pcie_outbound_app_enable
+            alt Enable == 0
+                NOCP->>NOCI: TLM_ADDRESS_ERROR_RESPONSE
+                NOCI->>NOC: DECERR
+            else Enable == 1
+                NOCP->>PCIE: b_transport(pcie_addr)
+                PCIE->>NOCP: TLM_OK_RESPONSE
+                NOCP->>NOCI: Success
+                NOCI->>NOC: TLM_OK_RESPONSE
+            end
+        else System path
+            NOCP->>PCIE: b_transport(pcie_addr)
+            PCIE->>NOC: Response propagates back
+        end
+    end
+```
+
+**Key Steps:**
+
+1. **NOC Transaction**
+   - Arrives at `noc_n_target` socket
+   - NOC-specific addressing
+
+2. **NOC-IO Switch Processing**
+   - Routes to appropriate outbound TLB
+
+3. **Outbound TLB Translation**
+   - Translate NOC address to PCIe address space
+   - Check valid bit
+   - Convert 64-bit internal address to 52-bit PCIe address
+
+4. **NOC-PCIE Switch Gating**
+   - For application paths: check `pcie_outbound_app_enable`
+   - Forward to PCIe controller if enabled
+
+### 3.5 Configuration Access Flow
+
+**Transaction Path: SMN → SMN-IO Switch → Configuration Targets**
+
+```{mermaid}
+sequenceDiagram
+    participant SMN as SMN Host
+    participant SMNI as SMN-IO Switch
+    participant TGT as Config Target
+    participant SII as SII Block
+    participant MSI as MSI Relay
+    participant TLB as TLB Config
+
+    SMN->>SMNI: b_transport(smn_addr, data, cmd)
+    
+    Note over SMNI: Decode address bits [31:28]
+    
+    alt Config Register Block
+        SMNI->>TGT: forward(offset 0x0-0xFFF)
+        TGT->>TGT: Read/Write register
+        Note over TGT: system_ready, enables, isolation
+        TGT->>SMNI: Response
+        SMNI->>SMN: TLM_OK_RESPONSE
+        
+    else SII Configuration
+        SMNI->>SII: process_apb_access(addr, data)
+        Note over SII: CORE_CONTROL, CFG_MODIFIED, BUS_DEV_NUM
+        alt Write to CFG_MODIFIED (RW1C)
+            SII->>SII: Clear modified bits
+            SII->>SII: Update config_update interrupt
+        end
+        SII->>SMNI: Response
+        
+    else MSI Relay Configuration
+        SMNI->>MSI: process_msi_config(addr, data)
+        Note over MSI: Configure MSI-X table, PBA, masks
+        Note over MSI: Address passthrough limits functionality
+        MSI->>SMNI: Response
+        
+    else TLB Configuration
+        SMNI->>TLB: process_tlb_config(addr, data)
+        Note over TLB: Set valid bits, masks, base addresses
+        Note over TLB: Address passthrough affects offset calculation
+        TLB->>SMNI: Response
+        
+    else Unknown address
+        SMNI->>SMN: TLM_ADDRESS_ERROR_RESPONSE
+    end
+```
+
+**Configuration Targets:**
+
+| Address Range [31:28] | Target | Functionality |
+|----------------------|--------|---------------|
+| 0x0 | Config Registers | system_ready, enables, isolation |
+| 0x1 | SII Block | CORE_CONTROL, CFG_MODIFIED, BUS_DEV_NUM |
+| 0x2 | Reserved | - |
+| 0x3-0x7 | TLB Config | Inbound/Outbound TLB entries |
+| 0x8 | MSI Relay | MSI-X table, PBA, masks |
+
+**Known Limitation:** SMN-IO switch passes full SystemC addresses to internal callbacks instead of stripping base addresses. This causes configuration writes to MSI, SII, and TLB to be processed with incorrect offsets.
+
+### 3.6 MSI Interrupt Generation Flow
+
+**Transaction Path: NOC MSI Input → MSI Relay → PCIe Controller (MSI Output)**
+
+```{mermaid}
+sequenceDiagram
+    participant NOC as NOC (MSI Source)
+    participant MSI as MSI Relay Unit
+    participant Tile as PCIe Tile
+    participant PCIE as PCIe Controller
+
+    NOC->>MSI: Write to msi_input (0x18800000)
+    Note over MSI: process_msi_input() called
+    Note over MSI: Address passthrough: offset != 0
+    
+    alt offset == 0 (not met due to passthrough)
+        MSI->>MSI: Extract vector number
+        MSI->>MSI: Check per-vector mask
+        MSI->>MSI: Check global mask
+        MSI->>MSI: Set PBA bit
+        MSI->>MSI: Increment msi_outstanding
+        MSI->>MSI: Trigger process_pending_msis()
+        
+        Note over Tile: signal_update_process()
+        Tile->>MSI: Call process_pending_msis()
+        
+        alt MSI-X enabled AND not masked AND PBA set
+            MSI->>MSI: Read MSI-X table entry
+            MSI->>MSI: Prepare MSI transaction
+            MSI->>PCIE: b_transport(msi_addr, msi_data)
+            PCIE->>MSI: TLM_OK_RESPONSE
+            MSI->>MSI: Clear PBA bit
+            MSI->>MSI: Decrement msi_outstanding
+        end
+        
+    else offset != 0 (actual behavior)
+        MSI->>NOC: TLM_OK_RESPONSE
+        Note over MSI: PBA not updated (limitation)
+    end
+```
+
+**MSI Flow Steps:**
+
+1. **MSI Input Write**
+   - NOC writes to `msi_input_target` socket
+   - Vector number encoded in write data
+
+2. **MSI Relay Processing**
+   - Check per-vector mask bit
+   - Check global mask (`msix_mask_all_`)
+   - Set corresponding PBA (Pending Bit Array) bit
+   - Increment `msi_outstanding` counter
+
+3. **MSI Generation** (via `process_pending_msis()`)
+   - Called by tile's `signal_update_process()`
+   - Check MSI-X enabled (`msix_enable_`)
+   - For each pending PBA bit:
+     - Read MSI-X table entry (address, data, mask)
+     - If not masked, generate MSI transaction to PCIe
+     - Clear PBA bit on successful delivery
+
+**Current Limitation:** Address passthrough causes `process_msi_input` to receive full address 0x18800000 instead of offset 0, preventing PBA updates. MSI output path cannot be fully exercised in current test environment.
+
+### 3.7 CII Tracking and Configuration Update
+
+**Configuration Intercept Interface (CII) Flow:**
+
+```{mermaid}
+sequenceDiagram
+    participant PCIE as PCIe Controller
+    participant Tile as PCIe Tile
+    participant SII as SII Block
+    participant SMN as SMN Host
+
+    Note over PCIE: PCIe config space write occurs
+    PCIE->>Tile: Assert pcie_cii_hv signal
+    PCIE->>Tile: Set pcie_cii_addr[7:0]
+    PCIE->>Tile: Set pcie_cii_type[3:0]
+    
+    Note over Tile: signal_update_process()
+    Tile->>SII: update()
+    
+    Note over SII: Read CII input signals
+    alt pcie_cii_hv == 1
+        SII->>SII: Check type == 0x04 (config write)
+        alt type == 0x04
+            SII->>SII: Check addr < 0x80 (first 128B)
+            alt addr < 0x80
+                SII->>SII: reg_index = addr[6:2]
+                SII->>SII: cfg_modified_[reg_index] = 1
+                SII->>SII: Assert config_update interrupt
+                SII->>Tile: config_update = 1
+                Tile->>SMN: Interrupt signaled
+                
+                Note over SMN: Software handles interrupt
+                SMN->>SII: Read CFG_MODIFIED register
+                SII->>SMN: Return modified bitmask
+                SMN->>SII: Write to CFG_MODIFIED (RW1C)
+                SII->>SII: Clear specified bits
+                alt All bits cleared
+                    SII->>SII: Deassert config_update
+                    SII->>Tile: config_update = 0
+                end
+            end
+        end
+    end
+    
+    Note over Tile: Reset clears all state
+    alt pcie_controller_reset_n == 0
+        SII->>SII: cfg_modified_ = 0
+        SII->>SII: config_update = 0
+    end
+```
+
+**CII Tracking Details:**
+
+1. **Detection Phase**
+   - PCIe controller asserts `pcie_cii_hv` (handshake valid)
+   - Provides address (`pcie_cii_addr`) and type (`pcie_cii_type`)
+   - Type 0x04 indicates configuration write
+
+2. **Filtering**
+   - Only track first 128 bytes (addr < 0x80)
+   - Covers standard PCIe config space registers
+   - Calculate register index: `addr[6:2]` (32-bit aligned)
+
+3. **State Update**
+   - Set corresponding bit in 32-bit `cfg_modified_` bitmask
+   - Assert `config_update` output signal (sticky)
+   - Interrupt remains asserted until software clears
+
+4. **Software Clear** (RW1C - Read/Write 1 to Clear)
+   - SMN reads `CFG_MODIFIED` register to see which registers changed
+   - SMN writes 1s to clear specific bits
+   - When all bits cleared, `config_update` deasserts
+
+5. **Reset Behavior**
+   - Controller reset (`pcie_controller_reset_n=0`) clears all state
+   - Both `cfg_modified_` and `config_update` reset to 0
+
+### 3.8 Isolation and Recovery
+
+**Isolation Sequence:**
+
+```{mermaid}
+sequenceDiagram
+    participant EXT as External Control
+    participant Tile as PCIe Tile
+    participant CFG as Config Registers
+    participant Switch as NOC-PCIE Switch
+    participant PCIE as PCIe Controller
+
+    Note over Tile: Normal Operation
+    EXT->>Tile: Assert isolate_req signal
+    
+    Note over Tile: signal_update_process()
+    Tile->>CFG: set_isolate_req(true)
+    CFG->>CFG: system_ready = 0
+    CFG->>CFG: pcie_inbound_app_enable = 0
+    CFG->>CFG: pcie_outbound_app_enable = 0
+    CFG->>Switch: Update enable signals
+    
+    Note over Switch: All PCIe transactions blocked
+    PCIE->>Switch: b_transport(addr)
+    Switch->>PCIE: TLM_ADDRESS_ERROR_RESPONSE
+    
+    Note over Tile: Attempt Recovery
+    EXT->>Tile: Deassert isolate_req signal
+    Tile->>CFG: set_isolate_req(false)
+    CFG->>CFG: isolate_req_ = 0
+    Note over CFG: Enables NOT restored
+    
+    Note over Switch: Still blocked (limitation)
+    PCIE->>Switch: b_transport(addr)
+    Switch->>PCIE: TLM_ADDRESS_ERROR_RESPONSE
+    
+    Note over Tile: Full Recovery Sequence
+    EXT->>Tile: Cold reset cycle
+    Note over Tile: Reset does NOT restore enables
+    EXT->>CFG: SMN write system_ready=1
+    EXT->>CFG: SMN write pcie_inbound_app_enable=1
+    EXT->>CFG: SMN write pcie_outbound_app_enable=1
+    Note over Switch: Normal operation restored
+```
+
+**Isolation Behavior:**
+
+- **Trigger**: `isolate_req` signal assertion
+- **Effect**: Clears all enable flags in `ConfigRegBlock`
+- **Data Path**: All PCIe traffic returns DECERR
+- **Critical Limitation**: `set_isolate_req(false)` does NOT restore enables
+- **Recovery Requires**: Cold reset + full SMN reconfiguration
+
+This is a known architectural limitation documented in the test plan.
+
+### 3.9 Error Handling
+
+**Error Conditions and Responses:**
+
+| Condition | Detection Point | Response | Recovery |
+|-----------|----------------|----------|----------|
+| **Invalid TLB Entry** | TLB translate | `TLM_ADDRESS_ERROR_RESPONSE` | Configure valid TLB entry |
+| **System Not Ready** | NOC-PCIE Switch | `TLM_ADDRESS_ERROR_RESPONSE` | Write `system_ready=1` |
+| **Inbound Path Disabled** | NOC-PCIE Switch | `TLM_ADDRESS_ERROR_RESPONSE` | Write `pcie_inbound_app_enable=1` |
+| **Outbound Path Disabled** | NOC-PCIE Switch | `TLM_ADDRESS_ERROR_RESPONSE` | Write `pcie_outbound_app_enable=1` |
+| **Unknown Route** | NOC-PCIE Switch | `TLM_ADDRESS_ERROR_RESPONSE` | Use valid route (0x0,0x1,0x4,0x6,0x7,0xE,0xF) |
+| **Unmapped SMN Address** | SMN-IO Switch | `TLM_ADDRESS_ERROR_RESPONSE` | Use valid SMN address range |
+| **Bad TLM Command** | Switch routing | `TLM_COMMAND_ERROR_RESPONSE` | Use READ or WRITE command |
+| **Isolation Active** | Config Registers | All paths blocked | Full recovery sequence required |
+| **Page Boundary Cross** | TLB indexing | May access invalid entry | Align transactions to page boundaries |
+
+**Error Response Flow:**
+
+All error responses propagate back through the transaction chain:
+- Switch/TLB detects error
+- Sets `trans.set_response_status(TLM_ADDRESS_ERROR_RESPONSE)` or `TLM_COMMAND_ERROR_RESPONSE`
+- Returns to initiator
+- No retry mechanism (single-shot transactions)
+- Software must detect and handle errors
+
+### 3.10 Operating Mode Summary
+
+| Mode | system_ready | inbound_enable | outbound_enable | isolate_req | Data Flow | Use Case |
+|------|--------------|----------------|-----------------|-------------|-----------|----------|
+| **Normal** | 1 | 1 | 1 | 0 | Full bidirectional | Standard operation |
+| **System Only** | 1 | 0 | 0 | 0 | System paths only | Pre-application init |
+| **Inbound Only** | 1 | 1 | 0 | 0 | PCIe→NOC only | Receive-only mode |
+| **Outbound Only** | 1 | 0 | 1 | 0 | NOC→PCIe only | Transmit-only mode |
+| **Bypass** | 0 | x | x | 0 | Status register only | Pre-init diagnostics |
+| **Isolated** | 0 | 0 | 0 | 1 | All blocked | Fault containment |
+| **Reset** | 0 | 0 | 0 | 0 | All blocked | Coming out of reset |
+
+**Mode Transitions:**
+
+- **Reset → Normal**: Requires software configuration sequence
+- **Normal → Isolated**: Automatic on `isolate_req` assertion
+- **Isolated → Normal**: Requires full recovery (reset + reconfig)
+- **Normal ↔ System Only**: Software enable/disable of application paths
+- **Any → Reset**: Hardware signal (`cold_reset_n`, `warm_reset_n`)
+
+---
+
+## 4. Detailed Block Diagram
 
 ### 3.1 Complete System Architecture
 
@@ -229,7 +774,7 @@ graph TB
 
 ---
 
-## 4. Data Flow Paths
+## 5. Data Flow Paths
 
 ### 4.1 Inbound Data Flow (PCIe → NOC)
 
@@ -383,7 +928,7 @@ sequenceDiagram
 
 ---
 
-## 5. Module Descriptions
+## 6. Module Descriptions
 
 ### 5.1 NOC-PCIE Switch
 
@@ -524,7 +1069,7 @@ stateDiagram-v2
 
 ---
 
-## 6. Address Map
+## 7. Address Map
 
 ### 6.1 Inbound Address Routing
 
@@ -581,7 +1126,7 @@ graph TD
 
 ---
 
-## 7. Clock and Reset Strategy
+## 8. Clock and Reset Strategy
 
 ### 7.1 Reset Hierarchy
 
@@ -651,7 +1196,7 @@ sequenceDiagram
 
 ---
 
-## 8. Interface Specifications
+## 9. Interface Specifications
 
 ### 8.1 External TLM Sockets
 
@@ -703,7 +1248,7 @@ sequenceDiagram
 
 ---
 
-## 9. Known Limitations and Findings
+## 10. Known Limitations and Findings
 
 ### 9.1 Architecture Limitations
 
@@ -758,7 +1303,7 @@ graph TB
 
 ---
 
-## 10. Test Coverage Summary
+## 11. Test Coverage Summary
 
 ### 10.1 Test Suite Overview
 
@@ -831,7 +1376,7 @@ graph LR
 
 ---
 
-## 11. References
+## 12. References
 
 ### 11.1 Related Documentation
 

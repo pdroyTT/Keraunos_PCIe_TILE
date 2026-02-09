@@ -74,15 +74,16 @@ mermaid.initialize({
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Keraunos PCIe Tile - High-Level Design</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#introduction">1. Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#architecture-overview">2. Architecture Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#detailed-block-diagram">3. Detailed Block Diagram</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#data-flow-paths">4. Data Flow Paths</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-descriptions">5. Module Descriptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#address-map">6. Address Map</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#clock-and-reset-strategy">7. Clock and Reset Strategy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#interface-specifications">8. Interface Specifications</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#known-limitations-and-findings">9. Known Limitations and Findings</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#test-coverage-summary">10. Test Coverage Summary</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#references">11. References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#theory-of-operation">3. Theory of Operation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#detailed-block-diagram">4. Detailed Block Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-flow-paths">5. Data Flow Paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-descriptions">6. Module Descriptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#address-map">7. Address Map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clock-and-reset-strategy">8. Clock and Reset Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interface-specifications">9. Interface Specifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#known-limitations-and-findings">10. Known Limitations and Findings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-coverage-summary">11. Test Coverage Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">12. References</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="systemc_design.html">Keraunos PCIE Tile SystemC/TLM2.0 Design Document</a></li>
@@ -254,8 +255,721 @@ mermaid.initialize({
 </section>
 </section>
 <hr class="docutils" />
+<section id="theory-of-operation">
+<h2>3. Theory of Operation<a class="headerlink" href="#theory-of-operation" title="Permalink to this heading">¶</a></h2>
+<p>This section describes the operational modes and transaction flows of the Keraunos PCIe Tile.</p>
+<section id="operational-modes">
+<h3>3.1 Operational Modes<a class="headerlink" href="#operational-modes" title="Permalink to this heading">¶</a></h3>
+<p>The PCIe Tile operates in several distinct modes:</p>
+<section id="normal-operation-mode">
+<h4>Normal Operation Mode<a class="headerlink" href="#normal-operation-mode" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>System Ready</strong>: <code class="docutils literal notranslate"><span class="pre">system_ready</span></code> register bit set to 1</p></li>
+<li><p><strong>Application Paths Enabled</strong>: <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable</span></code> and <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable</span></code> set as needed</p></li>
+<li><p><strong>No Isolation</strong>: <code class="docutils literal notranslate"><span class="pre">isolate_req</span></code> signal deasserted</p></li>
+<li><p><strong>Clocks Running</strong>: Both <code class="docutils literal notranslate"><span class="pre">pcie_core_clk</span></code> and <code class="docutils literal notranslate"><span class="pre">axi_clk</span></code> active</p></li>
+<li><p><strong>No Reset</strong>: <code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code> and <code class="docutils literal notranslate"><span class="pre">warm_reset_n</span></code> asserted (active high)</p></li>
+</ul>
+<p>In this mode, all data paths are operational and transactions flow freely between NOC, PCIe, and SMN domains.</p>
+</section>
+<section id="isolation-mode">
+<h4>Isolation Mode<a class="headerlink" href="#isolation-mode" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Triggered By</strong>: Assertion of <code class="docutils literal notranslate"><span class="pre">isolate_req</span></code> signal</p></li>
+<li><p><strong>Effect</strong>: Clears <code class="docutils literal notranslate"><span class="pre">system_ready</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable</span></code>, and <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable</span></code></p></li>
+<li><p><strong>Data Path</strong>: All PCIe controller transactions return <code class="docutils literal notranslate"><span class="pre">TLM_ADDRESS_ERROR_RESPONSE</span></code> (DECERR)</p></li>
+<li><p><strong>Recovery Limitation</strong>: Deasserting <code class="docutils literal notranslate"><span class="pre">isolate_req</span></code> does NOT automatically restore enables (requires cold reset + software reconfiguration)</p></li>
+<li><p><strong>Use Case</strong>: Power domain isolation, fault containment</p></li>
+</ul>
+</section>
+<section id="bypass-mode">
+<h4>Bypass Mode<a class="headerlink" href="#bypass-mode" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><strong>Condition</strong>: <code class="docutils literal notranslate"><span class="pre">system_ready=0</span></code> but <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable=1</span></code> or <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable=1</span></code></p></li>
+<li><p><strong>Routing</strong>: Uses route 0xE or 0xF to access status register directly</p></li>
+<li><p><strong>Purpose</strong>: Allow status monitoring without full system initialization</p></li>
+<li><p><strong>Limited Functionality</strong>: Only status register readable; normal data paths blocked</p></li>
+</ul>
+</section>
+<section id="reset-modes">
+<h4>Reset Modes<a class="headerlink" href="#reset-modes" title="Permalink to this heading">¶</a></h4>
+<p><strong>Cold Reset:</strong></p>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: <code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code> signal deasserted (active low)</p></li>
+<li><p><strong>Scope</strong>: Resets SII block (<code class="docutils literal notranslate"><span class="pre">pcie_sii_reset_ctrl_</span></code>) and reset control module (<code class="docutils literal notranslate"><span class="pre">pcie_reset_ctrl_</span></code>)</p></li>
+<li><p><strong>Does NOT Reset</strong>: Configuration registers, TLB entries, switch enables</p></li>
+<li><p><strong>Recovery</strong>: Requires software reconfiguration after reset</p></li>
+</ul>
+<p><strong>Warm Reset:</strong></p>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: <code class="docutils literal notranslate"><span class="pre">warm_reset_n</span></code> signal deasserted (active low)</p></li>
+<li><p><strong>Scope</strong>: Similar to cold reset but may preserve certain configuration state</p></li>
+<li><p><strong>Note</strong>: Current implementation behavior similar to cold reset</p></li>
+</ul>
+</section>
+</section>
+<section id="initialization-and-boot-sequence">
+<h3>3.2 Initialization and Boot Sequence<a class="headerlink" href="#initialization-and-boot-sequence" title="Permalink to this heading">¶</a></h3>
+<div class="mermaid">
+            sequenceDiagram
+    participant SMN as SMN Host
+    participant Tile as PCIe Tile
+    participant Switch as NOC-PCIE Switch
+    participant TLB as TLB Units
+    participant SII as SII Block
+    participant PCIE as PCIe Controller
+
+    Note over Tile: Power-On / Cold Reset
+    SMN-&gt;&gt;Tile: Deassert cold_reset_n
+    Tile-&gt;&gt;SII: Reset SII state
+    Tile-&gt;&gt;Switch: system_ready=0, enables=0
+    
+    Note over Tile: Configuration Phase
+    SMN-&gt;&gt;Switch: Write system_ready=1
+    Switch-&gt;&gt;Switch: Enable routing logic
+    
+    SMN-&gt;&gt;TLB: Configure inbound TLB entries
+    Note over TLB: Set valid bits, page masks, base addresses
+    
+    SMN-&gt;&gt;TLB: Configure outbound TLB entries
+    Note over TLB: Set application path translations
+    
+    SMN-&gt;&gt;Switch: Write pcie_inbound_app_enable=1
+    SMN-&gt;&gt;Switch: Write pcie_outbound_app_enable=1
+    Switch-&gt;&gt;Switch: Enable application data paths
+    
+    Note over Tile: Normal Operation
+    PCIE-&gt;&gt;Switch: Inbound transaction
+    Switch-&gt;&gt;TLB: Address translation
+    TLB-&gt;&gt;Switch: Translated address
+    Switch-&gt;&gt;PCIE: Transaction complete
+        </div><p><strong>Initialization Steps:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Reset Phase</strong></p>
+<ul class="simple">
+<li><p>Assert <code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code> to bring tile to known state</p></li>
+<li><p>SII block clears all CII tracking state</p></li>
+<li><p>Switch enables default to 0</p></li>
+</ul>
+</li>
+<li><p><strong>System Ready Configuration</strong></p>
+<ul class="simple">
+<li><p>SMN writes <code class="docutils literal notranslate"><span class="pre">system_ready=1</span></code> to status register (offset 0x0)</p></li>
+<li><p>Enables basic routing logic in switches</p></li>
+<li><p>Status register becomes readable via routes 0xE and 0xF</p></li>
+</ul>
+</li>
+<li><p><strong>TLB Configuration</strong></p>
+<ul class="simple">
+<li><p>Configure inbound TLBs (Sys In0, Sys In1, App In0/1/2)</p></li>
+<li><p>Set valid bits, page sizes, base addresses, address masks</p></li>
+<li><p>Configure outbound TLBs (Sys Out, App Out0/1)</p></li>
+<li><p>Set AxUSER fields for NOC routing</p></li>
+</ul>
+</li>
+<li><p><strong>Data Path Enablement</strong></p>
+<ul class="simple">
+<li><p>Write <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable=1</span></code> for PCIe→NOC application paths</p></li>
+<li><p>Write <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable=1</span></code> for NOC→PCIe application paths</p></li>
+<li><p>System enters normal operation mode</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="inbound-data-flow-pcie-to-noc">
+<h3>3.3 Inbound Data Flow (PCIe to NOC)<a class="headerlink" href="#inbound-data-flow-pcie-to-noc" title="Permalink to this heading">¶</a></h3>
+<p><strong>Transaction Path: PCIe Controller → NOC-PCIE Switch → Inbound TLB → NOC-IO Switch → NOC</strong></p>
+<div class="mermaid">
+            sequenceDiagram
+    participant PCIE as PCIe Controller
+    participant NOCP as NOC-PCIE Switch
+    participant TLB as Inbound TLB
+    participant NOCI as NOC-IO Switch
+    participant NOC as NOC Network
+
+    PCIE-&gt;&gt;NOCP: b_transport(addr[63:0], data)
+    Note over NOCP: Check system_ready
+    
+    alt system_ready == 0
+        NOCP-&gt;&gt;PCIE: TLM_ADDRESS_ERROR_RESPONSE
+    else Route bits [63:60]
+        NOCP-&gt;&gt;NOCP: Decode route (0x0,0x1,0x4,0x6,0x7)
+        
+        alt Application path (0x0, 0x1, 0x6, 0x7)
+            Note over NOCP: Check pcie_inbound_app_enable
+            alt Enable == 0
+                NOCP-&gt;&gt;PCIE: TLM_ADDRESS_ERROR_RESPONSE
+            else Enable == 1
+                NOCP-&gt;&gt;TLB: translate_and_forward(addr)
+                Note over TLB: Calculate index = (addr &gt;&gt; shift) &amp; page_mask
+                Note over TLB: Check valid bit
+                
+                alt valid == 0
+                    TLB-&gt;&gt;NOCP: TLM_ADDRESS_ERROR_RESPONSE
+                    NOCP-&gt;&gt;PCIE: DECERR
+                else valid == 1
+                    TLB-&gt;&gt;TLB: new_addr = entry.addr + offset
+                    TLB-&gt;&gt;TLB: Set AxUSER field
+                    TLB-&gt;&gt;NOCI: forward(new_addr, AxUSER)
+                    NOCI-&gt;&gt;NOC: b_transport(translated_addr)
+                    NOC-&gt;&gt;NOCI: TLM_OK_RESPONSE
+                    NOCI-&gt;&gt;TLB: Success
+                    TLB-&gt;&gt;NOCP: Success
+                    NOCP-&gt;&gt;PCIE: TLM_OK_RESPONSE
+                end
+            end
+        else System path (0x4)
+            NOCP-&gt;&gt;TLB: translate_and_forward(addr)
+            Note over TLB: System TLB (smaller pages)
+            TLB-&gt;&gt;NOCI: forward(translated_addr)
+            NOCI-&gt;&gt;NOC: b_transport
+            NOC-&gt;&gt;PCIE: Response propagates back
+        end
+    end
+        </div><p><strong>Key Steps:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>PCIe Controller Transaction</strong></p>
+<ul class="simple">
+<li><p>Transaction arrives at <code class="docutils literal notranslate"><span class="pre">pcie_controller_target</span></code> socket</p></li>
+<li><p>64-bit address with route field [63:60]</p></li>
+</ul>
+</li>
+<li><p><strong>NOC-PCIE Switch Routing</strong></p>
+<ul class="simple">
+<li><p>Check <code class="docutils literal notranslate"><span class="pre">system_ready</span></code> flag (blocks if 0)</p></li>
+<li><p>Decode route bits [63:60]</p></li>
+<li><p>For application paths: check <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable</span></code></p></li>
+<li><p>For system paths: always allowed if <code class="docutils literal notranslate"><span class="pre">system_ready=1</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>TLB Translation</strong></p>
+<ul class="simple">
+<li><p>Extract page index: <code class="docutils literal notranslate"><span class="pre">(addr</span> <span class="pre">&gt;&gt;</span> <span class="pre">shift)</span> <span class="pre">&amp;</span> <span class="pre">page_mask</span></code></p></li>
+<li><p>Look up TLB entry</p></li>
+<li><p>Check <code class="docutils literal notranslate"><span class="pre">valid</span></code> bit</p></li>
+<li><p>Calculate translated address: <code class="docutils literal notranslate"><span class="pre">base_addr</span> <span class="pre">+</span> <span class="pre">offset</span></code></p></li>
+<li><p>Set AxUSER field for NOC routing</p></li>
+</ul>
+</li>
+<li><p><strong>NOC-IO Switch Forwarding</strong></p>
+<ul class="simple">
+<li><p>Forward translated address to NOC</p></li>
+<li><p>Preserve AxUSER field</p></li>
+<li><p>Return response to PCIe controller</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="outbound-data-flow-noc-to-pcie">
+<h3>3.4 Outbound Data Flow (NOC to PCIe)<a class="headerlink" href="#outbound-data-flow-noc-to-pcie" title="Permalink to this heading">¶</a></h3>
+<p><strong>Transaction Path: NOC → NOC-IO Switch → Outbound TLB → NOC-PCIE Switch → PCIe Controller</strong></p>
+<div class="mermaid">
+            sequenceDiagram
+    participant NOC as NOC Network
+    participant NOCI as NOC-IO Switch
+    participant TLB as Outbound TLB
+    participant NOCP as NOC-PCIE Switch
+    participant PCIE as PCIe Controller
+
+    NOC-&gt;&gt;NOCI: b_transport(noc_addr, data)
+    NOCI-&gt;&gt;TLB: translate_address()
+    
+    Note over TLB: Calculate TLB index
+    Note over TLB: Check valid bit
+    
+    alt valid == 0
+        TLB-&gt;&gt;NOCI: TLM_ADDRESS_ERROR_RESPONSE
+        NOCI-&gt;&gt;NOC: DECERR
+    else valid == 1
+        TLB-&gt;&gt;TLB: pcie_addr = entry.addr + offset
+        TLB-&gt;&gt;TLB: Convert 64-bit to 52-bit
+        
+        alt Application path
+            Note over NOCP: Check pcie_outbound_app_enable
+            alt Enable == 0
+                NOCP-&gt;&gt;NOCI: TLM_ADDRESS_ERROR_RESPONSE
+                NOCI-&gt;&gt;NOC: DECERR
+            else Enable == 1
+                NOCP-&gt;&gt;PCIE: b_transport(pcie_addr)
+                PCIE-&gt;&gt;NOCP: TLM_OK_RESPONSE
+                NOCP-&gt;&gt;NOCI: Success
+                NOCI-&gt;&gt;NOC: TLM_OK_RESPONSE
+            end
+        else System path
+            NOCP-&gt;&gt;PCIE: b_transport(pcie_addr)
+            PCIE-&gt;&gt;NOC: Response propagates back
+        end
+    end
+        </div><p><strong>Key Steps:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>NOC Transaction</strong></p>
+<ul class="simple">
+<li><p>Arrives at <code class="docutils literal notranslate"><span class="pre">noc_n_target</span></code> socket</p></li>
+<li><p>NOC-specific addressing</p></li>
+</ul>
+</li>
+<li><p><strong>NOC-IO Switch Processing</strong></p>
+<ul class="simple">
+<li><p>Routes to appropriate outbound TLB</p></li>
+</ul>
+</li>
+<li><p><strong>Outbound TLB Translation</strong></p>
+<ul class="simple">
+<li><p>Translate NOC address to PCIe address space</p></li>
+<li><p>Check valid bit</p></li>
+<li><p>Convert 64-bit internal address to 52-bit PCIe address</p></li>
+</ul>
+</li>
+<li><p><strong>NOC-PCIE Switch Gating</strong></p>
+<ul class="simple">
+<li><p>For application paths: check <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable</span></code></p></li>
+<li><p>Forward to PCIe controller if enabled</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="configuration-access-flow">
+<h3>3.5 Configuration Access Flow<a class="headerlink" href="#configuration-access-flow" title="Permalink to this heading">¶</a></h3>
+<p><strong>Transaction Path: SMN → SMN-IO Switch → Configuration Targets</strong></p>
+<div class="mermaid">
+            sequenceDiagram
+    participant SMN as SMN Host
+    participant SMNI as SMN-IO Switch
+    participant TGT as Config Target
+    participant SII as SII Block
+    participant MSI as MSI Relay
+    participant TLB as TLB Config
+
+    SMN-&gt;&gt;SMNI: b_transport(smn_addr, data, cmd)
+    
+    Note over SMNI: Decode address bits [31:28]
+    
+    alt Config Register Block
+        SMNI-&gt;&gt;TGT: forward(offset 0x0-0xFFF)
+        TGT-&gt;&gt;TGT: Read/Write register
+        Note over TGT: system_ready, enables, isolation
+        TGT-&gt;&gt;SMNI: Response
+        SMNI-&gt;&gt;SMN: TLM_OK_RESPONSE
+        
+    else SII Configuration
+        SMNI-&gt;&gt;SII: process_apb_access(addr, data)
+        Note over SII: CORE_CONTROL, CFG_MODIFIED, BUS_DEV_NUM
+        alt Write to CFG_MODIFIED (RW1C)
+            SII-&gt;&gt;SII: Clear modified bits
+            SII-&gt;&gt;SII: Update config_update interrupt
+        end
+        SII-&gt;&gt;SMNI: Response
+        
+    else MSI Relay Configuration
+        SMNI-&gt;&gt;MSI: process_msi_config(addr, data)
+        Note over MSI: Configure MSI-X table, PBA, masks
+        Note over MSI: Address passthrough limits functionality
+        MSI-&gt;&gt;SMNI: Response
+        
+    else TLB Configuration
+        SMNI-&gt;&gt;TLB: process_tlb_config(addr, data)
+        Note over TLB: Set valid bits, masks, base addresses
+        Note over TLB: Address passthrough affects offset calculation
+        TLB-&gt;&gt;SMNI: Response
+        
+    else Unknown address
+        SMNI-&gt;&gt;SMN: TLM_ADDRESS_ERROR_RESPONSE
+    end
+        </div><p><strong>Configuration Targets:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Address Range [31:28]</p></th>
+<th class="head"><p>Target</p></th>
+<th class="head"><p>Functionality</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0x0</p></td>
+<td><p>Config Registers</p></td>
+<td><p>system_ready, enables, isolation</p></td>
+</tr>
+<tr class="row-odd"><td><p>0x1</p></td>
+<td><p>SII Block</p></td>
+<td><p>CORE_CONTROL, CFG_MODIFIED, BUS_DEV_NUM</p></td>
+</tr>
+<tr class="row-even"><td><p>0x2</p></td>
+<td><p>Reserved</p></td>
+<td><p>-</p></td>
+</tr>
+<tr class="row-odd"><td><p>0x3-0x7</p></td>
+<td><p>TLB Config</p></td>
+<td><p>Inbound/Outbound TLB entries</p></td>
+</tr>
+<tr class="row-even"><td><p>0x8</p></td>
+<td><p>MSI Relay</p></td>
+<td><p>MSI-X table, PBA, masks</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Known Limitation:</strong> SMN-IO switch passes full SystemC addresses to internal callbacks instead of stripping base addresses. This causes configuration writes to MSI, SII, and TLB to be processed with incorrect offsets.</p>
+</section>
+<section id="msi-interrupt-generation-flow">
+<h3>3.6 MSI Interrupt Generation Flow<a class="headerlink" href="#msi-interrupt-generation-flow" title="Permalink to this heading">¶</a></h3>
+<p><strong>Transaction Path: NOC MSI Input → MSI Relay → PCIe Controller (MSI Output)</strong></p>
+<div class="mermaid">
+            sequenceDiagram
+    participant NOC as NOC (MSI Source)
+    participant MSI as MSI Relay Unit
+    participant Tile as PCIe Tile
+    participant PCIE as PCIe Controller
+
+    NOC-&gt;&gt;MSI: Write to msi_input (0x18800000)
+    Note over MSI: process_msi_input() called
+    Note over MSI: Address passthrough: offset != 0
+    
+    alt offset == 0 (not met due to passthrough)
+        MSI-&gt;&gt;MSI: Extract vector number
+        MSI-&gt;&gt;MSI: Check per-vector mask
+        MSI-&gt;&gt;MSI: Check global mask
+        MSI-&gt;&gt;MSI: Set PBA bit
+        MSI-&gt;&gt;MSI: Increment msi_outstanding
+        MSI-&gt;&gt;MSI: Trigger process_pending_msis()
+        
+        Note over Tile: signal_update_process()
+        Tile-&gt;&gt;MSI: Call process_pending_msis()
+        
+        alt MSI-X enabled AND not masked AND PBA set
+            MSI-&gt;&gt;MSI: Read MSI-X table entry
+            MSI-&gt;&gt;MSI: Prepare MSI transaction
+            MSI-&gt;&gt;PCIE: b_transport(msi_addr, msi_data)
+            PCIE-&gt;&gt;MSI: TLM_OK_RESPONSE
+            MSI-&gt;&gt;MSI: Clear PBA bit
+            MSI-&gt;&gt;MSI: Decrement msi_outstanding
+        end
+        
+    else offset != 0 (actual behavior)
+        MSI-&gt;&gt;NOC: TLM_OK_RESPONSE
+        Note over MSI: PBA not updated (limitation)
+    end
+        </div><p><strong>MSI Flow Steps:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>MSI Input Write</strong></p>
+<ul class="simple">
+<li><p>NOC writes to <code class="docutils literal notranslate"><span class="pre">msi_input_target</span></code> socket</p></li>
+<li><p>Vector number encoded in write data</p></li>
+</ul>
+</li>
+<li><p><strong>MSI Relay Processing</strong></p>
+<ul class="simple">
+<li><p>Check per-vector mask bit</p></li>
+<li><p>Check global mask (<code class="docutils literal notranslate"><span class="pre">msix_mask_all_</span></code>)</p></li>
+<li><p>Set corresponding PBA (Pending Bit Array) bit</p></li>
+<li><p>Increment <code class="docutils literal notranslate"><span class="pre">msi_outstanding</span></code> counter</p></li>
+</ul>
+</li>
+<li><p><strong>MSI Generation</strong> (via <code class="docutils literal notranslate"><span class="pre">process_pending_msis()</span></code>)</p>
+<ul class="simple">
+<li><p>Called by tile’s <code class="docutils literal notranslate"><span class="pre">signal_update_process()</span></code></p></li>
+<li><p>Check MSI-X enabled (<code class="docutils literal notranslate"><span class="pre">msix_enable_</span></code>)</p></li>
+<li><p>For each pending PBA bit:</p>
+<ul>
+<li><p>Read MSI-X table entry (address, data, mask)</p></li>
+<li><p>If not masked, generate MSI transaction to PCIe</p></li>
+<li><p>Clear PBA bit on successful delivery</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>Current Limitation:</strong> Address passthrough causes <code class="docutils literal notranslate"><span class="pre">process_msi_input</span></code> to receive full address 0x18800000 instead of offset 0, preventing PBA updates. MSI output path cannot be fully exercised in current test environment.</p>
+</section>
+<section id="cii-tracking-and-configuration-update">
+<h3>3.7 CII Tracking and Configuration Update<a class="headerlink" href="#cii-tracking-and-configuration-update" title="Permalink to this heading">¶</a></h3>
+<p><strong>Configuration Intercept Interface (CII) Flow:</strong></p>
+<div class="mermaid">
+            sequenceDiagram
+    participant PCIE as PCIe Controller
+    participant Tile as PCIe Tile
+    participant SII as SII Block
+    participant SMN as SMN Host
+
+    Note over PCIE: PCIe config space write occurs
+    PCIE-&gt;&gt;Tile: Assert pcie_cii_hv signal
+    PCIE-&gt;&gt;Tile: Set pcie_cii_addr[7:0]
+    PCIE-&gt;&gt;Tile: Set pcie_cii_type[3:0]
+    
+    Note over Tile: signal_update_process()
+    Tile-&gt;&gt;SII: update()
+    
+    Note over SII: Read CII input signals
+    alt pcie_cii_hv == 1
+        SII-&gt;&gt;SII: Check type == 0x04 (config write)
+        alt type == 0x04
+            SII-&gt;&gt;SII: Check addr &lt; 0x80 (first 128B)
+            alt addr &lt; 0x80
+                SII-&gt;&gt;SII: reg_index = addr[6:2]
+                SII-&gt;&gt;SII: cfg_modified_[reg_index] = 1
+                SII-&gt;&gt;SII: Assert config_update interrupt
+                SII-&gt;&gt;Tile: config_update = 1
+                Tile-&gt;&gt;SMN: Interrupt signaled
+                
+                Note over SMN: Software handles interrupt
+                SMN-&gt;&gt;SII: Read CFG_MODIFIED register
+                SII-&gt;&gt;SMN: Return modified bitmask
+                SMN-&gt;&gt;SII: Write to CFG_MODIFIED (RW1C)
+                SII-&gt;&gt;SII: Clear specified bits
+                alt All bits cleared
+                    SII-&gt;&gt;SII: Deassert config_update
+                    SII-&gt;&gt;Tile: config_update = 0
+                end
+            end
+        end
+    end
+    
+    Note over Tile: Reset clears all state
+    alt pcie_controller_reset_n == 0
+        SII-&gt;&gt;SII: cfg_modified_ = 0
+        SII-&gt;&gt;SII: config_update = 0
+    end
+        </div><p><strong>CII Tracking Details:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Detection Phase</strong></p>
+<ul class="simple">
+<li><p>PCIe controller asserts <code class="docutils literal notranslate"><span class="pre">pcie_cii_hv</span></code> (handshake valid)</p></li>
+<li><p>Provides address (<code class="docutils literal notranslate"><span class="pre">pcie_cii_addr</span></code>) and type (<code class="docutils literal notranslate"><span class="pre">pcie_cii_type</span></code>)</p></li>
+<li><p>Type 0x04 indicates configuration write</p></li>
+</ul>
+</li>
+<li><p><strong>Filtering</strong></p>
+<ul class="simple">
+<li><p>Only track first 128 bytes (addr &lt; 0x80)</p></li>
+<li><p>Covers standard PCIe config space registers</p></li>
+<li><p>Calculate register index: <code class="docutils literal notranslate"><span class="pre">addr[6:2]</span></code> (32-bit aligned)</p></li>
+</ul>
+</li>
+<li><p><strong>State Update</strong></p>
+<ul class="simple">
+<li><p>Set corresponding bit in 32-bit <code class="docutils literal notranslate"><span class="pre">cfg_modified_</span></code> bitmask</p></li>
+<li><p>Assert <code class="docutils literal notranslate"><span class="pre">config_update</span></code> output signal (sticky)</p></li>
+<li><p>Interrupt remains asserted until software clears</p></li>
+</ul>
+</li>
+<li><p><strong>Software Clear</strong> (RW1C - Read/Write 1 to Clear)</p>
+<ul class="simple">
+<li><p>SMN reads <code class="docutils literal notranslate"><span class="pre">CFG_MODIFIED</span></code> register to see which registers changed</p></li>
+<li><p>SMN writes 1s to clear specific bits</p></li>
+<li><p>When all bits cleared, <code class="docutils literal notranslate"><span class="pre">config_update</span></code> deasserts</p></li>
+</ul>
+</li>
+<li><p><strong>Reset Behavior</strong></p>
+<ul class="simple">
+<li><p>Controller reset (<code class="docutils literal notranslate"><span class="pre">pcie_controller_reset_n=0</span></code>) clears all state</p></li>
+<li><p>Both <code class="docutils literal notranslate"><span class="pre">cfg_modified_</span></code> and <code class="docutils literal notranslate"><span class="pre">config_update</span></code> reset to 0</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="isolation-and-recovery">
+<h3>3.8 Isolation and Recovery<a class="headerlink" href="#isolation-and-recovery" title="Permalink to this heading">¶</a></h3>
+<p><strong>Isolation Sequence:</strong></p>
+<div class="mermaid">
+            sequenceDiagram
+    participant EXT as External Control
+    participant Tile as PCIe Tile
+    participant CFG as Config Registers
+    participant Switch as NOC-PCIE Switch
+    participant PCIE as PCIe Controller
+
+    Note over Tile: Normal Operation
+    EXT-&gt;&gt;Tile: Assert isolate_req signal
+    
+    Note over Tile: signal_update_process()
+    Tile-&gt;&gt;CFG: set_isolate_req(true)
+    CFG-&gt;&gt;CFG: system_ready = 0
+    CFG-&gt;&gt;CFG: pcie_inbound_app_enable = 0
+    CFG-&gt;&gt;CFG: pcie_outbound_app_enable = 0
+    CFG-&gt;&gt;Switch: Update enable signals
+    
+    Note over Switch: All PCIe transactions blocked
+    PCIE-&gt;&gt;Switch: b_transport(addr)
+    Switch-&gt;&gt;PCIE: TLM_ADDRESS_ERROR_RESPONSE
+    
+    Note over Tile: Attempt Recovery
+    EXT-&gt;&gt;Tile: Deassert isolate_req signal
+    Tile-&gt;&gt;CFG: set_isolate_req(false)
+    CFG-&gt;&gt;CFG: isolate_req_ = 0
+    Note over CFG: Enables NOT restored
+    
+    Note over Switch: Still blocked (limitation)
+    PCIE-&gt;&gt;Switch: b_transport(addr)
+    Switch-&gt;&gt;PCIE: TLM_ADDRESS_ERROR_RESPONSE
+    
+    Note over Tile: Full Recovery Sequence
+    EXT-&gt;&gt;Tile: Cold reset cycle
+    Note over Tile: Reset does NOT restore enables
+    EXT-&gt;&gt;CFG: SMN write system_ready=1
+    EXT-&gt;&gt;CFG: SMN write pcie_inbound_app_enable=1
+    EXT-&gt;&gt;CFG: SMN write pcie_outbound_app_enable=1
+    Note over Switch: Normal operation restored
+        </div><p><strong>Isolation Behavior:</strong></p>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: <code class="docutils literal notranslate"><span class="pre">isolate_req</span></code> signal assertion</p></li>
+<li><p><strong>Effect</strong>: Clears all enable flags in <code class="docutils literal notranslate"><span class="pre">ConfigRegBlock</span></code></p></li>
+<li><p><strong>Data Path</strong>: All PCIe traffic returns DECERR</p></li>
+<li><p><strong>Critical Limitation</strong>: <code class="docutils literal notranslate"><span class="pre">set_isolate_req(false)</span></code> does NOT restore enables</p></li>
+<li><p><strong>Recovery Requires</strong>: Cold reset + full SMN reconfiguration</p></li>
+</ul>
+<p>This is a known architectural limitation documented in the test plan.</p>
+</section>
+<section id="error-handling">
+<h3>3.9 Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this heading">¶</a></h3>
+<p><strong>Error Conditions and Responses:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Condition</p></th>
+<th class="head"><p>Detection Point</p></th>
+<th class="head"><p>Response</p></th>
+<th class="head"><p>Recovery</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Invalid TLB Entry</strong></p></td>
+<td><p>TLB translate</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TLM_ADDRESS_ERROR_RESPONSE</span></code></p></td>
+<td><p>Configure valid TLB entry</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>System Not Ready</strong></p></td>
+<td><p>NOC-PCIE Switch</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TLM_ADDRESS_ERROR_RESPONSE</span></code></p></td>
+<td><p>Write <code class="docutils literal notranslate"><span class="pre">system_ready=1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Inbound Path Disabled</strong></p></td>
+<td><p>NOC-PCIE Switch</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TLM_ADDRESS_ERROR_RESPONSE</span></code></p></td>
+<td><p>Write <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable=1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Outbound Path Disabled</strong></p></td>
+<td><p>NOC-PCIE Switch</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TLM_ADDRESS_ERROR_RESPONSE</span></code></p></td>
+<td><p>Write <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable=1</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Unknown Route</strong></p></td>
+<td><p>NOC-PCIE Switch</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TLM_ADDRESS_ERROR_RESPONSE</span></code></p></td>
+<td><p>Use valid route (0x0,0x1,0x4,0x6,0x7,0xE,0xF)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Unmapped SMN Address</strong></p></td>
+<td><p>SMN-IO Switch</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TLM_ADDRESS_ERROR_RESPONSE</span></code></p></td>
+<td><p>Use valid SMN address range</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Bad TLM Command</strong></p></td>
+<td><p>Switch routing</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TLM_COMMAND_ERROR_RESPONSE</span></code></p></td>
+<td><p>Use READ or WRITE command</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Isolation Active</strong></p></td>
+<td><p>Config Registers</p></td>
+<td><p>All paths blocked</p></td>
+<td><p>Full recovery sequence required</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Page Boundary Cross</strong></p></td>
+<td><p>TLB indexing</p></td>
+<td><p>May access invalid entry</p></td>
+<td><p>Align transactions to page boundaries</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Error Response Flow:</strong></p>
+<p>All error responses propagate back through the transaction chain:</p>
+<ul class="simple">
+<li><p>Switch/TLB detects error</p></li>
+<li><p>Sets <code class="docutils literal notranslate"><span class="pre">trans.set_response_status(TLM_ADDRESS_ERROR_RESPONSE)</span></code> or <code class="docutils literal notranslate"><span class="pre">TLM_COMMAND_ERROR_RESPONSE</span></code></p></li>
+<li><p>Returns to initiator</p></li>
+<li><p>No retry mechanism (single-shot transactions)</p></li>
+<li><p>Software must detect and handle errors</p></li>
+</ul>
+</section>
+<section id="operating-mode-summary">
+<h3>3.10 Operating Mode Summary<a class="headerlink" href="#operating-mode-summary" title="Permalink to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Mode</p></th>
+<th class="head"><p>system_ready</p></th>
+<th class="head"><p>inbound_enable</p></th>
+<th class="head"><p>outbound_enable</p></th>
+<th class="head"><p>isolate_req</p></th>
+<th class="head"><p>Data Flow</p></th>
+<th class="head"><p>Use Case</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Normal</strong></p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>Full bidirectional</p></td>
+<td><p>Standard operation</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>System Only</strong></p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>System paths only</p></td>
+<td><p>Pre-application init</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Inbound Only</strong></p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>PCIe→NOC only</p></td>
+<td><p>Receive-only mode</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Outbound Only</strong></p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>NOC→PCIe only</p></td>
+<td><p>Transmit-only mode</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Bypass</strong></p></td>
+<td><p>0</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+<td><p>0</p></td>
+<td><p>Status register only</p></td>
+<td><p>Pre-init diagnostics</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Isolated</strong></p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>All blocked</p></td>
+<td><p>Fault containment</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Reset</strong></p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td><p>All blocked</p></td>
+<td><p>Coming out of reset</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mode Transitions:</strong></p>
+<ul class="simple">
+<li><p><strong>Reset → Normal</strong>: Requires software configuration sequence</p></li>
+<li><p><strong>Normal → Isolated</strong>: Automatic on <code class="docutils literal notranslate"><span class="pre">isolate_req</span></code> assertion</p></li>
+<li><p><strong>Isolated → Normal</strong>: Requires full recovery (reset + reconfig)</p></li>
+<li><p><strong>Normal ↔ System Only</strong>: Software enable/disable of application paths</p></li>
+<li><p><strong>Any → Reset</strong>: Hardware signal (<code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code>, <code class="docutils literal notranslate"><span class="pre">warm_reset_n</span></code>)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
 <section id="detailed-block-diagram">
-<h2>3. Detailed Block Diagram<a class="headerlink" href="#detailed-block-diagram" title="Permalink to this heading">¶</a></h2>
+<h2>4. Detailed Block Diagram<a class="headerlink" href="#detailed-block-diagram" title="Permalink to this heading">¶</a></h2>
 <section id="complete-system-architecture">
 <h3>3.1 Complete System Architecture<a class="headerlink" href="#complete-system-architecture" title="Permalink to this heading">¶</a></h3>
 <div class="mermaid">
@@ -375,7 +1089,7 @@ mermaid.initialize({
 </section>
 <hr class="docutils" />
 <section id="data-flow-paths">
-<h2>4. Data Flow Paths<a class="headerlink" href="#data-flow-paths" title="Permalink to this heading">¶</a></h2>
+<h2>5. Data Flow Paths<a class="headerlink" href="#data-flow-paths" title="Permalink to this heading">¶</a></h2>
 <section id="inbound-data-flow-pcie-noc">
 <h3>4.1 Inbound Data Flow (PCIe → NOC)<a class="headerlink" href="#inbound-data-flow-pcie-noc" title="Permalink to this heading">¶</a></h3>
 <div class="mermaid">
@@ -524,7 +1238,7 @@ mermaid.initialize({
 </section>
 <hr class="docutils" />
 <section id="module-descriptions">
-<h2>5. Module Descriptions<a class="headerlink" href="#module-descriptions" title="Permalink to this heading">¶</a></h2>
+<h2>6. Module Descriptions<a class="headerlink" href="#module-descriptions" title="Permalink to this heading">¶</a></h2>
 <section id="noc-pcie-switch">
 <h3>5.1 NOC-PCIE Switch<a class="headerlink" href="#noc-pcie-switch" title="Permalink to this heading">¶</a></h3>
 <p><strong>Purpose:</strong> Routes traffic from PCIe controller to appropriate destination (TLBs, bypass paths, status register).</p>
@@ -704,7 +1418,7 @@ mermaid.initialize({
 </section>
 <hr class="docutils" />
 <section id="address-map">
-<h2>6. Address Map<a class="headerlink" href="#address-map" title="Permalink to this heading">¶</a></h2>
+<h2>7. Address Map<a class="headerlink" href="#address-map" title="Permalink to this heading">¶</a></h2>
 <section id="inbound-address-routing">
 <h3>6.1 Inbound Address Routing<a class="headerlink" href="#inbound-address-routing" title="Permalink to this heading">¶</a></h3>
 <div class="mermaid">
@@ -824,7 +1538,7 @@ mermaid.initialize({
 </section>
 <hr class="docutils" />
 <section id="clock-and-reset-strategy">
-<h2>7. Clock and Reset Strategy<a class="headerlink" href="#clock-and-reset-strategy" title="Permalink to this heading">¶</a></h2>
+<h2>8. Clock and Reset Strategy<a class="headerlink" href="#clock-and-reset-strategy" title="Permalink to this heading">¶</a></h2>
 <section id="reset-hierarchy">
 <h3>7.1 Reset Hierarchy<a class="headerlink" href="#reset-hierarchy" title="Permalink to this heading">¶</a></h3>
 <div class="mermaid">
@@ -912,7 +1626,7 @@ mermaid.initialize({
 </section>
 <hr class="docutils" />
 <section id="interface-specifications">
-<h2>8. Interface Specifications<a class="headerlink" href="#interface-specifications" title="Permalink to this heading">¶</a></h2>
+<h2>9. Interface Specifications<a class="headerlink" href="#interface-specifications" title="Permalink to this heading">¶</a></h2>
 <section id="external-tlm-sockets">
 <h3>8.1 External TLM Sockets<a class="headerlink" href="#external-tlm-sockets" title="Permalink to this heading">¶</a></h3>
 <table class="docutils align-default">
@@ -1092,7 +1806,7 @@ mermaid.initialize({
 </section>
 <hr class="docutils" />
 <section id="known-limitations-and-findings">
-<h2>9. Known Limitations and Findings<a class="headerlink" href="#known-limitations-and-findings" title="Permalink to this heading">¶</a></h2>
+<h2>10. Known Limitations and Findings<a class="headerlink" href="#known-limitations-and-findings" title="Permalink to this heading">¶</a></h2>
 <section id="architecture-limitations">
 <h3>9.1 Architecture Limitations<a class="headerlink" href="#architecture-limitations" title="Permalink to this heading">¶</a></h3>
 <div class="mermaid">
@@ -1148,7 +1862,7 @@ mermaid.initialize({
 </section>
 <hr class="docutils" />
 <section id="test-coverage-summary">
-<h2>10. Test Coverage Summary<a class="headerlink" href="#test-coverage-summary" title="Permalink to this heading">¶</a></h2>
+<h2>11. Test Coverage Summary<a class="headerlink" href="#test-coverage-summary" title="Permalink to this heading">¶</a></h2>
 <section id="test-suite-overview">
 <h3>10.1 Test Suite Overview<a class="headerlink" href="#test-suite-overview" title="Permalink to this heading">¶</a></h3>
 <p><strong>76 test cases, 251 assertions, 0 failures</strong></p>
@@ -1219,7 +1933,7 @@ mermaid.initialize({
 </section>
 <hr class="docutils" />
 <section id="references">
-<h2>11. References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h2>
+<h2>12. References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h2>
 <section id="related-documentation">
 <h3>11.1 Related Documentation<a class="headerlink" href="#related-documentation" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
