@@ -253,184 +253,562 @@ mermaid.initialize({
 <li><p><strong>Signal-Based Control:</strong> Control plane uses <code class="docutils literal notranslate"><span class="pre">sc_signal</span></code> for isolation, reset, and configuration tracking.</p></li>
 </ol>
 </section>
-<section id="system-connection-diagram">
-<h3>2.3 System Connection Diagram<a class="headerlink" href="#system-connection-diagram" title="Permalink to this heading">¶</a></h3>
-<p>This section shows how the Keraunos PCIe Tile connects to external subsystems in a complete SoC integration.</p>
+<section id="system-connection-diagrams">
+<h3>2.3 System Connection Diagrams<a class="headerlink" href="#system-connection-diagrams" title="Permalink to this heading">¶</a></h3>
+<p>This section shows how the Keraunos PCIe Tile connects to external subsystems in a complete SoC integration. Each subsystem connection is shown in a separate diagram for clarity.</p>
+<section id="smn-subsystem-connection">
+<h4>2.3.1 SMN Subsystem Connection<a class="headerlink" href="#smn-subsystem-connection" title="Permalink to this heading">¶</a></h4>
 <div class="mermaid">
-            graph TB
-    subgraph &quot;NOC Subsystem&quot;
-        NOC_NET[NOC Network Fabric&lt;br/&gt;64-bit TLM]
-        NOC_MSI[MSI Source&lt;br/&gt;Interrupt Generator]
-        NOC_TO[NOC Timeout&lt;br/&gt;Monitor]
+            graph LR
+    subgraph SMN[&quot;SMN Subsystem&quot;]
+        direction TB
+        SMN_FAB[SMN Network Fabric&lt;br/&gt;Configuration Master&lt;br/&gt;64-bit TLM]
+        SMN_INT[SMN Interrupt Controller]
     end
     
-    subgraph &quot;Keraunos PCIe Tile&quot;
+    subgraph TILE[&quot;Keraunos PCIe Tile&quot;]
         direction TB
         
-        subgraph &quot;TLM Data Sockets&quot;
-            NOC_TGT[noc_n_target&lt;br/&gt;64-bit Target]
-            NOC_INIT[noc_n_initiator&lt;br/&gt;64-bit Initiator]
-            SMN_TGT[smn_n_target&lt;br/&gt;64-bit Target]
-            SMN_INIT[smn_n_initiator&lt;br/&gt;64-bit Initiator]
-            PCIE_TGT[pcie_controller_target&lt;br/&gt;64-bit Target]
-            PCIE_INIT[pcie_controller_initiator&lt;br/&gt;64-bit Initiator]
+        subgraph TLM[&quot;TLM Sockets&quot;]
+            SMN_T[smn_n_target&lt;br/&gt;64-bit Target]
+            SMN_I[smn_n_initiator&lt;br/&gt;64-bit Initiator]
         end
         
-        subgraph &quot;Input Control Signals&quot;
-            COLD_RST[cold_reset_n]
-            WARM_RST[warm_reset_n]
+        subgraph OUT[&quot;Output Signals&quot;]
+            CFG_UP[config_update]
+            BUS[pcie_app_bus_num&lt;br/&gt;8-bit]
+            DEV[pcie_app_dev_num&lt;br/&gt;8-bit]
+            TYPE[pcie_device_type&lt;br/&gt;1-bit: 0=EP, 1=RP]
+        end
+    end
+    
+    SMN_FAB &lt;--&gt;|TLM blocking transport&lt;br/&gt;Configuration writes&lt;br/&gt;Read status/TLBs/MSI| SMN_T
+    SMN_I &lt;--&gt;|TLM blocking transport&lt;br/&gt;Bypass path responses| SMN_FAB
+    CFG_UP --&gt;|Config space update&lt;br/&gt;interrupt from CII| SMN_INT
+    BUS -.-&gt;|Read from SII| SMN_FAB
+    DEV -.-&gt;|Read from SII| SMN_FAB
+    TYPE -.-&gt;|Read from SII| SMN_FAB
+    
+    style SMN_T fill:#ffe1f5,stroke:#e91e63,stroke-width:3px
+    style SMN_I fill:#ffe1f5,stroke:#e91e63,stroke-width:3px
+    style CFG_UP fill:#ffe1e1,stroke:#f44336,stroke-width:3px
+        </div><p><strong>SMN Connection Details:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal/Socket</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Width</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">smn_n_target</span></code></p></td>
+<td><p>TLM Socket</p></td>
+<td><p>64-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Receives configuration transactions from SMN for TLBs, MSI, SII, Config registers</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smn_n_initiator</span></code></p></td>
+<td><p>TLM Socket</p></td>
+<td><p>64-bit</p></td>
+<td><p>Output</p></td>
+<td><p>Sends bypass path responses back to SMN (rarely used)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">config_update</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Output</p></td>
+<td><p>Interrupt to SMN when PCIe config space is written (CII tracking)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_app_bus_num</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>8-bit</p></td>
+<td><p>Output</p></td>
+<td><p>PCIe bus number from SII CORE_CONTROL register</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_app_dev_num</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>8-bit</p></td>
+<td><p>Output</p></td>
+<td><p>PCIe device number from SII CORE_CONTROL register</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_device_type</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Output</p></td>
+<td><p>Device type: 0=Endpoint, 1=Root Port</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>SMN Configuration Targets:</strong></p>
+<p>SMN can configure the following via <code class="docutils literal notranslate"><span class="pre">smn_n_target</span></code>:</p>
+<ul class="simple">
+<li><p><strong>Config Register Block</strong> (offset 0x0xxx): <code class="docutils literal notranslate"><span class="pre">system_ready</span></code>, enables, isolation control</p></li>
+<li><p><strong>SII Block</strong> (offset 0x1xxx): CORE_CONTROL, CFG_MODIFIED (RW1C), BUS_DEV_NUM</p></li>
+<li><p><strong>TLB Configuration</strong> (offset 0x3xxx-0x7xxx): Valid bits, page masks, base addresses</p></li>
+<li><p><strong>MSI Relay</strong> (offset 0x8xxx): MSI-X table, PBA, masks (limited by address passthrough)</p></li>
+</ul>
+<p><strong>Configuration Sequence:</strong></p>
+<ol class="arabic simple">
+<li><p>SMN writes <code class="docutils literal notranslate"><span class="pre">system_ready=1</span></code> to Config Register Block</p></li>
+<li><p>SMN configures TLB entries (inbound/outbound)</p></li>
+<li><p>SMN enables data paths: <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable=1</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable=1</span></code></p></li>
+<li><p>SMN monitors <code class="docutils literal notranslate"><span class="pre">config_update</span></code> interrupt for PCIe config space changes</p></li>
+</ol>
+</section>
+<section id="noc-subsystem-connection">
+<h4>2.3.2 NOC Subsystem Connection<a class="headerlink" href="#noc-subsystem-connection" title="Permalink to this heading">¶</a></h4>
+<div class="mermaid">
+            graph LR
+    subgraph NOC[&quot;NOC Subsystem&quot;]
+        direction TB
+        NOC_FAB[NOC Network Fabric&lt;br/&gt;Data Transfer&lt;br/&gt;64-bit TLM]
+        MSI_SRC[MSI Interrupt Source&lt;br/&gt;Vector Generator]
+        TO_MON[Timeout Monitor]
+    end
+    
+    subgraph TILE[&quot;Keraunos PCIe Tile&quot;]
+        direction TB
+        
+        subgraph TLM[&quot;TLM Sockets&quot;]
+            NOC_T[noc_n_target&lt;br/&gt;64-bit Target]
+            NOC_I[noc_n_initiator&lt;br/&gt;64-bit Initiator]
+        end
+        
+        subgraph OUT[&quot;Output Signals&quot;]
+            TO_OUT[noc_timeout&lt;br/&gt;3-bit]
+        end
+    end
+    
+    NOC_FAB &lt;--&gt;|TLM blocking transport&lt;br/&gt;Outbound data path&lt;br/&gt;NOC to PCIe via TLB| NOC_T
+    MSI_SRC --&gt;|Write MSI vector&lt;br/&gt;addr 0x18800000&lt;br/&gt;Generate MSI-X| NOC_T
+    NOC_I &lt;--&gt;|TLM blocking transport&lt;br/&gt;Inbound data path&lt;br/&gt;PCIe to NOC via TLB| NOC_FAB
+    TO_OUT -.-&gt;|Timeout status&lt;br/&gt;monitoring| TO_MON
+    
+    style NOC_T fill:#e1f5ff,stroke:#3498db,stroke-width:3px
+    style NOC_I fill:#e1f5ff,stroke:#3498db,stroke-width:3px
+    style TO_OUT fill:#fff4e1,stroke:#ff9800,stroke-width:2px
+        </div><p><strong>NOC Connection Details:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal/Socket</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Width</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">noc_n_target</span></code></p></td>
+<td><p>TLM Socket</p></td>
+<td><p>64-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Receives NOC transactions for outbound PCIe path (NOC→TLB→PCIe)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">noc_n_initiator</span></code></p></td>
+<td><p>TLM Socket</p></td>
+<td><p>64-bit</p></td>
+<td><p>Output</p></td>
+<td><p>Sends translated inbound PCIe transactions to NOC (PCIe→TLB→NOC)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">noc_timeout</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>3-bit</p></td>
+<td><p>Output</p></td>
+<td><p>NOC transaction timeout status for monitoring</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data Flow Paths:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Outbound Path (NOC → PCIe):</strong></p>
+<ul class="simple">
+<li><p>NOC writes to <code class="docutils literal notranslate"><span class="pre">noc_n_target</span></code> socket</p></li>
+<li><p>NOC-IO switch routes to outbound TLB</p></li>
+<li><p>TLB translates NOC address to PCIe address</p></li>
+<li><p>NOC-PCIE switch checks <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable</span></code></p></li>
+<li><p>If enabled, forwards to PCIe controller via <code class="docutils literal notranslate"><span class="pre">pcie_controller_initiator</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>Inbound Path (PCIe → NOC):</strong></p>
+<ul class="simple">
+<li><p>PCIe controller writes to <code class="docutils literal notranslate"><span class="pre">pcie_controller_target</span></code> socket</p></li>
+<li><p>NOC-PCIE switch routes based on addr[63:60]</p></li>
+<li><p>Inbound TLB translates PCIe address to NOC address</p></li>
+<li><p>NOC-IO switch forwards to NOC via <code class="docutils literal notranslate"><span class="pre">noc_n_initiator</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>MSI Generation:</strong></p>
+<ul class="simple">
+<li><p>NOC MSI source writes MSI vector to <code class="docutils literal notranslate"><span class="pre">noc_n_target</span></code> at special address (0x18800000)</p></li>
+<li><p>MSI Relay Unit processes vector, checks masks</p></li>
+<li><p>Generates MSI-X transaction to PCIe controller</p></li>
+<li><p><strong>Note:</strong> Limited by address passthrough issue</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="designware-pcie-controller-connection">
+<h4>2.3.3 Designware PCIe Controller Connection<a class="headerlink" href="#designware-pcie-controller-connection" title="Permalink to this heading">¶</a></h4>
+<div class="mermaid">
+            graph LR
+    subgraph DW[&quot;Designware PCIe Controller&quot;]
+        direction TB
+        
+        subgraph DATA[&quot;Data Path&quot;]
+            AXI_M[AXI Master Interface&lt;br/&gt;Inbound TLPs]
+            AXI_S[AXI Slave Interface&lt;br/&gt;Outbound TLPs]
+        end
+        
+        subgraph CII[&quot;CII Interface&quot;]
+            CII_HV[cii_hdr_valid]
+            CII_TYPE[cii_hdr_type&lt;br/&gt;5-bit]
+            CII_ADDR[cii_hdr_addr&lt;br/&gt;12-bit]
+        end
+        
+        subgraph INT[&quot;Interrupts&quot;]
+            FLR_I[FLR Request]
+            HOT_I[Hot Reset]
+            RAS_I[RAS Error]
+            DMA_I[DMA Done]
+            MISC_I[Misc Int]
+        end
+        
+        subgraph CTL[&quot;Control&quot;]
+            CLK[pcie_core_clk]
+            RST[controller_reset_n]
+        end
+    end
+    
+    subgraph TILE[&quot;Keraunos PCIe Tile&quot;]
+        direction TB
+        
+        subgraph TLM[&quot;TLM Sockets&quot;]
+            P_TGT[pcie_controller_target&lt;br/&gt;64-bit Target]
+            P_INIT[pcie_controller_initiator&lt;br/&gt;64-bit Initiator]
+        end
+        
+        subgraph CII_IN[&quot;CII Inputs&quot;]
+            C_HV[pcie_cii_hv]
+            C_TYPE[pcie_cii_hdr_type&lt;br/&gt;5-bit]
+            C_ADDR[pcie_cii_hdr_addr&lt;br/&gt;12-bit]
+        end
+        
+        subgraph INT_IN[&quot;Interrupt Inputs&quot;]
+            F_IN[pcie_flr_request]
+            H_IN[pcie_hot_reset]
+            R_IN[pcie_ras_error]
+            D_IN[pcie_dma_completion]
+            M_IN[pcie_misc_int]
+        end
+        
+        subgraph INT_OUT[&quot;Interrupt Outputs&quot;]
+            F_OUT[function_level_reset]
+            H_OUT[hot_reset_requested]
+            R_OUT[ras_error]
+            D_OUT[dma_completion]
+            M_OUT[controller_misc_int]
+        end
+        
+        subgraph CTL_IN[&quot;Control Inputs&quot;]
+            P_CLK[pcie_core_clk]
+            P_RST[pcie_controller_reset_n]
+        end
+    end
+    
+    subgraph SYS[&quot;System&quot;]
+        INT_CTRL[System Interrupt&lt;br/&gt;Controller]
+    end
+    
+    AXI_M &lt;--&gt;|TLM b_transport&lt;br/&gt;Inbound PCIe TLPs| P_TGT
+    P_INIT &lt;--&gt;|TLM b_transport&lt;br/&gt;Outbound PCIe TLPs| AXI_S
+    
+    CII_HV --&gt;|Config write detected| C_HV
+    CII_TYPE --&gt;|TLP type 0x04| C_TYPE
+    CII_ADDR --&gt;|Byte offset 0-127| C_ADDR
+    
+    FLR_I --&gt;|Event signal| F_IN
+    HOT_I --&gt;|Event signal| H_IN
+    RAS_I --&gt;|Event signal| R_IN
+    DMA_I --&gt;|Event signal| D_IN
+    MISC_I --&gt;|Event signal| M_IN
+    
+    F_OUT --&gt;|Forwarded| INT_CTRL
+    H_OUT --&gt;|Forwarded| INT_CTRL
+    R_OUT --&gt;|Forwarded| INT_CTRL
+    D_OUT --&gt;|Forwarded| INT_CTRL
+    M_OUT --&gt;|Forwarded| INT_CTRL
+    
+    CLK --&gt;|PCIe domain| P_CLK
+    RST --&gt;|Active low| P_RST
+    
+    style P_TGT fill:#fff4e1,stroke:#ff9800,stroke-width:3px
+    style P_INIT fill:#fff4e1,stroke:#ff9800,stroke-width:3px
+    style C_HV fill:#d1f5d1,stroke:#4caf50,stroke-width:2px
+    style C_TYPE fill:#d1f5d1,stroke:#4caf50,stroke-width:2px
+    style C_ADDR fill:#d1f5d1,stroke:#4caf50,stroke-width:2px
+    style F_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style H_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style R_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style D_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style M_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+        </div><p><strong>PCIe Controller Connection Details:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal/Socket</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Width</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_target</span></code></p></td>
+<td><p>TLM Socket</p></td>
+<td><p>64-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Receives inbound TLPs from PCIe controller AXI master</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_initiator</span></code></p></td>
+<td><p>TLM Socket</p></td>
+<td><p>64-bit</p></td>
+<td><p>Output</p></td>
+<td><p>Sends outbound TLPs to PCIe controller AXI slave</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_cii_hv</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>CII header valid: config space write detected</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_cii_hdr_type</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>5-bit</p></td>
+<td><p>Input</p></td>
+<td><p>TLP type (0x04 = configuration write)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_cii_hdr_addr</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>12-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Config space byte address (track first 128B)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_flr_request</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Function-level reset requested</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_hot_reset</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Hot reset detected on link</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_ras_error</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>RAS error event</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_dma_completion</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>DMA transaction completed</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_misc_int</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Miscellaneous controller interrupt</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">function_level_reset</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Output</p></td>
+<td><p>FLR forwarded to system (requires delta cycle)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hot_reset_requested</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Output</p></td>
+<td><p>Hot reset forwarded to system</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ras_error</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Output</p></td>
+<td><p>RAS error forwarded to system</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dma_completion</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Output</p></td>
+<td><p>DMA done forwarded to system</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">controller_misc_int</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Output</p></td>
+<td><p>Misc interrupt forwarded to system</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_core_clk</span></code></p></td>
+<td><p>Clock</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>PCIe core clock (Gen3: 250MHz)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_reset_n</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Controller reset (active low), resets SII CII state</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>CII Tracking Flow:</strong></p>
+<ol class="arabic simple">
+<li><p>PCIe controller detects config space write</p></li>
+<li><p>Asserts <code class="docutils literal notranslate"><span class="pre">cii_hdr_valid</span></code> with type and address</p></li>
+<li><p>Tile’s SII block tracks writes to first 128 bytes</p></li>
+<li><p>Sets bit in <code class="docutils literal notranslate"><span class="pre">cfg_modified</span></code> register</p></li>
+<li><p>Asserts <code class="docutils literal notranslate"><span class="pre">config_update</span></code> interrupt to SMN</p></li>
+<li><p>SMN reads <code class="docutils literal notranslate"><span class="pre">CFG_MODIFIED</span></code>, clears with RW1C writes</p></li>
+</ol>
+<p><strong>Interrupt Forwarding:</strong></p>
+<ul class="simple">
+<li><p><strong>Critical:</strong> All interrupt forwarding requires <code class="docutils literal notranslate"><span class="pre">sc_core::wait(SC_ZERO_TIME)</span></code> after input changes</p></li>
+<li><p>Input signals must propagate through SystemC delta cycle before outputs are valid</p></li>
+<li><p>Outputs go to system interrupt controller for software handling</p></li>
+</ul>
+</section>
+<section id="system-control-connection">
+<h4>2.3.4 System Control Connection<a class="headerlink" href="#system-control-connection" title="Permalink to this heading">¶</a></h4>
+<div class="mermaid">
+            graph LR
+    subgraph SYS[&quot;System Control&quot;]
+        direction TB
+        RST_CTRL[Reset Controller]
+        ISO_CTRL[Isolation Controller&lt;br/&gt;Power Management]
+        CLK_GEN[Clock Generator]
+        INT_CTRL[Interrupt Controller]
+    end
+    
+    subgraph TILE[&quot;Keraunos PCIe Tile&quot;]
+        direction TB
+        
+        subgraph RST[&quot;Reset Inputs&quot;]
+            COLD[cold_reset_n&lt;br/&gt;Active Low]
+            WARM[warm_reset_n&lt;br/&gt;Active Low]
+        end
+        
+        subgraph ISO[&quot;Isolation&quot;]
             ISO_REQ[isolate_req]
-            PCIE_CLK[pcie_core_clk]
-            AXI_CLK[axi_clk]
         end
         
-        subgraph &quot;CII Input Signals&quot;
-            CII_HV[pcie_cii_hv]
-            CII_TYPE[pcie_cii_hdr_type&lt;br/&gt;5-bit]
-            CII_ADDR[pcie_cii_hdr_addr&lt;br/&gt;12-bit]
-            PCIE_RST[pcie_controller_reset_n]
+        subgraph CLK[&quot;Clocks&quot;]
+            AXI[axi_clk]
         end
         
-        subgraph &quot;Interrupt Input Signals&quot;
-            FLR_IN[pcie_flr_request]
-            HOT_IN[pcie_hot_reset]
-            RAS_IN[pcie_ras_error]
-            DMA_IN[pcie_dma_completion]
-            MISC_IN[pcie_misc_int]
-        end
-        
-        subgraph &quot;Output Status Signals&quot;
-            BUS_NUM[pcie_app_bus_num&lt;br/&gt;8-bit]
-            DEV_NUM[pcie_app_dev_num&lt;br/&gt;8-bit]
-            DEV_TYPE[pcie_device_type&lt;br/&gt;0=EP 1=RP]
-            SYS_INT[pcie_sys_int]
-            NOC_TO_OUT[noc_timeout&lt;br/&gt;3-bit]
-        end
-        
-        subgraph &quot;Interrupt Output Signals&quot;
-            FLR_OUT[function_level_reset]
-            HOT_OUT[hot_reset_requested]
-            CFG_UPD[config_update]
-            RAS_OUT[ras_error]
-            DMA_OUT[dma_completion]
-            MISC_OUT[controller_misc_int]
+        subgraph INT[&quot;Interrupt Outputs&quot;]
+            SYS_I[pcie_sys_int]
         end
     end
     
-    subgraph &quot;SMN Subsystem&quot;
-        SMN_NET[SMN Network Fabric&lt;br/&gt;64-bit TLM&lt;br/&gt;Configuration Master]
-        SMN_INT[SMN Interrupt&lt;br/&gt;Controller]
-    end
+    RST_CTRL --&gt;|Cold reset&lt;br/&gt;Resets SII and&lt;br/&gt;reset control| COLD
+    RST_CTRL --&gt;|Warm reset&lt;br/&gt;Similar to cold| WARM
+    ISO_CTRL --&gt;|Isolation request&lt;br/&gt;Clears all enables&lt;br/&gt;PERMANENT| ISO_REQ
+    CLK_GEN --&gt;|AXI/NOC domain&lt;br/&gt;System clock| AXI
+    SYS_I -.-&gt;|System interrupt&lt;br/&gt;Currently tied to 0| INT_CTRL
     
-    subgraph &quot;Designware PCIe Controller&quot;
-        direction TB
-        DW_AXI_M[AXI Master&lt;br/&gt;To Tile]
-        DW_AXI_S[AXI Slave&lt;br/&gt;From Tile]
-        
-        subgraph &quot;CII Interface&quot;
-            DW_CII_HV[cii_hdr_valid]
-            DW_CII_TYPE[cii_hdr_type&lt;br/&gt;5-bit]
-            DW_CII_ADDR[cii_hdr_addr&lt;br/&gt;12-bit]
-        end
-        
-        subgraph &quot;Configuration&quot;
-            DW_CFG[Config Space&lt;br/&gt;Registers]
-            DW_BUS[Bus Number]
-            DW_DEV[Device Number]
-            DW_TYPE[Device Type]
-        end
-        
-        subgraph &quot;Interrupts to Tile&quot;
-            DW_FLR[FLR Request]
-            DW_HOT[Hot Reset]
-            DW_RAS[RAS Error]
-            DW_DMA[DMA Done]
-            DW_MISC[Misc Int]
-        end
-        
-        subgraph &quot;Control&quot;
-            DW_RST[Controller Reset]
-            DW_PCIE_CLK[PCIe Core Clock]
-        end
-    end
-    
-    subgraph &quot;System Control&quot;
-        SYS_RST[System Reset&lt;br/&gt;Controller]
-        SYS_ISO[Isolation&lt;br/&gt;Controller]
-        SYS_CLK[Clock&lt;br/&gt;Generator]
-        SYS_INT_CTRL[System Interrupt&lt;br/&gt;Controller]
-    end
-    
-    %% NOC Connections
-    NOC_NET &lt;--&gt;|TLM b_transport&lt;br/&gt;Outbound Data| NOC_TGT
-    NOC_INIT &lt;--&gt;|TLM b_transport&lt;br/&gt;Inbound Data| NOC_NET
-    NOC_MSI --&gt;|Write Transaction&lt;br/&gt;MSI Vector| NOC_TGT
-    NOC_TO -.-&gt;|Timeout Status| NOC_TO_OUT
-    
-    %% SMN Connections
-    SMN_NET &lt;--&gt;|TLM b_transport&lt;br/&gt;Config Access| SMN_TGT
-    SMN_INIT &lt;--&gt;|TLM b_transport&lt;br/&gt;Bypass Path| SMN_NET
-    
-    %% PCIe Controller Connections - Data
-    DW_AXI_M &lt;--&gt;|TLM b_transport&lt;br/&gt;Inbound TLPs| PCIE_TGT
-    PCIE_INIT &lt;--&gt;|TLM b_transport&lt;br/&gt;Outbound TLPs| DW_AXI_S
-    
-    %% PCIe Controller Connections - CII
-    DW_CII_HV --&gt;|Config Write&lt;br/&gt;Detection| CII_HV
-    DW_CII_TYPE --&gt;|TLP Type&lt;br/&gt;0x04 = cfg wr| CII_TYPE
-    DW_CII_ADDR --&gt;|Config Offset&lt;br/&gt;First 128B| CII_ADDR
-    
-    %% PCIe Controller Connections - Interrupts to Tile
-    DW_FLR --&gt;|Function Level&lt;br/&gt;Reset Event| FLR_IN
-    DW_HOT --&gt;|Hot Reset&lt;br/&gt;Event| HOT_IN
-    DW_RAS --&gt;|RAS Error&lt;br/&gt;Event| RAS_IN
-    DW_DMA --&gt;|DMA Complete&lt;br/&gt;Event| DMA_IN
-    DW_MISC --&gt;|Misc Interrupt&lt;br/&gt;Event| MISC_IN
-    
-    %% PCIe Controller Connections - Config outputs
-    DW_BUS -.-&gt;|8-bit| BUS_NUM
-    DW_DEV -.-&gt;|8-bit| DEV_NUM
-    DW_TYPE -.-&gt;|1-bit| DEV_TYPE
-    
-    %% PCIe Controller Connections - Control
-    DW_RST --&gt;|Active Low&lt;br/&gt;Reset| PCIE_RST
-    DW_PCIE_CLK --&gt;|Core Clock| PCIE_CLK
-    
-    %% System Control Connections
-    SYS_RST --&gt;|Cold Reset&lt;br/&gt;Active Low| COLD_RST
-    SYS_RST --&gt;|Warm Reset&lt;br/&gt;Active Low| WARM_RST
-    SYS_ISO --&gt;|Isolation&lt;br/&gt;Request| ISO_REQ
-    SYS_CLK --&gt;|AXI Clock| AXI_CLK
-    SYS_CLK --&gt;|PCIe Clock| DW_PCIE_CLK
-    
-    %% Interrupt Outputs to System
-    FLR_OUT --&gt;|FLR Forwarded| SYS_INT_CTRL
-    HOT_OUT --&gt;|Hot Reset&lt;br/&gt;Forwarded| SYS_INT_CTRL
-    CFG_UPD --&gt;|Config Update&lt;br/&gt;CII Event| SMN_INT
-    RAS_OUT --&gt;|RAS Error&lt;br/&gt;Forwarded| SYS_INT_CTRL
-    DMA_OUT --&gt;|DMA Done&lt;br/&gt;Forwarded| SYS_INT_CTRL
-    MISC_OUT --&gt;|Misc Int&lt;br/&gt;Forwarded| SYS_INT_CTRL
-    SYS_INT --&gt;|System Int| SYS_INT_CTRL
-    
-    %% Styling
-    style NOC_TGT fill:#e1f5ff,stroke:#3498db,stroke-width:3px
-    style NOC_INIT fill:#e1f5ff,stroke:#3498db,stroke-width:3px
-    style SMN_TGT fill:#ffe1f5,stroke:#e91e63,stroke-width:3px
-    style SMN_INIT fill:#ffe1f5,stroke:#e91e63,stroke-width:3px
-    style PCIE_TGT fill:#fff4e1,stroke:#ff9800,stroke-width:3px
-    style PCIE_INIT fill:#fff4e1,stroke:#ff9800,stroke-width:3px
-    
-    style CII_HV fill:#d1f5d1,stroke:#4caf50,stroke-width:2px
-    style CII_TYPE fill:#d1f5d1,stroke:#4caf50,stroke-width:2px
-    style CII_ADDR fill:#d1f5d1,stroke:#4caf50,stroke-width:2px
-    
-    style FLR_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
-    style HOT_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
-    style CFG_UPD fill:#ffe1e1,stroke:#f44336,stroke-width:2px
-    style RAS_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
-    style DMA_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
-    style MISC_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
-        </div><p><strong>Connection Summary:</strong></p>
+    style COLD fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style WARM fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style ISO_REQ fill:#ffcccc,stroke:#cc0000,stroke-width:3px
+    style AXI fill:#e1ffe1,stroke:#4caf50,stroke-width:2px
+        </div><p><strong>System Control Connection Details:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Width</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Cold reset (active low): Resets SII block and reset control module</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warm_reset_n</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Warm reset (active low): Similar behavior to cold reset</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">isolate_req</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>Isolation request: Clears <code class="docutils literal notranslate"><span class="pre">system_ready</span></code> and all enables (PERMANENT)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">axi_clk</span></code></p></td>
+<td><p>Clock</p></td>
+<td><p>1-bit</p></td>
+<td><p>Input</p></td>
+<td><p>AXI/NOC domain clock (system-dependent frequency)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_sys_int</span></code></p></td>
+<td><p>Signal</p></td>
+<td><p>1-bit</p></td>
+<td><p>Output</p></td>
+<td><p>System interrupt output (currently tied to 0)</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Reset Behavior:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Reset Type</p></th>
+<th class="head"><p>Resets</p></th>
+<th class="head"><p>Does NOT Reset</p></th>
+<th class="head"><p>Recovery</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code></p></td>
+<td><p>SII CII tracking, reset control module</p></td>
+<td><p>Config registers, TLBs, enables</p></td>
+<td><p>Software reconfiguration required</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warm_reset_n</span></code></p></td>
+<td><p>Similar to cold reset</p></td>
+<td><p>Config registers, TLBs, enables</p></td>
+<td><p>Software reconfiguration required</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_reset_n</span></code></p></td>
+<td><p>SII CII tracking only</p></td>
+<td><p>Everything else</p></td>
+<td><p>Automatic on reset deassertion</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical Isolation Limitation:</strong></p>
+<p>⚠️ <strong>WARNING:</strong> Asserting <code class="docutils literal notranslate"><span class="pre">isolate_req</span></code> permanently clears all enables. Recovery requires:</p>
+<ol class="arabic simple">
+<li><p>Cold reset cycle (<code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code> low then high)</p></li>
+<li><p>SMN writes <code class="docutils literal notranslate"><span class="pre">system_ready=1</span></code></p></li>
+<li><p>SMN reconfigures TLB entries</p></li>
+<li><p>SMN writes <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable=1</span></code></p></li>
+<li><p>SMN writes <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable=1</span></code></p></li>
+</ol>
+<p>Simply deasserting <code class="docutils literal notranslate"><span class="pre">isolate_req</span></code> does NOT restore functionality. This is a known architectural limitation.</p>
+<p><strong>Connection Summary:</strong></p>
+</section>
 <section id="tlm-socket-connections-64-bit-blocking-transport">
 <h4>TLM Socket Connections (64-bit, blocking transport)<a class="headerlink" href="#tlm-socket-connections-64-bit-blocking-transport" title="Permalink to this heading">¶</a></h4>
 <table class="docutils align-default">
