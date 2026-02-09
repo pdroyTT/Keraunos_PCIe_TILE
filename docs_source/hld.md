@@ -106,6 +106,311 @@ graph TB
 4. **Address-Based Routing:** Upper address bits [63:60] determine routing paths.
 5. **Signal-Based Control:** Control plane uses `sc_signal` for isolation, reset, and configuration tracking.
 
+### 2.3 System Connection Diagram
+
+This section shows how the Keraunos PCIe Tile connects to external subsystems in a complete SoC integration.
+
+```{mermaid}
+graph TB
+    subgraph "NOC Subsystem"
+        NOC_NET[NOC Network Fabric<br/>64-bit TLM]
+        NOC_MSI[MSI Source<br/>Interrupt Generator]
+        NOC_TO[NOC Timeout<br/>Monitor]
+    end
+    
+    subgraph "Keraunos PCIe Tile"
+        direction TB
+        
+        subgraph "TLM Data Sockets"
+            NOC_TGT[noc_n_target<br/>64-bit Target]
+            NOC_INIT[noc_n_initiator<br/>64-bit Initiator]
+            SMN_TGT[smn_n_target<br/>64-bit Target]
+            SMN_INIT[smn_n_initiator<br/>64-bit Initiator]
+            PCIE_TGT[pcie_controller_target<br/>64-bit Target]
+            PCIE_INIT[pcie_controller_initiator<br/>64-bit Initiator]
+        end
+        
+        subgraph "Input Control Signals"
+            COLD_RST[cold_reset_n]
+            WARM_RST[warm_reset_n]
+            ISO_REQ[isolate_req]
+            PCIE_CLK[pcie_core_clk]
+            AXI_CLK[axi_clk]
+        end
+        
+        subgraph "CII Input Signals"
+            CII_HV[pcie_cii_hv]
+            CII_TYPE[pcie_cii_hdr_type<br/>5-bit]
+            CII_ADDR[pcie_cii_hdr_addr<br/>12-bit]
+            PCIE_RST[pcie_controller_reset_n]
+        end
+        
+        subgraph "Interrupt Input Signals"
+            FLR_IN[pcie_flr_request]
+            HOT_IN[pcie_hot_reset]
+            RAS_IN[pcie_ras_error]
+            DMA_IN[pcie_dma_completion]
+            MISC_IN[pcie_misc_int]
+        end
+        
+        subgraph "Output Status Signals"
+            BUS_NUM[pcie_app_bus_num<br/>8-bit]
+            DEV_NUM[pcie_app_dev_num<br/>8-bit]
+            DEV_TYPE[pcie_device_type<br/>0=EP 1=RP]
+            SYS_INT[pcie_sys_int]
+            NOC_TO_OUT[noc_timeout<br/>3-bit]
+        end
+        
+        subgraph "Interrupt Output Signals"
+            FLR_OUT[function_level_reset]
+            HOT_OUT[hot_reset_requested]
+            CFG_UPD[config_update]
+            RAS_OUT[ras_error]
+            DMA_OUT[dma_completion]
+            MISC_OUT[controller_misc_int]
+        end
+    end
+    
+    subgraph "SMN Subsystem"
+        SMN_NET[SMN Network Fabric<br/>64-bit TLM<br/>Configuration Master]
+        SMN_INT[SMN Interrupt<br/>Controller]
+    end
+    
+    subgraph "Designware PCIe Controller"
+        direction TB
+        DW_AXI_M[AXI Master<br/>To Tile]
+        DW_AXI_S[AXI Slave<br/>From Tile]
+        
+        subgraph "CII Interface"
+            DW_CII_HV[cii_hdr_valid]
+            DW_CII_TYPE[cii_hdr_type<br/>5-bit]
+            DW_CII_ADDR[cii_hdr_addr<br/>12-bit]
+        end
+        
+        subgraph "Configuration"
+            DW_CFG[Config Space<br/>Registers]
+            DW_BUS[Bus Number]
+            DW_DEV[Device Number]
+            DW_TYPE[Device Type]
+        end
+        
+        subgraph "Interrupts to Tile"
+            DW_FLR[FLR Request]
+            DW_HOT[Hot Reset]
+            DW_RAS[RAS Error]
+            DW_DMA[DMA Done]
+            DW_MISC[Misc Int]
+        end
+        
+        subgraph "Control"
+            DW_RST[Controller Reset]
+            DW_PCIE_CLK[PCIe Core Clock]
+        end
+    end
+    
+    subgraph "System Control"
+        SYS_RST[System Reset<br/>Controller]
+        SYS_ISO[Isolation<br/>Controller]
+        SYS_CLK[Clock<br/>Generator]
+        SYS_INT_CTRL[System Interrupt<br/>Controller]
+    end
+    
+    %% NOC Connections
+    NOC_NET <-->|TLM b_transport<br/>Outbound Data| NOC_TGT
+    NOC_INIT <-->|TLM b_transport<br/>Inbound Data| NOC_NET
+    NOC_MSI -->|Write Transaction<br/>MSI Vector| NOC_TGT
+    NOC_TO -.->|Timeout Status| NOC_TO_OUT
+    
+    %% SMN Connections
+    SMN_NET <-->|TLM b_transport<br/>Config Access| SMN_TGT
+    SMN_INIT <-->|TLM b_transport<br/>Bypass Path| SMN_NET
+    
+    %% PCIe Controller Connections - Data
+    DW_AXI_M <-->|TLM b_transport<br/>Inbound TLPs| PCIE_TGT
+    PCIE_INIT <-->|TLM b_transport<br/>Outbound TLPs| DW_AXI_S
+    
+    %% PCIe Controller Connections - CII
+    DW_CII_HV -->|Config Write<br/>Detection| CII_HV
+    DW_CII_TYPE -->|TLP Type<br/>0x04 = cfg wr| CII_TYPE
+    DW_CII_ADDR -->|Config Offset<br/>First 128B| CII_ADDR
+    
+    %% PCIe Controller Connections - Interrupts to Tile
+    DW_FLR -->|Function Level<br/>Reset Event| FLR_IN
+    DW_HOT -->|Hot Reset<br/>Event| HOT_IN
+    DW_RAS -->|RAS Error<br/>Event| RAS_IN
+    DW_DMA -->|DMA Complete<br/>Event| DMA_IN
+    DW_MISC -->|Misc Interrupt<br/>Event| MISC_IN
+    
+    %% PCIe Controller Connections - Config outputs
+    DW_BUS -.->|8-bit| BUS_NUM
+    DW_DEV -.->|8-bit| DEV_NUM
+    DW_TYPE -.->|1-bit| DEV_TYPE
+    
+    %% PCIe Controller Connections - Control
+    DW_RST -->|Active Low<br/>Reset| PCIE_RST
+    DW_PCIE_CLK -->|Core Clock| PCIE_CLK
+    
+    %% System Control Connections
+    SYS_RST -->|Cold Reset<br/>Active Low| COLD_RST
+    SYS_RST -->|Warm Reset<br/>Active Low| WARM_RST
+    SYS_ISO -->|Isolation<br/>Request| ISO_REQ
+    SYS_CLK -->|AXI Clock| AXI_CLK
+    SYS_CLK -->|PCIe Clock| DW_PCIE_CLK
+    
+    %% Interrupt Outputs to System
+    FLR_OUT -->|FLR Forwarded| SYS_INT_CTRL
+    HOT_OUT -->|Hot Reset<br/>Forwarded| SYS_INT_CTRL
+    CFG_UPD -->|Config Update<br/>CII Event| SMN_INT
+    RAS_OUT -->|RAS Error<br/>Forwarded| SYS_INT_CTRL
+    DMA_OUT -->|DMA Done<br/>Forwarded| SYS_INT_CTRL
+    MISC_OUT -->|Misc Int<br/>Forwarded| SYS_INT_CTRL
+    SYS_INT -->|System Int| SYS_INT_CTRL
+    
+    %% Styling
+    style NOC_TGT fill:#e1f5ff,stroke:#3498db,stroke-width:3px
+    style NOC_INIT fill:#e1f5ff,stroke:#3498db,stroke-width:3px
+    style SMN_TGT fill:#ffe1f5,stroke:#e91e63,stroke-width:3px
+    style SMN_INIT fill:#ffe1f5,stroke:#e91e63,stroke-width:3px
+    style PCIE_TGT fill:#fff4e1,stroke:#ff9800,stroke-width:3px
+    style PCIE_INIT fill:#fff4e1,stroke:#ff9800,stroke-width:3px
+    
+    style CII_HV fill:#d1f5d1,stroke:#4caf50,stroke-width:2px
+    style CII_TYPE fill:#d1f5d1,stroke:#4caf50,stroke-width:2px
+    style CII_ADDR fill:#d1f5d1,stroke:#4caf50,stroke-width:2px
+    
+    style FLR_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style HOT_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style CFG_UPD fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style RAS_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style DMA_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+    style MISC_OUT fill:#ffe1e1,stroke:#f44336,stroke-width:2px
+```
+
+**Connection Summary:**
+
+#### TLM Socket Connections (64-bit, blocking transport)
+
+| Tile Socket | Direction | External Subsystem | Purpose |
+|-------------|-----------|-------------------|---------|
+| `noc_n_target` | Input | NOC Network Fabric | Receives NOC transactions for outbound PCIe (NOC→PCIe) |
+| `noc_n_initiator` | Output | NOC Network Fabric | Sends translated inbound PCIe to NOC (PCIe→NOC) |
+| `smn_n_target` | Input | SMN Network Fabric | Receives configuration transactions from SMN |
+| `smn_n_initiator` | Output | SMN Network Fabric | Sends bypass/response transactions to SMN |
+| `pcie_controller_target` | Input | DW PCIe AXI Master | Receives inbound TLPs from PCIe controller |
+| `pcie_controller_initiator` | Output | DW PCIe AXI Slave | Sends outbound TLPs to PCIe controller |
+
+#### Clock Connections
+
+| Tile Input | Source | Frequency | Purpose |
+|------------|--------|-----------|---------|
+| `pcie_core_clk` | DW PCIe Controller | PCIe Link Speed | PCIe domain clock (Gen3: 250MHz) |
+| `axi_clk` | System Clock Generator | System Dependent | AXI/NOC domain clock |
+
+**Note:** Both clocks must be running for tile operation. Clock domain crossing is handled internally.
+
+#### Reset Connections
+
+| Tile Input | Source | Type | Effect |
+|------------|--------|------|--------|
+| `cold_reset_n` | System Reset Controller | Active Low | Resets SII and reset control modules |
+| `warm_reset_n` | System Reset Controller | Active Low | Similar to cold reset |
+| `pcie_controller_reset_n` | DW PCIe Controller | Active Low | Resets SII CII tracking state |
+
+**Integration Note:** Cold reset does NOT clear configuration registers. Software reconfiguration required after reset.
+
+#### CII Interface Connections (Configuration Intercept)
+
+| Tile Input | DW PCIe Output | Width | Purpose |
+|------------|----------------|-------|---------|
+| `pcie_cii_hv` | `cii_hdr_valid` | 1-bit | Indicates valid CII header (config write detected) |
+| `pcie_cii_hdr_type` | `cii_hdr_type` | 5-bit | TLP type (0x04 = configuration write) |
+| `pcie_cii_hdr_addr` | `cii_hdr_addr` | 12-bit | Config space byte address (track first 128B) |
+
+**Purpose:** Allows tile to track PCIe configuration space writes and generate `config_update` interrupt to SMN.
+
+#### Interrupt Forwarding (PCIe Controller → Tile → System)
+
+**Inputs from DW PCIe Controller:**
+
+| Tile Input | DW PCIe Source | Trigger Condition |
+|------------|----------------|-------------------|
+| `pcie_flr_request` | FLR logic | Function-level reset requested via config space |
+| `pcie_hot_reset` | Link training | Hot reset detected on PCIe link |
+| `pcie_ras_error` | RAS logic | Reliability/Availability/Serviceability error |
+| `pcie_dma_completion` | DMA engine | DMA transaction completed |
+| `pcie_misc_int` | Various | Controller-specific miscellaneous interrupts |
+
+**Outputs to System Interrupt Controller:**
+
+| Tile Output | Destination | Description |
+|-------------|-------------|-------------|
+| `function_level_reset` | System Interrupt Controller | Forwarded FLR (requires delta cycle wait) |
+| `hot_reset_requested` | System Interrupt Controller | Forwarded hot reset (requires delta cycle wait) |
+| `ras_error` | System Interrupt Controller | Forwarded RAS error (requires delta cycle wait) |
+| `dma_completion` | System Interrupt Controller | Forwarded DMA done (requires delta cycle wait) |
+| `controller_misc_int` | System Interrupt Controller | Forwarded misc interrupt (requires delta cycle wait) |
+
+**Implementation Note:** All interrupt forwarding requires `sc_core::wait(SC_ZERO_TIME)` after input signal changes to allow SystemC delta cycle propagation before reading outputs.
+
+#### CII Interrupt Output
+
+| Tile Output | Destination | Trigger Condition |
+|-------------|-------------|-------------------|
+| `config_update` | SMN Interrupt Controller | PCIe config space write detected in first 128B (via CII tracking) |
+
+**Software Handling:** SMN reads `CFG_MODIFIED` register, processes changes, writes 1s to clear (RW1C). Interrupt deasserts when all bits cleared.
+
+#### Status Outputs
+
+| Tile Output | Destination | Width | Description |
+|-------------|-------------|-------|-------------|
+| `pcie_app_bus_num` | System/SMN | 8-bit | PCIe bus number from SII CORE_CONTROL |
+| `pcie_app_dev_num` | System/SMN | 8-bit | PCIe device number from SII CORE_CONTROL |
+| `pcie_device_type` | System/SMN | 1-bit | 0=Endpoint, 1=Root Port (from SII) |
+| `pcie_sys_int` | System Interrupt Controller | 1-bit | System interrupt (currently tied to 0) |
+| `noc_timeout` | NOC Timeout Monitor | 3-bit | NOC transaction timeout status |
+
+#### Isolation Control
+
+| Tile Input | Source | Purpose |
+|------------|--------|---------|
+| `isolate_req` | Isolation Controller | Request isolation mode (clears all enables) |
+
+**Critical Limitation:** Deasserting `isolate_req` does NOT restore enables. Recovery requires:
+1. Cold reset cycle
+2. SMN reconfiguration of `system_ready`, `pcie_inbound_app_enable`, `pcie_outbound_app_enable`
+
+#### MSI Input (Special Case)
+
+The NOC subsystem can write to the tile's `noc_n_target` socket at a specific MSI input address (e.g., 0x18800000) to generate MSI-X interrupts. The MSI relay unit processes these and forwards them to the PCIe controller via `pcie_controller_initiator`.
+
+**Current Limitation:** MSI-X configuration and PBA updates are limited due to address passthrough issue. MSI routing paths are functional but full MSI-X feature set cannot be exercised via SMN configuration.
+
+#### Integration Checklist
+
+✅ **Required Connections:**
+- [ ] Connect all 6 TLM sockets (3 target, 3 initiator) with matching bit widths
+- [ ] Connect both clocks (`pcie_core_clk` from DW PCIe, `axi_clk` from system)
+- [ ] Connect all 3 reset signals (cold, warm, pcie_controller)
+- [ ] Connect 3 CII interface signals (hv, type, addr) from DW PCIe CII output
+- [ ] Connect 5 interrupt inputs from DW PCIe controller
+- [ ] Connect 6 interrupt outputs to system interrupt controller(s)
+- [ ] Connect isolation control from power management
+- [ ] Connect status outputs to system monitoring/SMN
+
+⚠️ **SystemC Simulation Requirements:**
+- Ensure `sc_core::wait(SC_ZERO_TIME)` in drivers after changing input signals
+- All interrupt outputs require delta cycle propagation
+- TLM blocking transport calls are synchronous but internal signals are not
+
+🔧 **Configuration Sequence:**
+1. Deassert cold reset
+2. Wait for stable clocks
+3. SMN writes `system_ready=1`
+4. SMN configures TLB entries
+5. SMN writes `pcie_inbound_app_enable=1` and `pcie_outbound_app_enable=1`
+6. System enters normal operation
+
 ---
 
 ## 3. Theory of Operation
