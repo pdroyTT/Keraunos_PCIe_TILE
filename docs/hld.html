@@ -656,22 +656,22 @@ mermaid.initialize({
     [*] --&gt; Idle: Reset
     
     Idle --&gt; WaitCII: Normal operation
-    WaitCII --&gt; DetectWrite: pcie_cii_hv=1
+    WaitCII --&gt; DetectWrite: CII handshake valid
     
     DetectWrite --&gt; CheckType: Read CII header
-    CheckType --&gt; CheckAddr: type=0x04 (config write)
-    CheckType --&gt; WaitCII: type != 0x04
+    CheckType --&gt; CheckAddr: Config write detected
+    CheckType --&gt; WaitCII: Not config write
     
-    CheckAddr --&gt; SetBit: addr less than 0x080 (first 128B)
-    CheckAddr --&gt; WaitCII: addr greater or equal 0x080
+    CheckAddr --&gt; SetBit: First 128B of config space
+    CheckAddr --&gt; WaitCII: Beyond 128B boundary
     
-    SetBit --&gt; AssertInt: cfg_modified reg_index = 1
-    AssertInt --&gt; WaitCII: config_update = 1
+    SetBit --&gt; AssertInt: Set modified bit
+    AssertInt --&gt; WaitCII: Assert interrupt
     
-    WaitCII --&gt; ClearInt: pcie_controller_reset_n=0
-    ClearInt --&gt; Idle: Clear modified and config_update
+    WaitCII --&gt; ClearInt: Controller reset
+    ClearInt --&gt; Idle: Clear all state
     
-    note right of SetBit: reg_index = addr bits 6:2&lt;br/&gt;Tracks 32 config registers
+    note right of SetBit: Tracks 32 config registers
     note right of AssertInt: Sticky until reset or RW1C
         </div><p><strong>APB Registers:</strong></p>
 <table class="docutils align-default">

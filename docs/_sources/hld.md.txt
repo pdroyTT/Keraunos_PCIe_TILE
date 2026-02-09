@@ -495,22 +495,22 @@ stateDiagram-v2
     [*] --> Idle: Reset
     
     Idle --> WaitCII: Normal operation
-    WaitCII --> DetectWrite: pcie_cii_hv=1
+    WaitCII --> DetectWrite: CII handshake valid
     
     DetectWrite --> CheckType: Read CII header
-    CheckType --> CheckAddr: type=0x04 (config write)
-    CheckType --> WaitCII: type != 0x04
+    CheckType --> CheckAddr: Config write detected
+    CheckType --> WaitCII: Not config write
     
-    CheckAddr --> SetBit: addr less than 0x080 (first 128B)
-    CheckAddr --> WaitCII: addr greater or equal 0x080
+    CheckAddr --> SetBit: First 128B of config space
+    CheckAddr --> WaitCII: Beyond 128B boundary
     
-    SetBit --> AssertInt: cfg_modified reg_index = 1
-    AssertInt --> WaitCII: config_update = 1
+    SetBit --> AssertInt: Set modified bit
+    AssertInt --> WaitCII: Assert interrupt
     
-    WaitCII --> ClearInt: pcie_controller_reset_n=0
-    ClearInt --> Idle: Clear modified and config_update
+    WaitCII --> ClearInt: Controller reset
+    ClearInt --> Idle: Clear all state
     
-    note right of SetBit: reg_index = addr bits 6:2<br/>Tracks 32 config registers
+    note right of SetBit: Tracks 32 config registers
     note right of AssertInt: Sticky until reset or RW1C
 ```
 
