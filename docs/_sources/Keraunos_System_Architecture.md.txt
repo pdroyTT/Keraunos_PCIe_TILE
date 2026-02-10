@@ -465,6 +465,45 @@ sequenceDiagram
 6. NOC-N routes via D2D links to destination Quasar/Mimir chiplet
 7. Response traverses back through the same path; PCIe Tile sends Completion TLP to the PCIe Controller, which delivers it to the Host.
 
+**Sideband signal flow (inbound use case):**  
+During inbound (Host → Chip), the EP and system drive sideband inputs to the PCIe Tile so the tile can accept and process TLPs; the tile drives sideband outputs back to the EP. The flow is:
+
+```{mermaid}
+graph LR
+    subgraph host_rc["Host / RC"]
+        H[Host]
+    end
+
+    subgraph ep["EP - Synopsys Controller"]
+        EP_IN[Sideband Out]
+        EP_OUT[Sideband In]
+    end
+
+    subgraph tile["PCIe Tile"]
+        SC_IN[sc_in]
+        SC_OUT[sc_out]
+    end
+
+    subgraph sys["System SMC"]
+        SYS[Reset / Isolate]
+    end
+
+    H -->|TLP| EP_IN
+    EP_IN -->|clk, reset_n, CII, FLR, hot_reset, ras, dma_cpl, misc_int| SC_IN
+    SYS -->|cold_reset_n, warm_reset_n, isolate_req, axi_clk| SC_IN
+    SC_OUT -->|FLR out, hot_reset_req, config_update, ras, dma_cpl, controller_misc_int, noc_timeout, bus/dev, device_type, sys_int| EP_OUT
+    EP_OUT -->|Optional to RC| H
+
+    style SC_IN fill:#fce4ec
+    style SC_OUT fill:#e8f5e9
+```
+
+| Direction | Signals | Role in inbound use case |
+|-----------|---------|--------------------------|
+| EP → Tile (sc_in) | `pcie_core_clk`, `pcie_controller_reset_n`, `pcie_cii_*`, `pcie_flr_request`, `pcie_hot_reset`, `pcie_ras_error`, `pcie_dma_completion`, `pcie_misc_int` | Clock and reset so tile is ready; CII for config info; EP may assert FLR/hot_reset/errors during or after inbound TLPs. |
+| System → Tile (sc_in) | `cold_reset_n`, `warm_reset_n`, `isolate_req`, `axi_clk` | SoC reset and isolation; AXI clock for config/MMIO. |
+| Tile → EP (sc_out) | `function_level_reset`, `hot_reset_requested`, `config_update`, `ras_error`, `dma_completion`, `controller_misc_int`, `noc_timeout`, `pcie_app_bus_num`, `pcie_app_dev_num`, `pcie_device_type`, `pcie_sys_int` | FLR/hot_reset handshake; config and error reporting; NOC timeout; SII bus/dev and interrupt to EP. |
+
 ### 4.2 Outbound Data Path (Chip → Host)
 
 **Use Case:** Quasar compute cores send results back to host DRAM or trigger MSI interrupts.
@@ -498,6 +537,45 @@ sequenceDiagram
 5. Transaction sent over PCIe link to host
 6. Host DRAM responds with completion
 7. Response propagates back through PCIe Tile → NOC → Quasar
+
+**Sideband signal flow (outbound use case):**  
+During outbound (Chip → Host), the same sideband links carry status and handshake: the EP may drive reset/FLR; the tile uses sideband outputs to signal completion and errors to the EP so the EP can complete TLPs toward the host.
+
+```{mermaid}
+graph LR
+    subgraph quasar_noc["Quasar / NOC"]
+        Q[Quasar]
+    end
+
+    subgraph tile["PCIe Tile"]
+        SC_IN[sc_in]
+        SC_OUT[sc_out]
+    end
+
+    subgraph ep["EP - Synopsys Controller"]
+        EP_IN[Sideband In]
+        EP_OUT[Sideband Out]
+    end
+
+    subgraph host["Host"]
+        H[Host DRAM]
+    end
+
+    Q -->|TLP| tile
+    EP_OUT -->|clk, reset_n, CII, FLR, hot_reset, ras, dma_cpl, misc_int| SC_IN
+    SC_OUT -->|dma_completion, controller_misc_int, config_update, ras_error, noc_timeout, FLR out, hot_reset_req| EP_IN
+    EP_IN -->|TLP to host| H
+    H -->|Completion| EP_IN
+    EP_IN -.->|Completion sideband if any| EP_OUT
+
+    style SC_IN fill:#fce4ec
+    style SC_OUT fill:#e8f5e9
+```
+
+| Direction | Signals | Role in outbound use case |
+|-----------|---------|---------------------------|
+| EP → Tile (sc_in) | Same as inbound | Clock and reset; CII; EP can assert FLR/hot_reset or error sideband during outbound. |
+| Tile → EP (sc_out) | `dma_completion`, `controller_misc_int`, `config_update`, `ras_error`, `noc_timeout`, `function_level_reset`, `hot_reset_requested` | Tell EP when tile has completed work (e.g. outbound DMA) or hit errors; FLR/hot_reset handshake; NOC timeout so EP can report or retry. |
 
 ### 4.3 Configuration Path (SMN → PCIe Tile Registers)
 

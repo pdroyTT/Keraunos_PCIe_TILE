@@ -1631,6 +1631,58 @@ mermaid.initialize({
 <li><p>NOC-N routes via D2D links to destination Quasar/Mimir chiplet</p></li>
 <li><p>Response traverses back through the same path; PCIe Tile sends Completion TLP to the PCIe Controller, which delivers it to the Host.</p></li>
 </ol>
+<p><strong>Sideband signal flow (inbound use case):</strong><br />
+During inbound (Host → Chip), the EP and system drive sideband inputs to the PCIe Tile so the tile can accept and process TLPs; the tile drives sideband outputs back to the EP. The flow is:</p>
+<div class="mermaid">
+            graph LR
+    subgraph host_rc[&quot;Host / RC&quot;]
+        H[Host]
+    end
+
+    subgraph ep[&quot;EP - Synopsys Controller&quot;]
+        EP_IN[Sideband Out]
+        EP_OUT[Sideband In]
+    end
+
+    subgraph tile[&quot;PCIe Tile&quot;]
+        SC_IN[sc_in]
+        SC_OUT[sc_out]
+    end
+
+    subgraph sys[&quot;System SMC&quot;]
+        SYS[Reset / Isolate]
+    end
+
+    H --&gt;|TLP| EP_IN
+    EP_IN --&gt;|clk, reset_n, CII, FLR, hot_reset, ras, dma_cpl, misc_int| SC_IN
+    SYS --&gt;|cold_reset_n, warm_reset_n, isolate_req, axi_clk| SC_IN
+    SC_OUT --&gt;|FLR out, hot_reset_req, config_update, ras, dma_cpl, controller_misc_int, noc_timeout, bus/dev, device_type, sys_int| EP_OUT
+    EP_OUT --&gt;|Optional to RC| H
+
+    style SC_IN fill:#fce4ec
+    style SC_OUT fill:#e8f5e9
+        </div><table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Direction</p></th>
+<th class="head"><p>Signals</p></th>
+<th class="head"><p>Role in inbound use case</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>EP → Tile (sc_in)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pcie_core_clk</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_controller_reset_n</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_cii_*</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_flr_request</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_hot_reset</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_ras_error</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_dma_completion</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_misc_int</span></code></p></td>
+<td><p>Clock and reset so tile is ready; CII for config info; EP may assert FLR/hot_reset/errors during or after inbound TLPs.</p></td>
+</tr>
+<tr class="row-odd"><td><p>System → Tile (sc_in)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code>, <code class="docutils literal notranslate"><span class="pre">warm_reset_n</span></code>, <code class="docutils literal notranslate"><span class="pre">isolate_req</span></code>, <code class="docutils literal notranslate"><span class="pre">axi_clk</span></code></p></td>
+<td><p>SoC reset and isolation; AXI clock for config/MMIO.</p></td>
+</tr>
+<tr class="row-even"><td><p>Tile → EP (sc_out)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">function_level_reset</span></code>, <code class="docutils literal notranslate"><span class="pre">hot_reset_requested</span></code>, <code class="docutils literal notranslate"><span class="pre">config_update</span></code>, <code class="docutils literal notranslate"><span class="pre">ras_error</span></code>, <code class="docutils literal notranslate"><span class="pre">dma_completion</span></code>, <code class="docutils literal notranslate"><span class="pre">controller_misc_int</span></code>, <code class="docutils literal notranslate"><span class="pre">noc_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_app_bus_num</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_app_dev_num</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_device_type</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_sys_int</span></code></p></td>
+<td><p>FLR/hot_reset handshake; config and error reporting; NOC timeout; SII bus/dev and interrupt to EP.</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="outbound-data-path-chip-host">
 <h3>4.2 Outbound Data Path (Chip → Host)<a class="headerlink" href="#outbound-data-path-chip-host" title="Permalink to this heading"></a></h3>
@@ -1664,6 +1716,55 @@ mermaid.initialize({
 <li><p>Host DRAM responds with completion</p></li>
 <li><p>Response propagates back through PCIe Tile → NOC → Quasar</p></li>
 </ol>
+<p><strong>Sideband signal flow (outbound use case):</strong><br />
+During outbound (Chip → Host), the same sideband links carry status and handshake: the EP may drive reset/FLR; the tile uses sideband outputs to signal completion and errors to the EP so the EP can complete TLPs toward the host.</p>
+<div class="mermaid">
+            graph LR
+    subgraph quasar_noc[&quot;Quasar / NOC&quot;]
+        Q[Quasar]
+    end
+
+    subgraph tile[&quot;PCIe Tile&quot;]
+        SC_IN[sc_in]
+        SC_OUT[sc_out]
+    end
+
+    subgraph ep[&quot;EP - Synopsys Controller&quot;]
+        EP_IN[Sideband In]
+        EP_OUT[Sideband Out]
+    end
+
+    subgraph host[&quot;Host&quot;]
+        H[Host DRAM]
+    end
+
+    Q --&gt;|TLP| tile
+    EP_OUT --&gt;|clk, reset_n, CII, FLR, hot_reset, ras, dma_cpl, misc_int| SC_IN
+    SC_OUT --&gt;|dma_completion, controller_misc_int, config_update, ras_error, noc_timeout, FLR out, hot_reset_req| EP_IN
+    EP_IN --&gt;|TLP to host| H
+    H --&gt;|Completion| EP_IN
+    EP_IN -.-&gt;|Completion sideband if any| EP_OUT
+
+    style SC_IN fill:#fce4ec
+    style SC_OUT fill:#e8f5e9
+        </div><table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Direction</p></th>
+<th class="head"><p>Signals</p></th>
+<th class="head"><p>Role in outbound use case</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>EP → Tile (sc_in)</p></td>
+<td><p>Same as inbound</p></td>
+<td><p>Clock and reset; CII; EP can assert FLR/hot_reset or error sideband during outbound.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tile → EP (sc_out)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dma_completion</span></code>, <code class="docutils literal notranslate"><span class="pre">controller_misc_int</span></code>, <code class="docutils literal notranslate"><span class="pre">config_update</span></code>, <code class="docutils literal notranslate"><span class="pre">ras_error</span></code>, <code class="docutils literal notranslate"><span class="pre">noc_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">function_level_reset</span></code>, <code class="docutils literal notranslate"><span class="pre">hot_reset_requested</span></code></p></td>
+<td><p>Tell EP when tile has completed work (e.g. outbound DMA) or hit errors; FLR/hot_reset handshake; NOC timeout so EP can report or retry.</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="configuration-path-smn-pcie-tile-registers">
 <h3>4.3 Configuration Path (SMN → PCIe Tile Registers)<a class="headerlink" href="#configuration-path-smn-pcie-tile-registers" title="Permalink to this heading"></a></h3>
