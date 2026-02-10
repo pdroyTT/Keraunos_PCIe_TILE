@@ -20,6 +20,7 @@ This document describes the system-level architecture of the Keraunos-E100 chipl
 3. [PCIe Tile Position in the System](#3-pcie-tile-position-in-the-system)
    - [3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram](#34-model-integration-hostrceppcie-tile-connection-diagram)
    - [3.5 VDK Integration: PCIe Tile and Synopsys PCIe Controller in the Virtualizer](#35-vdk-integration-pcie-tile-and-synopsys-pcie-controller-in-the-virtualizer)
+   - [3.5.6 DesignWare EP/RC Interfaces: Connect vs Stub](#356-designware-pcie-ep-and-rc-interfaces-connect-to-tile--system-vs-stub)
 4. [Connectivity Architecture](#4-connectivity-architecture)
 5. [Data Flow Paths](#5-data-flow-paths)
 6. [Address Space Integration](#6-address-space-integration)
@@ -432,7 +433,14 @@ This section describes how the **Keraunos PCIe Tile** and the **Synopsys PCIe Co
 - **Secondary_Chiplet_1 / 2 / 3:** Each has SharedMemoryMap, SMC_SS_S, **Peripherals** (contains **PCIe_EP_1 / 2 / 3**), Ascalon_SS, SYSCLK, RAM, DRAM  
 - **Misc:** CustomResetController, **PCIeSwitch** (Synopsys/PCIE_SWITCH/PCIeSwitch)
 
-**PCIe model in VDK:** Synopsys **DESIGNWARE_PCIE / PCIe_2_0** is used for both Root Complex (PCIe_RC) and Endpoint (PCIe_EP_1/2/3). The PCIe link (TLP path) is realized via the **PCIeSwitch**: RC’s **PCIMem** connects to the switch **USP** (upstream); each EP’s **PCIMem** / **PCIMem_Slave** connects to the switch **DSP** (downstream) ports.
+**PCIe model in VDK:** Synopsys **DESIGNWARE_PCIE / PCIe_2_0** is used for both Root Complex (PCIe_RC) and Endpoint (PCIe_EP_1/2/3). In the **current** vdksys the PCIe link is realized via the **PCIeSwitch**: RC’s **PCIMem** connects to the switch **USP** (upstream); each EP’s **PCIMem** / **PCIMem_Slave** connects to the switch **DSP** (downstream) ports. The switch is used only because the demo has **one RC and three EPs**; it is **not** required for a single host–device link.
+
+**Direct RC–EP link (no switch):** For **Keraunos**, the real topology is a single host (RC) and a single Keraunos device (EP). A **direct link** between RC and EP is sufficient and preferred. In the VDK you can bind the RC and EP peer-to-peer:
+
+- **RC PCIMem** (master) ↔ **EP PCIMem_Slave** (slave) — TLPs from RC to EP  
+- **RC PCIMem_Slave** (slave) ↔ **EP PCIMem** (master) — TLPs from EP to RC  
+
+No PCIeSwitch is needed for this topology. Use the switch only when modeling multiple EPs behind one RC (e.g. multiple secondary chiplets).
 
 #### 3.5.2 Alignment with Keraunos: Where the PCIe Tile Fits
 
@@ -441,7 +449,7 @@ In the **Keraunos-E100** architecture, the host uses a **Root Complex** and the 
 - **RC:** Can remain as the existing **PCIe_RC** on Primary_Chiplet (or a dedicated “host” chiplet) when modeling the host side.
 - **EP:** On the chiplet that represents **Keraunos**, the **Synopsys PCIe EP** (e.g. PCIe_EP_1 in Secondary_Chiplet_1) is the PCIe controller; the **Keraunos PCIe Tile** is inserted **between** this EP and the rest of the chip (NOC/SMN).
 
-Thus: **Host ↔ RC ↔ [PCIe link / PCIeSwitch] ↔ EP ↔ PCIe Tile ↔ NOC/SMN**. The tile does not replace the EP; it connects to the EP’s application-side (AXI/TLM) and sideband interfaces as in Section 3.4.
+Thus: **Host ↔ RC ↔ [PCIe link: direct or via PCIeSwitch] ↔ EP ↔ PCIe Tile ↔ NOC/SMN**. For Keraunos (single EP), use a **direct** RC–EP link; the tile does not replace the EP and connects to the EP’s application-side (AXI/TLM) and sideband interfaces as in Section 3.4.
 
 #### 3.5.3 Interface-Level Connection Diagram (VDK)
 
@@ -471,13 +479,14 @@ graph TB
         end
 
         subgraph misc["Misc"]
-            SW[PCIeSwitch]
+            SW[PCIeSwitch - optional]
             RST_CTL[CustomResetController]
         end
     end
 
-    RC ---|PCIMem| SW
-    SW ---|DSP_PCIMem / DSP_PCIMem_Slave| EP
+    RC ---|PCIMem / PCIMem_Slave direct| EP
+    RC -.->|or via PCIeSwitch for multi-EP| SW
+    SW -.-> EP
     RC ---|AXI_Slave, AXI_DBI, BusMaster| SMM_P
     EP ---|AXI_Slave, AXI_DBI, BusMaster, PCIMem, PCIMem_Slave| SMM_S
     EP -.->|sideband| TILE
@@ -559,10 +568,6 @@ graph LR
         RC[PCIe_RC]
     end
 
-    subgraph link_switch["PCIe Link (VDK)"]
-        SW[PCIeSwitch]
-    end
-
     subgraph keraunos_chiplet["Keraunos Chiplet (e.g. Secondary_Chiplet_1)"]
         subgraph ep_block["Synopsys EP"]
             EP[PCIe_2_0]
@@ -588,9 +593,8 @@ graph LR
         end
     end
 
-    RC -->|PCIMem| SW
-    SW -->|DSP_PCIMem_Slave| EP_PCIMemSlave
-    SW <-->|DSP_PCIMem| EP_PCIMem
+    RC -->|PCIMem direct| EP_PCIMemSlave
+    EP_PCIMem -->|PCIMem direct| RC
     EP_PCIMemSlave -->|TLM inbound| T_tgt
     EP_BusM -->|TLM outbound| T_init
     EP_RST --> T_sc_in
@@ -613,9 +617,61 @@ graph LR
 1. **Inband:** Bind EP **PCIMem_Slave** (inbound TLPs) to the tile’s **pcie_controller_target**. Bind EP **BusMaster** (outbound TLPs) to the tile’s **pcie_controller_initiator**. Keep EP **PCIMem** / **PCIMem_Slave** connection to PCIeSwitch for link traffic.  
 2. **Sideband:** Connect all EP and system reset/clock/sideband outputs to the tile’s **sc_in**; connect all tile **sc_out** to the EP (and system) inputs as in the table above.  
 3. **NOC/SMN:** Connect tile **noc_n_target** / **noc_n_initiator** and **smn_n_target** / **smn_n_initiator** to the VDK’s NOC and SMN models (or stubs) for the Keraunos chiplet.  
-4. **RC:** When modeling host side, keep **PCIe_RC** on Primary_Chiplet (or equivalent) connected to PCIeSwitch USP; no change required for the tile, which only attaches to the EP.
+4. **RC–EP link:** For **Keraunos** (single EP), use a **direct** link: bind **RC PCIMem** to **EP PCIMem_Slave** and **RC PCIMem_Slave** to **EP PCIMem**. Omit the PCIeSwitch. When modeling multiple EPs, keep **PCIe_RC** connected to PCIeSwitch USP and each EP to the switch DSP. No change is required for the tile, which only attaches to the EP.
 
 This ensures the VDK integration of the PCIe Tile and Synopsys PCIe Controller (RC and EP) matches the Keraunos system architecture and Section 3.4, and can be integrated with minimal rework.
+
+#### 3.5.6 DesignWare PCIe EP and RC Interfaces: Connect to Tile / System vs Stub
+
+The Ascalon chiplet vdksys **Peripherals** section instantiates the Synopsys DesignWare **PCIe_2_0** model for both **PCIe_RC** (Primary_Chiplet) and **PCIe_EP** (Secondary_Chiplet_1/2/3). The model exposes a large set of TLM, RESET, CLOCK, and Default (sideband) interfaces. This subsection lists the main interface groups and, for each, whether to **connect to the PCIe Tile**, **connect to the system** (SharedMemoryMap, SYSCLK, APLIC, etc.), or **stub** when integrating the Keraunos PCIe Tile. The vdksys already marks many of these with `stubs` (e.g. ELBIMaster, sys_int, device_type, link_up, app_ltssm_en, cc_pipe_clk); the tables below align with that and add the tile connection choices.
+
+**A. PCIe Endpoint (EP) — interfaces and disposition**
+
+| Category | DesignWare EP interface (vdksys) | Connect to PCIe Tile | Connect to system / other | Stub | Notes |
+|----------|----------------------------------|----------------------|---------------------------|------|--------|
+| **TLM** | AXI_Slave | — | SharedMemoryMap (config space) or SMN | — | Config/MMIO; can remain to memory map. |
+| **TLM** | AXI_DBI | — | SharedMemoryMap (DBI region) | — | DBI/config. |
+| **TLM** | BusMaster | **pcie_controller_initiator** | — | — | Outbound TLPs: tile → EP → link. |
+| **TLM** | ELBIMaster | — | — | Yes (vdksys: auto stub) | Optional ELBI; not used for tile. |
+| **TLM** | PCIMem | — | Link (RC or PCIeSwitch) | — | EP as master toward link. |
+| **TLM** | PCIMem_Slave | **pcie_controller_target** | — | — | Inbound TLPs: link → EP → tile. |
+| **RESET** | pcie_axi_ares, cc_dbi_ares, cc_core_ares, cc_pwr_ares, cc_phy_ares | **pcie_controller_reset_n** (or combine) | Peripherals Reset / RST_GEN | — | Drive tile reset from same source as EP. |
+| **CLOCK** | cc_core_clk | **pcie_core_clk** (tile sc_in) | — | — | EP core clock to tile. |
+| **CLOCK** | cc_dbi_aclk | — | SYSCLK (bound in vdksys) | — | DBI clock; also usable as axi_clk for tile. |
+| **CLOCK** | cc_pipe_clk, cc_aclkSlv, cc_aclkMstr, cc_aux_clk, refclk | — | — | Yes (vdksys: cc_pipe_clk stubbed) | Internal/PHY clocks; stub if not driving tile. |
+| **Sideband (CII)** | lbc_cii_hv, lbc_cii_dv, lbc_cii_hdr_type, lbc_cii_hdr_addr, lbc_cii_hdr_* | **pcie_cii_hv**, **pcie_cii_hdr_type**, **pcie_cii_hdr_addr** (tile sc_in) | — | Rest of CII if tile does not use | CII = Configuration Interface Info; map key signals to tile. |
+| **Sideband (FLR)** | cfg_flr_pf_active_x, app_flr_pf_done_x | **pcie_flr_request** (in), **function_level_reset** (out) | — | — | FLR handshake between EP and tile. |
+| **Sideband (hot reset, etc.)** | link_req_rst_not, training_rst_n, smlh_req_rst_not | **pcie_hot_reset** (tile sc_in), **hot_reset_requested** (tile sc_out) | — | — | As needed for tile behavior. |
+| **Sideband (bus/dev)** | app_bus_num, app_dev_num | **pcie_app_bus_num**, **pcie_app_dev_num** (tile sc_out) | — | — | Tile drives EP with assigned BDF. |
+| **Sideband (device type)** | device_type (slave on EP) | **pcie_device_type** (tile sc_out) | — | Yes if not using | vdksys stubs; connect from tile when integrated. |
+| **Sideband (interrupt)** | sys_int (slave on EP) | **pcie_sys_int** (tile sc_out) | — | Yes in vdksys | Connect tile pcie_sys_int to EP sys_int when integrated. |
+| **Sideband (DMA)** | dma_wdxfer_done_togg[], dma_rdxfer_done_togg[], edma_int_rd_chan[], edma_int_wr_chan[], edma_int | **pcie_dma_completion**, **controller_misc_int** (tile sc_in/sc_out) | — | Optional | Map DMA completion / misc int to tile as needed. |
+| **Sideband (RAS/error)** | pcie_parc_int, app_err_*, cfg_aer_* | **pcie_ras_error** (tile sc_in), **ras_error** (tile sc_out) | — | Optional | Connect if tile implements RAS/error reporting. |
+| **MSI** | msi_ctrl_int, msi_ctrl_int_vec_*[], msi_gen, ven_msi_*, msix_addr, msix_data, cfg_msix_* | — | APLIC / interrupt controller (e.g. TT_APLIC_TLM2) | Stub msi_gen in vdksys | RC binds msi_ctrl_int to APLIC; EP same for device MSI. |
+| **Power / L1/L2** | apps_pm_xmt_turnoff, app_req_entr_l1, app_req_exit_l1, pme_en, pme_stat, clk_req, clk_req_in, pm_linkst_*, pm_dstate, radm_pm_* | — | — | Yes (vdksys stubs many) | Power management; stub for minimal tile integration. |
+| **Other sideband** | ready_entr_l23, app_ltssm_en, link_up, sys_pre_det_state, app_unlock_msg, app_ltr_*, app_init_rst, bridge_flush_not, hp_int, hp_msi, RADM_inta/b/c/d, cfg_pme_*, radm_pm_to_ack, slv_*misc_info, mstr_*misc_info, app_hdr_log, app_tlp_prfx_log, app_err_*, ven_msi_tc, ven_msi_vector, cfg_msi_*, CxlRegAccess, ptm_*, etc. | — | — | Yes | Optional or debug; stub to simplify integration. |
+
+**B. PCIe Root Complex (RC) — interfaces and disposition**
+
+The RC has the same DesignWare PCIe_2_0 interface set. There is **no PCIe Tile** behind the RC (the tile is behind the EP on the Keraunos chiplet). So RC interfaces either connect to the **link** (direct to EP or to PCIeSwitch), to the **system** (SharedMemoryMap, SYSCLK, APLIC), or are **stubbed**.
+
+| Category | DesignWare RC interface (vdksys) | Connect to link (EP / Switch) | Connect to system | Stub | Notes |
+|----------|----------------------------------|-------------------------------|-------------------|------|--------|
+| **TLM** | AXI_Slave, AXI_DBI | — | SharedMemoryMap (config, DBI) | — | Host config space; bound in vdksys. |
+| **TLM** | BusMaster | — | SharedMemoryMap (memory) | — | Host-initiated TLPs; bound in vdksys. |
+| **TLM** | ELBIMaster | — | — | Yes (vdksys: auto stub) | Optional. |
+| **TLM** | PCIMem | EP PCIMem_Slave or PCIeSwitch USP | — | — | Downstream TLPs. |
+| **TLM** | PCIMem_Slave | EP PCIMem or PCIeSwitch DSP | — | — | Upstream TLPs from EP. |
+| **RESET** | pcie_axi_ares, cc_*_ares | — | Peripherals Reset / RST_GEN | — | Same as EP. |
+| **CLOCK** | cc_core_clk, cc_dbi_aclk | — | SYSCLK | — | Bound in vdksys. |
+| **CLOCK** | cc_pipe_clk, cc_aux_clk, refclk, cc_aclkSlv, cc_aclkMstr | — | — | Yes | Stub if not used. |
+| **MSI** | msi_ctrl_int | — | TT_APLIC_TLM2 (irqS[3] in vdksys) | — | Host RC MSI to APLIC. |
+| **Sideband** | sys_int, device_type, ready_entr_l23, app_ltssm_en, link_up, sys_pre_det_state, apps_pm_xmt_turnoff, clk_req_in, app_req_entr_l1, app_req_exit_l1, app_flr_pf_done_x, app_ltr_*, msi_gen, and all other Default/sideband | — | — | Yes (vdksys stubs many) | No tile; stub optional RC sideband. |
+
+**C. Summary**
+
+- **EP:** Connect to **PCIe Tile**: PCIMem_Slave → pcie_controller_target; BusMaster → pcie_controller_initiator; resets and cc_core_clk (and optionally cc_dbi_aclk) to tile sc_in; CII, FLR, hot reset, app_bus_num, app_dev_num, device_type, sys_int, dma_completion, ras_error to/from tile sc_in/sc_out as in Section 3.4. Connect to **system**: AXI_Slave, AXI_DBI to SharedMemoryMap; cc_dbi_aclk to SYSCLK; msi_ctrl_int to APLIC. **Stub**: ELBIMaster; optional/PHY clocks (cc_pipe_clk, etc.); power/L1/L2 and other optional sideband.
+- **RC:** Connect to **link**: PCIMem, PCIMem_Slave to EP (or PCIeSwitch). Connect to **system**: AXI_Slave, AXI_DBI, BusMaster to SharedMemoryMap; clocks to SYSCLK; msi_ctrl_int to APLIC. **Stub**: All optional sideband and PHY clocks as in vdksys.
 
 ---
 
