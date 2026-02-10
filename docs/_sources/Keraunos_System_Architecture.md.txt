@@ -18,6 +18,7 @@ This document describes the system-level architecture of the Keraunos-E100 chipl
 1. [System Overview](#1-system-overview)
 2. [Keraunos-E100 Chiplet Architecture](#2-keraunos-e100-chiplet-architecture)
 3. [PCIe Tile Position in the System](#3-pcie-tile-position-in-the-system)
+   - [3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram](#34-model-integration-hostrceppcie-tile-connection-diagram)
 4. [Connectivity Architecture](#4-connectivity-architecture)
 5. [Data Flow Paths](#5-data-flow-paths)
 6. [Address Space Integration](#6-address-space-integration)
@@ -163,8 +164,9 @@ graph LR
 - **SMU (System Management Unit):** Clock generation (CGM PLLs), power management, reset sequencing
 
 #### 2.2.2 PCIe Subsystem
-- **PCIe Tile:** Contains PCIe Gen5 controller, TLB translation engines, configuration registers
-- **PCIe SerDes:** Physical layer (PHY) for PCIe Gen5 x16 connectivity
+- **PCIe Tile:** Contains TLB translation engines, configuration registers, and internal fabric; it interfaces to the PCIe Controller. The tile does not implement the link layer; it receives/sends TLPs via the controller.
+- **PCIe Controller:** On the Keraunos chip this is the **Synopsys PCIe Controller IP** (DesignWare), configured as an **Endpoint** (EP). The host system uses a **Root Complex** (RC). The link is therefore RC (host) ↔ EP (Keraunos).
+- **PCIe SerDes:** Physical layer (PHY) for PCIe Gen5/Gen6 connectivity
 
 #### 2.2.3 HSIO (High-Speed I/O) Tiles
 - **CCE (Keraunos Compute Engine):** DMA engines, DMRISC cores, data forwarding logic
@@ -250,28 +252,191 @@ graph TB
 | `pcie_controller_initiator` | TLM-2.0 Initiator | 64-bit | Sends outbound transactions to PCIe controller |
 | `smn_config` | TLM-2.0 Target | 64-bit | SMN access to PCIe Tile configuration registers |
 
+### 3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram
+
+This section documents how the **inband** (TLM) and **sideband** (sc_in/sc_out) ports of the PCIe Tile connect across Host → Root Complex → Endpoint → PCIe Tile for **model integration** (e.g. connecting the tile to a Synopsys PCIe Controller model or test harness).
+
+**End-to-end connection path:**
+
+```{mermaid}
+graph LR
+    subgraph host["Host System"]
+        CPU[Host CPU]
+        DRAM[Host DRAM]
+    end
+
+    subgraph rc["Root Complex"]
+        RC_CORE[RC Core]
+        RC_SIDEBAND[Reset / Power / Sideband]
+    end
+
+    subgraph link["PCIe Link"]
+        TLP[TLPs]
+    end
+
+    subgraph ep["Endpoint - Synopsys PCIe Controller"]
+        EP_CORE[EP Core]
+        EP_AXI[AXI / Data IF]
+        EP_SIDEBAND[Sideband Signals]
+    end
+
+    subgraph tile["PCIe Tile DUT"]
+        TLM_IN[TLM Target]
+        TLM_OUT[TLM Initiator]
+        SC_IN[sc_in]
+        SC_OUT[sc_out]
+    end
+
+    CPU --- RC_CORE
+    RC_CORE --- TLP
+    TLP --- EP_CORE
+    EP_CORE --- EP_AXI
+    EP_CORE --- EP_SIDEBAND
+    EP_AXI --- TLM_IN
+    EP_AXI --- TLM_OUT
+    EP_SIDEBAND --- SC_IN
+    EP_SIDEBAND --- SC_OUT
+    RC_SIDEBAND -.->|optional| EP_SIDEBAND
+
+    style TLP fill:#e3f2fd
+    style EP_AXI fill:#fff3e0
+    style EP_SIDEBAND fill:#f3e5f5
+    style TLM_IN fill:#e8f5e9
+    style TLM_OUT fill:#e8f5e9
+    style SC_IN fill:#fce4ec
+    style SC_OUT fill:#fce4ec
+```
+
+**Inband (TLM) connections — EP ↔ PCIe Tile:**
+
+| Tile port | Direction | Width | Connected to (EP side) | Description |
+|-----------|-----------|-------|------------------------|-------------|
+| `pcie_controller_target` | Target (in) | 64-bit | EP AXI/TLM initiator | Inbound TLPs from host: EP pushes Memory Read/Write to tile |
+| `pcie_controller_initiator` | Initiator (out) | 64-bit | EP AXI/TLM target | Outbound TLPs to host: tile pushes Memory Read/Write/Completion to EP |
+| `noc_n_target` | Target (in) | 64-bit | NOC fabric | Outbound path: NOC traffic destined for PCIe |
+| `noc_n_initiator` | Initiator (out) | 64-bit | NOC fabric | Inbound path: tile forwards translated traffic to NOC |
+| `smn_n_target` | Target (in) | 64-bit | SMN fabric | Outbound path: SMN traffic destined for PCIe |
+| `smn_n_initiator` | Initiator (out) | 64-bit | SMN fabric | Inbound path: tile forwards system traffic to SMN |
+
+**Sideband signals — EP → PCIe Tile (sc_in to tile):**
+
+These are driven by the **Synopsys PCIe Controller (EP)** or by the **system**; the tile receives them as `sc_in`.
+
+| Tile port (sc_in) | Type | Source | Description |
+|-------------------|------|--------|-------------|
+| `pcie_core_clk` | bool | EP | PCIe core clock from controller |
+| `pcie_controller_reset_n` | bool | EP | Controller reset (active low) |
+| `pcie_cii_hv` | bool | EP | CII header valid (SII / config info) |
+| `pcie_cii_hdr_type` | sc_bv&lt;5&gt; | EP | CII header type [4:0] |
+| `pcie_cii_hdr_addr` | sc_bv&lt;12&gt; | EP | CII header address [11:0] |
+| `pcie_flr_request` | bool | EP | Function Level Reset request |
+| `pcie_hot_reset` | bool | EP | Hot reset from link |
+| `pcie_ras_error` | bool | EP | RAS error indication |
+| `pcie_dma_completion` | bool | EP | DMA completion notification |
+| `pcie_misc_int` | bool | EP | Miscellaneous interrupt from controller |
+| `cold_reset_n` | bool | System (SMC) | SoC cold reset (active low) |
+| `warm_reset_n` | bool | System (SMC) | SoC warm reset (active low) |
+| `isolate_req` | bool | System | Isolation request |
+| `axi_clk` | bool | System | AXI clock |
+
+**Sideband signals — PCIe Tile → EP (sc_out from tile):**
+
+The tile drives these; the **EP** or **system** receives them.
+
+| Tile port (sc_out) | Type | Sink | Description |
+|--------------------|------|------|-------------|
+| `pcie_app_bus_num` | uint8_t | EP | PCIe bus number for app |
+| `pcie_app_dev_num` | uint8_t | EP | PCIe device number for app |
+| `pcie_device_type` | bool | EP | Device type indicator |
+| `pcie_sys_int` | bool | EP | System interrupt to controller |
+| `function_level_reset` | bool | EP | FLR completion / request to EP |
+| `hot_reset_requested` | bool | EP | Hot reset requested |
+| `config_update` | bool | EP | Configuration update indicator |
+| `ras_error` | bool | EP | RAS error to controller |
+| `dma_completion` | bool | EP | DMA completion to controller |
+| `controller_misc_int` | bool | EP | Controller miscellaneous interrupt |
+| `noc_timeout` | sc_bv&lt;3&gt; | EP / system | NOC timeout status |
+
+**Summary diagram — sideband and inband to PCIe Tile:**
+
+```{mermaid}
+graph TB
+    subgraph host_rc["Host / Root Complex"]
+        H[Host]
+        RC[RC]
+        H --- RC
+    end
+
+    subgraph pcie_link["PCIe Link - Inband TLPs"]
+        L[TLP]
+    end
+
+    subgraph ep_block["Synopsys EP - PCIe Controller"]
+        EP[EP]
+        EP_CLK[clk, reset_n]
+        EP_FLR[flr_request, hot_reset]
+        EP_ERR[ras_error, dma_completion, misc_int]
+        EP_CII[cii_hv, cii_hdr_type, cii_hdr_addr]
+        EP --- EP_CLK
+        EP --- EP_FLR
+        EP --- EP_ERR
+        EP --- EP_CII
+    end
+
+    subgraph tile["PCIe Tile"]
+        TLM_T[pcie_controller_target]
+        TLM_I[pcie_controller_initiator]
+        IN[sc_in ports]
+        OUT[sc_out ports]
+    end
+
+    RC --- L
+    L --- EP
+    EP ---|AXI/TLM| TLM_T
+    EP ---|AXI/TLM| TLM_I
+    EP_CLK --- IN
+    EP_FLR --- IN
+    EP_ERR --- IN
+    EP_CII --- IN
+    OUT --- EP
+    IN -.->|cold_reset_n, warm_reset_n, isolate_req, axi_clk| SYS[System SMC]
+
+    style L fill:#e3f2fd
+    style TLM_T fill:#c8e6c9
+    style TLM_I fill:#c8e6c9
+    style IN fill:#f8bbd0
+    style OUT fill:#f8bbd0
+```
+
+**Integration notes:**
+
+- **Inband:** Connect the EP’s AXI or TLM initiator to the tile’s `pcie_controller_target`, and the EP’s AXI/TLM target to the tile’s `pcie_controller_initiator`. Traffic from the host (RC) arrives at the EP over the PCIe link; the EP presents it to the tile on the target socket. Traffic from the tile to the host is sent via the initiator socket to the EP, which sends TLPs over the link to the RC.
+- **Sideband:** Drive all tile `sc_in` ports from the EP model or system (clocks, resets, CII, FLR, hot_reset, ras_error, dma_completion, pcie_misc_int; plus cold_reset_n, warm_reset_n, isolate_req, axi_clk from system). Connect all tile `sc_out` ports to the EP or system as required by the EP datasheet and platform design.
+
 ---
 
 ## 4. Connectivity Architecture
 
 ### 4.1 Inbound Data Path (Host → Chip)
 
-**Use Case:** Host CPU writes data to Quasar compute cores or Mimir memory.
+**Use Case:** Host CPU writes data to Quasar compute cores or Mimir memory. The host communicates with the PCIe Tile via a **PCIe Controller**. On the host side the controller is a **Root Complex** (RC); on the Keraunos chip side the controller is the **Synopsys PCIe Controller IP** (DesignWare), configured as an **Endpoint** (EP). So the link is Host (RC) ↔ Keraunos (EP); the PCIe Tile sits behind the endpoint and receives TLPs from it over the internal interface.
 
 ```{mermaid}
 sequenceDiagram
     participant Host as Host CPU
-    participant PCIe as PCIe Tile
+    participant Ctrl as PCIe Controller
+    participant Tile as PCIe Tile
     participant TLB as Inbound TLB
     participant Switch as PCIe-SMN-IO Switch
     participant NOC as NOC-N
     participant SMN as SMN
     participant Quasar as Quasar
 
-    Host->>PCIe: Memory Write
-    PCIe->>TLB: Lookup Translation
-    TLB-->>PCIe: System Address
-    PCIe->>Switch: Forward
+    Host->>Ctrl: Memory Write
+    Ctrl->>Tile: Memory Write TLP
+    Tile->>TLB: Lookup Translation
+    TLB-->>Tile: System Address
+    Tile->>Switch: Forward
     Switch->>Switch: Route Decision
 
     alt NOC-bound
@@ -284,20 +449,21 @@ sequenceDiagram
         SMN-->>Switch: Response
     end
 
-    Switch-->>PCIe: Completion
-    PCIe-->>Host: Completion TLP
+    Switch-->>Tile: Completion
+    Tile-->>Ctrl: Completion TLP
+    Ctrl-->>Host: Completion
 ```
 
 **Key Steps:**
-1. Host initiates PCIe Memory Write targeting Keraunos BAR (Base Address Register)
-2. PCIe Tile receives transaction via `pcie_inbound` socket
+1. Host initiates PCIe Memory Write targeting Keraunos BAR (Base Address Register); the request is sent via the **PCIe Controller** over the PCIe link.
+2. PCIe Controller delivers the Memory Write TLP to the PCIe Tile; the tile receives the transaction via its `pcie_inbound` socket.
 3. Inbound TLB translates host address to system address space
 4. PCIe-SMN-IO Switch routes based on address:
    - **0x0000\_0000\_0000 - 0x0000\_FFFF\_FFFF:** NOC-bound (via `noc_n_initiator`)
    - **0x1000\_0000\_0000 - 0x1FFF\_FFFF\_FFFF:** SMN-bound (via `smn_n_initiator`)
 5. Transaction forwarded to NOC-N or SMN
 6. NOC-N routes via D2D links to destination Quasar/Mimir chiplet
-7. Response traverses back through the same path
+7. Response traverses back through the same path; PCIe Tile sends Completion TLP to the PCIe Controller, which delivers it to the Host.
 
 ### 4.2 Outbound Data Path (Chip → Host)
 

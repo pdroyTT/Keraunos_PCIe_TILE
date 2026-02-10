@@ -120,6 +120,7 @@ mermaid.initialize({
 <li class="toctree-l3"><a class="reference internal" href="#pcie-tile-overview">3.1 PCIe Tile Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#architectural-position">3.2 Architectural Position</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#key-interfaces">3.3 Key Interfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-integration-hostrceppcie-tile-connection-diagram">3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#connectivity-architecture">4. Connectivity Architecture</a><ul>
@@ -990,7 +991,11 @@ mermaid.initialize({
 <ol class="arabic simple">
 <li><p><a class="reference internal" href="#system-overview"><span class="std std-doc">System Overview</span></a></p></li>
 <li><p><a class="reference internal" href="#keraunos-e100-chiplet-architecture"><span class="std std-doc">Keraunos-E100 Chiplet Architecture</span></a></p></li>
-<li><p><a class="reference internal" href="#pcie-tile-position-in-the-system"><span class="std std-doc">PCIe Tile Position in the System</span></a></p></li>
+<li><p><a class="reference internal" href="#pcie-tile-position-in-the-system"><span class="std std-doc">PCIe Tile Position in the System</span></a></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#model-integration-hostrceppcie-tile-connection-diagram"><span class="std std-doc">3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram</span></a></p></li>
+</ul>
+</li>
 <li><p><a class="reference internal" href="#connectivity-architecture"><span class="std std-doc">Connectivity Architecture</span></a></p></li>
 <li><p><a class="reference internal" href="#data-flow-paths"><span class="std std-doc">Data Flow Paths</span></a></p></li>
 <li><p><a class="reference internal" href="#address-space-integration"><span class="std std-doc">Address Space Integration</span></a></p></li>
@@ -1135,8 +1140,9 @@ mermaid.initialize({
 <section id="pcie-subsystem">
 <h4>2.2.2 PCIe Subsystem<a class="headerlink" href="#pcie-subsystem" title="Permalink to this heading"></a></h4>
 <ul class="simple">
-<li><p><strong>PCIe Tile:</strong> Contains PCIe Gen5 controller, TLB translation engines, configuration registers</p></li>
-<li><p><strong>PCIe SerDes:</strong> Physical layer (PHY) for PCIe Gen5 x16 connectivity</p></li>
+<li><p><strong>PCIe Tile:</strong> Contains TLB translation engines, configuration registers, and internal fabric; it interfaces to the PCIe Controller. The tile does not implement the link layer; it receives/sends TLPs via the controller.</p></li>
+<li><p><strong>PCIe Controller:</strong> On the Keraunos chip this is the <strong>Synopsys PCIe Controller IP</strong> (DesignWare), configured as an <strong>Endpoint</strong> (EP). The host system uses a <strong>Root Complex</strong> (RC). The link is therefore RC (host) ↔ EP (Keraunos).</p></li>
+<li><p><strong>PCIe SerDes:</strong> Physical layer (PHY) for PCIe Gen5/Gen6 connectivity</p></li>
 </ul>
 </section>
 <section id="hsio-high-speed-i-o-tiles">
@@ -1267,27 +1273,334 @@ mermaid.initialize({
 </tbody>
 </table>
 </section>
+<section id="model-integration-hostrceppcie-tile-connection-diagram">
+<h3>3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram<a class="headerlink" href="#model-integration-hostrceppcie-tile-connection-diagram" title="Permalink to this heading"></a></h3>
+<p>This section documents how the <strong>inband</strong> (TLM) and <strong>sideband</strong> (sc_in/sc_out) ports of the PCIe Tile connect across Host → Root Complex → Endpoint → PCIe Tile for <strong>model integration</strong> (e.g. connecting the tile to a Synopsys PCIe Controller model or test harness).</p>
+<p><strong>End-to-end connection path:</strong></p>
+<div class="mermaid">
+            graph LR
+    subgraph host[&quot;Host System&quot;]
+        CPU[Host CPU]
+        DRAM[Host DRAM]
+    end
+
+    subgraph rc[&quot;Root Complex&quot;]
+        RC_CORE[RC Core]
+        RC_SIDEBAND[Reset / Power / Sideband]
+    end
+
+    subgraph link[&quot;PCIe Link&quot;]
+        TLP[TLPs]
+    end
+
+    subgraph ep[&quot;Endpoint - Synopsys PCIe Controller&quot;]
+        EP_CORE[EP Core]
+        EP_AXI[AXI / Data IF]
+        EP_SIDEBAND[Sideband Signals]
+    end
+
+    subgraph tile[&quot;PCIe Tile DUT&quot;]
+        TLM_IN[TLM Target]
+        TLM_OUT[TLM Initiator]
+        SC_IN[sc_in]
+        SC_OUT[sc_out]
+    end
+
+    CPU --- RC_CORE
+    RC_CORE --- TLP
+    TLP --- EP_CORE
+    EP_CORE --- EP_AXI
+    EP_CORE --- EP_SIDEBAND
+    EP_AXI --- TLM_IN
+    EP_AXI --- TLM_OUT
+    EP_SIDEBAND --- SC_IN
+    EP_SIDEBAND --- SC_OUT
+    RC_SIDEBAND -.-&gt;|optional| EP_SIDEBAND
+
+    style TLP fill:#e3f2fd
+    style EP_AXI fill:#fff3e0
+    style EP_SIDEBAND fill:#f3e5f5
+    style TLM_IN fill:#e8f5e9
+    style TLM_OUT fill:#e8f5e9
+    style SC_IN fill:#fce4ec
+    style SC_OUT fill:#fce4ec
+        </div><p><strong>Inband (TLM) connections — EP ↔ PCIe Tile:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tile port</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Width</p></th>
+<th class="head"><p>Connected to (EP side)</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_target</span></code></p></td>
+<td><p>Target (in)</p></td>
+<td><p>64-bit</p></td>
+<td><p>EP AXI/TLM initiator</p></td>
+<td><p>Inbound TLPs from host: EP pushes Memory Read/Write to tile</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_initiator</span></code></p></td>
+<td><p>Initiator (out)</p></td>
+<td><p>64-bit</p></td>
+<td><p>EP AXI/TLM target</p></td>
+<td><p>Outbound TLPs to host: tile pushes Memory Read/Write/Completion to EP</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">noc_n_target</span></code></p></td>
+<td><p>Target (in)</p></td>
+<td><p>64-bit</p></td>
+<td><p>NOC fabric</p></td>
+<td><p>Outbound path: NOC traffic destined for PCIe</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">noc_n_initiator</span></code></p></td>
+<td><p>Initiator (out)</p></td>
+<td><p>64-bit</p></td>
+<td><p>NOC fabric</p></td>
+<td><p>Inbound path: tile forwards translated traffic to NOC</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">smn_n_target</span></code></p></td>
+<td><p>Target (in)</p></td>
+<td><p>64-bit</p></td>
+<td><p>SMN fabric</p></td>
+<td><p>Outbound path: SMN traffic destined for PCIe</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smn_n_initiator</span></code></p></td>
+<td><p>Initiator (out)</p></td>
+<td><p>64-bit</p></td>
+<td><p>SMN fabric</p></td>
+<td><p>Inbound path: tile forwards system traffic to SMN</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sideband signals — EP → PCIe Tile (sc_in to tile):</strong></p>
+<p>These are driven by the <strong>Synopsys PCIe Controller (EP)</strong> or by the <strong>system</strong>; the tile receives them as <code class="docutils literal notranslate"><span class="pre">sc_in</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tile port (sc_in)</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_core_clk</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>PCIe core clock from controller</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_reset_n</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>Controller reset (active low)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_cii_hv</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>CII header valid (SII / config info)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_cii_hdr_type</span></code></p></td>
+<td><p>sc_bv&lt;5&gt;</p></td>
+<td><p>EP</p></td>
+<td><p>CII header type [4:0]</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_cii_hdr_addr</span></code></p></td>
+<td><p>sc_bv&lt;12&gt;</p></td>
+<td><p>EP</p></td>
+<td><p>CII header address [11:0]</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_flr_request</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>Function Level Reset request</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_hot_reset</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>Hot reset from link</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_ras_error</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>RAS error indication</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_dma_completion</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>DMA completion notification</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_misc_int</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>Miscellaneous interrupt from controller</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>System (SMC)</p></td>
+<td><p>SoC cold reset (active low)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warm_reset_n</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>System (SMC)</p></td>
+<td><p>SoC warm reset (active low)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">isolate_req</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>System</p></td>
+<td><p>Isolation request</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">axi_clk</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>System</p></td>
+<td><p>AXI clock</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sideband signals — PCIe Tile → EP (sc_out from tile):</strong></p>
+<p>The tile drives these; the <strong>EP</strong> or <strong>system</strong> receives them.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tile port (sc_out)</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Sink</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_app_bus_num</span></code></p></td>
+<td><p>uint8_t</p></td>
+<td><p>EP</p></td>
+<td><p>PCIe bus number for app</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_app_dev_num</span></code></p></td>
+<td><p>uint8_t</p></td>
+<td><p>EP</p></td>
+<td><p>PCIe device number for app</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_device_type</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>Device type indicator</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_sys_int</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>System interrupt to controller</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">function_level_reset</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>FLR completion / request to EP</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hot_reset_requested</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>Hot reset requested</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">config_update</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>Configuration update indicator</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ras_error</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>RAS error to controller</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dma_completion</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>DMA completion to controller</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">controller_misc_int</span></code></p></td>
+<td><p>bool</p></td>
+<td><p>EP</p></td>
+<td><p>Controller miscellaneous interrupt</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">noc_timeout</span></code></p></td>
+<td><p>sc_bv&lt;3&gt;</p></td>
+<td><p>EP / system</p></td>
+<td><p>NOC timeout status</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Summary diagram — sideband and inband to PCIe Tile:</strong></p>
+<div class="mermaid">
+            graph TB
+    subgraph host_rc[&quot;Host / Root Complex&quot;]
+        H[Host]
+        RC[RC]
+        H --- RC
+    end
+
+    subgraph pcie_link[&quot;PCIe Link - Inband TLPs&quot;]
+        L[TLP]
+    end
+
+    subgraph ep_block[&quot;Synopsys EP - PCIe Controller&quot;]
+        EP[EP]
+        EP_CLK[clk, reset_n]
+        EP_FLR[flr_request, hot_reset]
+        EP_ERR[ras_error, dma_completion, misc_int]
+        EP_CII[cii_hv, cii_hdr_type, cii_hdr_addr]
+        EP --- EP_CLK
+        EP --- EP_FLR
+        EP --- EP_ERR
+        EP --- EP_CII
+    end
+
+    subgraph tile[&quot;PCIe Tile&quot;]
+        TLM_T[pcie_controller_target]
+        TLM_I[pcie_controller_initiator]
+        IN[sc_in ports]
+        OUT[sc_out ports]
+    end
+
+    RC --- L
+    L --- EP
+    EP ---|AXI/TLM| TLM_T
+    EP ---|AXI/TLM| TLM_I
+    EP_CLK --- IN
+    EP_FLR --- IN
+    EP_ERR --- IN
+    EP_CII --- IN
+    OUT --- EP
+    IN -.-&gt;|cold_reset_n, warm_reset_n, isolate_req, axi_clk| SYS[System SMC]
+
+    style L fill:#e3f2fd
+    style TLM_T fill:#c8e6c9
+    style TLM_I fill:#c8e6c9
+    style IN fill:#f8bbd0
+    style OUT fill:#f8bbd0
+        </div><p><strong>Integration notes:</strong></p>
+<ul class="simple">
+<li><p><strong>Inband:</strong> Connect the EP’s AXI or TLM initiator to the tile’s <code class="docutils literal notranslate"><span class="pre">pcie_controller_target</span></code>, and the EP’s AXI/TLM target to the tile’s <code class="docutils literal notranslate"><span class="pre">pcie_controller_initiator</span></code>. Traffic from the host (RC) arrives at the EP over the PCIe link; the EP presents it to the tile on the target socket. Traffic from the tile to the host is sent via the initiator socket to the EP, which sends TLPs over the link to the RC.</p></li>
+<li><p><strong>Sideband:</strong> Drive all tile <code class="docutils literal notranslate"><span class="pre">sc_in</span></code> ports from the EP model or system (clocks, resets, CII, FLR, hot_reset, ras_error, dma_completion, pcie_misc_int; plus cold_reset_n, warm_reset_n, isolate_req, axi_clk from system). Connect all tile <code class="docutils literal notranslate"><span class="pre">sc_out</span></code> ports to the EP or system as required by the EP datasheet and platform design.</p></li>
+</ul>
+</section>
 </section>
 <hr class="docutils" />
 <section id="connectivity-architecture">
 <h2>4. Connectivity Architecture<a class="headerlink" href="#connectivity-architecture" title="Permalink to this heading"></a></h2>
 <section id="inbound-data-path-host-chip">
 <h3>4.1 Inbound Data Path (Host → Chip)<a class="headerlink" href="#inbound-data-path-host-chip" title="Permalink to this heading"></a></h3>
-<p><strong>Use Case:</strong> Host CPU writes data to Quasar compute cores or Mimir memory.</p>
+<p><strong>Use Case:</strong> Host CPU writes data to Quasar compute cores or Mimir memory. The host communicates with the PCIe Tile via a <strong>PCIe Controller</strong>. On the host side the controller is a <strong>Root Complex</strong> (RC); on the Keraunos chip side the controller is the <strong>Synopsys PCIe Controller IP</strong> (DesignWare), configured as an <strong>Endpoint</strong> (EP). So the link is Host (RC) ↔ Keraunos (EP); the PCIe Tile sits behind the endpoint and receives TLPs from it over the internal interface.</p>
 <div class="mermaid">
             sequenceDiagram
     participant Host as Host CPU
-    participant PCIe as PCIe Tile
+    participant Ctrl as PCIe Controller
+    participant Tile as PCIe Tile
     participant TLB as Inbound TLB
     participant Switch as PCIe-SMN-IO Switch
     participant NOC as NOC-N
     participant SMN as SMN
     participant Quasar as Quasar
 
-    Host-&gt;&gt;PCIe: Memory Write
-    PCIe-&gt;&gt;TLB: Lookup Translation
-    TLB--&gt;&gt;PCIe: System Address
-    PCIe-&gt;&gt;Switch: Forward
+    Host-&gt;&gt;Ctrl: Memory Write
+    Ctrl-&gt;&gt;Tile: Memory Write TLP
+    Tile-&gt;&gt;TLB: Lookup Translation
+    TLB--&gt;&gt;Tile: System Address
+    Tile-&gt;&gt;Switch: Forward
     Switch-&gt;&gt;Switch: Route Decision
 
     alt NOC-bound
@@ -1300,12 +1613,13 @@ mermaid.initialize({
         SMN--&gt;&gt;Switch: Response
     end
 
-    Switch--&gt;&gt;PCIe: Completion
-    PCIe--&gt;&gt;Host: Completion TLP
+    Switch--&gt;&gt;Tile: Completion
+    Tile--&gt;&gt;Ctrl: Completion TLP
+    Ctrl--&gt;&gt;Host: Completion
         </div><p><strong>Key Steps:</strong></p>
 <ol class="arabic simple">
-<li><p>Host initiates PCIe Memory Write targeting Keraunos BAR (Base Address Register)</p></li>
-<li><p>PCIe Tile receives transaction via <code class="docutils literal notranslate"><span class="pre">pcie_inbound</span></code> socket</p></li>
+<li><p>Host initiates PCIe Memory Write targeting Keraunos BAR (Base Address Register); the request is sent via the <strong>PCIe Controller</strong> over the PCIe link.</p></li>
+<li><p>PCIe Controller delivers the Memory Write TLP to the PCIe Tile; the tile receives the transaction via its <code class="docutils literal notranslate"><span class="pre">pcie_inbound</span></code> socket.</p></li>
 <li><p>Inbound TLB translates host address to system address space</p></li>
 <li><p>PCIe-SMN-IO Switch routes based on address:</p>
 <ul class="simple">
@@ -1315,7 +1629,7 @@ mermaid.initialize({
 </li>
 <li><p>Transaction forwarded to NOC-N or SMN</p></li>
 <li><p>NOC-N routes via D2D links to destination Quasar/Mimir chiplet</p></li>
-<li><p>Response traverses back through the same path</p></li>
+<li><p>Response traverses back through the same path; PCIe Tile sends Completion TLP to the PCIe Controller, which delivers it to the Host.</p></li>
 </ol>
 </section>
 <section id="outbound-data-path-chip-host">
