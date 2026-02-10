@@ -7,6 +7,7 @@ Welcome to the Keraunos PCIe Tile SystemC/TLM2.0 implementation documentation.
    :maxdepth: 3
    :caption: Contents:
 
+   Keraunos_System_Architecture.md
    Keraunos_PCIe_Tile_HLD.md
    Keraunos_PCIE_Tile_SystemC_Design_Document.md
    Keraunos_PCIE_Tile_Testplan.md

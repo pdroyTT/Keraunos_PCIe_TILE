@@ -94,6 +94,65 @@ mermaid.initialize({
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="Keraunos_System_Architecture.html">Keraunos System Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#pcie-tile-integration-in-keraunos-e100-chiplet-ecosystem">PCIe Tile Integration in Keraunos-E100 Chiplet Ecosystem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#executive-summary">Executive Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#system-overview">1. System Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#grendel-chiplet-ecosystem">1.1 Grendel Chiplet Ecosystem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#keraunos-e100-role">1.2 Keraunos-E100 Role</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#keraunos-e100-chiplet-architecture">2. Keraunos-E100 Chiplet Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#high-level-block-diagram">2.1 High-Level Block Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#key-subsystems">2.2 Key Subsystems</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#chiplet-harness">2.2.1 Chiplet Harness</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#pcie-subsystem">2.2.2 PCIe Subsystem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#hsio-high-speed-i-o-tiles">2.2.3 HSIO (High-Speed I/O) Tiles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#noc-infrastructure">2.2.4 NOC Infrastructure</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#pcie-tile-position-in-the-system">3. PCIe Tile Position in the System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#pcie-tile-overview">3.1 PCIe Tile Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#architectural-position">3.2 Architectural Position</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#key-interfaces">3.3 Key Interfaces</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#connectivity-architecture">4. Connectivity Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#inbound-data-path-host-chip">4.1 Inbound Data Path (Host → Chip)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#outbound-data-path-chip-host">4.2 Outbound Data Path (Chip → Host)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#configuration-path-smn-pcie-tile-registers">4.3 Configuration Path (SMN → PCIe Tile Registers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#msi-interrupt-path-chip-host">4.4 MSI Interrupt Path (Chip → Host)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#data-flow-paths">5. Data Flow Paths</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#end-to-end-data-flow-example-host-dma-to-quasar">5.1 End-to-End Data Flow Example: Host DMA to Quasar</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#multi-hop-data-flow-quasar-pcie-host-pcie-quasar">5.2 Multi-Hop Data Flow: Quasar → PCIe → Host → PCIe → Quasar</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#address-space-integration">6. Address Space Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#system-address-map">6.1 System Address Map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#pcie-bar-base-address-register-mapping">6.2 PCIe BAR (Base Address Register) Mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#address-translation-stages">6.3 Address Translation Stages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#system-use-cases">7. System Use Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#use-case-1-model-initialization">7.1 Use Case 1: Model Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#use-case-2-inference-execution">7.2 Use Case 2: Inference Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#use-case-3-package-to-package-communication">7.3 Use Case 3: Package-to-Package Communication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#use-case-4-system-management">7.4 Use Case 4: System Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#appendices">8. Appendices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#acronyms-and-abbreviations">8.1 Acronyms and Abbreviations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#reference-documents">8.2 Reference Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#revision-history">8.3 Revision History</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html">Keraunos PCIe Tile - High-Level Design Document</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#table-of-contents">Table of Contents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#introduction">1. Introduction</a><ul>
