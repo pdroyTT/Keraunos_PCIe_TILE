@@ -1,45 +1,97 @@
 /* Custom CSS for Keraunos PCIe Tile Documentation */
+/* Override Read the Docs theme to ensure full-width white background */
 
 /* ===================================================================
-   Content Area - Full White Background Extension
+   FORCE Full White Background - Override RTD Theme
    =================================================================== */
 
-/* Extend content area to full width and height with white background */
-.wy-nav-content {
-    max-width: none !important;  /* Remove default max-width constraint */
-    background: white;
-    min-height: 100vh;           /* Extend to full viewport height */
-    padding: 20px 40px;
+/* Page-level white background */
+body,
+html {
+    background: white !important;
 }
 
-/* Ensure content wrapper extends fully */
+/* Main layout container - white background */
+.wy-grid-for-nav {
+    background: white !important;
+}
+
+/* Content wrapper - full width white background */
 .wy-nav-content-wrap {
-    background: white;
-    min-height: 100vh;
+    background: white !important;
+    margin-left: 300px !important;
+    min-height: 100vh !important;
 }
 
-/* Main document content - white background, proper padding */
+/* Content area - remove max-width, force white background */
+.wy-nav-content {
+    max-width: none !important;
+    background: white !important;
+    min-height: 100vh !important;
+    padding: 20px 40px !important;
+}
+
+/* Main document body - white background, centered content */
 .rst-content {
-    background: white;
-    max-width: 1400px;           /* Comfortable reading width */
-    margin: 0 auto;
-    padding: 20px;
+    background: white !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+}
+
+/* Ensure section content extends properly */
+.document {
+    background: white !important;
+    width: 100% !important;
 }
 
 /* Prevent text wrapping issues in pre/code blocks */
 .rst-content pre {
-    white-space: pre;
-    overflow-x: auto;
-    word-wrap: normal;
+    white-space: pre !important;
+    overflow-x: auto !important;
+    word-wrap: normal !important;
 }
 
 /* Ensure tables don't cause wrapping issues */
 .rst-content table {
-    display: table;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
+    display: table !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    table-layout: auto !important;
 }
+
+/* Navigation sidebar styling */
+.wy-side-nav-search {
+    background-color: #1976d2 !important;
+}
+
+.wy-menu-vertical {
+    background: #fcfcfc !important;
+}
+
+.wy-nav-side {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 300px !important;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 768px) {
+    .wy-nav-side {
+        left: -300px !important;
+    }
+    
+    .wy-nav-content-wrap {
+        margin-left: 0 !important;
+    }
+}
+
+/* ===================================================================
+   Content Styling
+   =================================================================== */
 
 /* Make Mermaid diagrams more readable */
 .mermaid {
@@ -133,74 +185,6 @@ div.mermaid-container {
     margin: 20px 0;
 }
 
-/* Print styles */
-@media print {
-    .mermaid {
-        page-break-inside: avoid;
-    }
-    
-    table {
-        page-break-inside: avoid;
-    }
-}
-
-/* ===================================================================
-   Additional Layout Fixes
-   =================================================================== */
-
-/* Ensure body and page wrapper have white background */
-body {
-    background: white;
-}
-
-.wy-grid-for-nav {
-    background: white;
-}
-
-/* Fix navigation sidebar so content extends properly */
-.wy-side-nav-search {
-    background-color: #1976d2;
-}
-
-.wy-menu-vertical {
-    background: #fcfcfc;
-}
-
-/* Ensure content doesn't hide behind navigation */
-.wy-nav-side {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 300px;
-}
-
-/* Content area should be to the right of nav with proper offset */
-.wy-nav-content-wrap {
-    margin-left: 300px;
-    background: white;
-}
-
-/* Mobile responsive: hide nav on small screens */
-@media screen and (max-width: 768px) {
-    .wy-nav-side {
-        left: -300px;
-    }
-    
-    .wy-nav-content-wrap {
-        margin-left: 0;
-    }
-}
-
-/* Prevent long code lines from causing horizontal scroll issues */
-.rst-content .highlight pre {
-    overflow-x: auto;
-    max-width: 100%;
-    white-space: pre;
-    word-break: normal;
-    word-wrap: normal;
-}
-
 /* Fix section anchors to account for fixed header */
 .rst-content .section {
     scroll-margin-top: 20px;
@@ -210,4 +194,32 @@ body {
 .rst-content p {
     line-height: 1.6;
     margin-bottom: 15px;
+}
+
+/* Prevent long code lines from causing horizontal scroll issues */
+.rst-content .highlight pre {
+    overflow-x: auto !important;
+    max-width: 100% !important;
+    white-space: pre !important;
+    word-break: normal !important;
+    word-wrap: normal !important;
+}
+
+/* Print styles */
+@media print {
+    .mermaid {
+        page-break-inside: avoid;
+    }
+    
+    table {
+        page-break-inside: avoid;
+    }
+    
+    .wy-nav-side {
+        display: none;
+    }
+    
+    .wy-nav-content-wrap {
+        margin-left: 0 !important;
+    }
 }
