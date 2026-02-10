@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Build documentation and push to GitHub
-# Rebuilds Sphinx HTML, stages all changes, commits, and pushes
+# Rebuilds Sphinx HTML only if source .md or config files changed
 #
 
 set -e
@@ -21,43 +21,68 @@ echo "=================================================="
 echo ""
 
 # -------------------------------------------------------
-# Step 1: Build Sphinx HTML documentation
+# Step 1: Check if HTML rebuild needed
 # -------------------------------------------------------
-echo -e "${BLUE}[1/5] Building Sphinx HTML documentation...${NC}"
+echo -e "${BLUE}[1/5] Checking if HTML rebuild needed...${NC}"
 
-if command -v sphinx-build &> /dev/null; then
-    cd doc
-    rm -rf _build
-    if sphinx-build -b html --keep-going . _build/html 2>&1 | tail -5; then
-        echo -e "${GREEN}  Sphinx build succeeded${NC}"
-    else
-        echo -e "${RED}  Sphinx build failed - continuing with existing docs${NC}"
-    fi
-    cd "$SCRIPT_DIR"
+REBUILD_NEEDED=false
+
+# Check for changes in documentation source files
+if git diff --name-only HEAD | grep -E '^doc/.*\.(md|rst|py)$|^doc/_static/|^doc/conf\.py$|^doc/index\.rst$' > /dev/null; then
+    echo -e "${YELLOW}  Documentation source files modified${NC}"
+    REBUILD_NEEDED=true
+elif git diff --cached --name-only | grep -E '^doc/.*\.(md|rst|py)$|^doc/_static/|^doc/conf\.py$|^doc/index\.rst$' > /dev/null; then
+    echo -e "${YELLOW}  Documentation source files staged${NC}"
+    REBUILD_NEEDED=true
 else
-    echo -e "${YELLOW}  sphinx-build not found - skipping HTML rebuild${NC}"
-    echo -e "${YELLOW}  Install: pip3 install sphinx sphinx_rtd_theme myst-parser sphinxcontrib-mermaid${NC}"
+    # Check if doc/ source files exist and docs/ HTML is missing or older
+    if [ -d "doc" ] && [ ! -d "docs" ]; then
+        echo -e "${YELLOW}  docs/ directory missing${NC}"
+        REBUILD_NEEDED=true
+    elif [ -d "doc" ] && [ ! -f "docs/index.html" ]; then
+        echo -e "${YELLOW}  docs/index.html missing${NC}"
+        REBUILD_NEEDED=true
+    else
+        echo -e "${GREEN}  No documentation source changes detected - skipping rebuild${NC}"
+    fi
 fi
 
 # -------------------------------------------------------
-# Step 2: Sync Sphinx output to docs_build/ for GitHub Pages
+# Step 2: Build Sphinx HTML documentation (if needed)
 # -------------------------------------------------------
-echo ""
-echo -e "${BLUE}[2/5] Syncing HTML to docs_build/ ...${NC}"
+if [ "$REBUILD_NEEDED" = true ]; then
+    echo ""
+    echo -e "${BLUE}[2/5] Building Sphinx HTML documentation...${NC}"
 
-if [ -d "doc/_build/html" ]; then
-    # Preserve .doctrees (not needed for serving) but copy everything else
-    rsync -a --delete \
-        --exclude='.doctrees' \
-        --exclude='.buildinfo' \
-        doc/_build/html/ docs/
+    if command -v sphinx-build &> /dev/null; then
+        cd doc
+        rm -rf _build
+        if sphinx-build -b html --keep-going . _build/html 2>&1 | tail -10; then
+            echo -e "${GREEN}  Sphinx build succeeded${NC}"
+            
+            # Sync to docs/
+            cd "$SCRIPT_DIR"
+            echo -e "  Syncing HTML to docs/ ..."
+            rsync -a --delete \
+                --exclude='.doctrees' \
+                --exclude='.buildinfo' \
+                doc/_build/html/ docs/
 
-    # GitHub Pages needs a .nojekyll file to serve _static/ correctly
-    touch docs/.nojekyll
-
-    echo -e "${GREEN}  Synced $(find docs -type f | wc -l) files to docs/${NC}"
+            # GitHub Pages needs .nojekyll for _static/
+            touch docs/.nojekyll
+            
+            echo -e "${GREEN}  Synced $(find docs -type f | wc -l) files to docs/${NC}"
+        else
+            echo -e "${RED}  Sphinx build failed - continuing with existing docs${NC}"
+        fi
+        cd "$SCRIPT_DIR"
+    else
+        echo -e "${YELLOW}  sphinx-build not found - skipping HTML rebuild${NC}"
+        echo -e "${YELLOW}  Install: pip3 install sphinx sphinx_rtd_theme myst-parser sphinxcontrib-mermaid${NC}"
+    fi
 else
-    echo -e "${YELLOW}  No Sphinx output found at doc/_build/html - skipping sync${NC}"
+    echo ""
+    echo -e "${BLUE}[2/5] Skipping HTML rebuild (no source changes)${NC}"
 fi
 
 # -------------------------------------------------------
@@ -98,36 +123,42 @@ if [ "$CHANGED" -eq 0 ]; then
 else
     echo -e "  ${CHANGED} files changed"
 
-    # Stage key directories
+    # Stage key directories (excluding .md files via .gitignore)
     git add -A \
-        doc/ \
         docs/ \
-        docs_source/ \
         src/ \
         include/ \
         tb/ \
         Keraunos_PCIe_tile/ \
-        integration_guide/ \
         Makefile* \
-        *.md \
-        *.sh \
-        *.txt \
         .gitignore \
+        push_to_github.sh \
         2>/dev/null || true
 
     # Show staged summary
-    STAGED=$(git diff --cached --stat | tail -1)
-    echo -e "  Staged: ${STAGED}"
+    STAGED_COUNT=$(git diff --cached --name-only | wc -l)
+    if [ "$STAGED_COUNT" -eq 0 ]; then
+        echo -e "${YELLOW}  No changes staged (all filtered by .gitignore)${NC}"
+    else
+        STAGED_SUMMARY=$(git diff --cached --stat | tail -1)
+        echo -e "  Staged: ${STAGED_SUMMARY}"
 
-    # Commit with descriptive message
-    TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
-    git commit -m "Update documentation and tests - ${TIMESTAMP}
-
-- 81/81 tests passing with cross-socket data verification
-- DUT initiator socket architecture (simple_initiator_socket)
-- sparse_backing_memory testbench (std::map, 256TB range)
-- Original design spec address map restored
-- Sphinx HTML documentation rebuilt" 2>&1 || echo -e "${YELLOW}  Nothing to commit${NC}"
+        # Commit with descriptive message
+        TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
+        
+        # Detect what changed
+        if git diff --cached --name-only | grep -q '^docs/'; then
+            COMMIT_MSG="Update documentation (HTML) - ${TIMESTAMP}"
+        elif git diff --cached --name-only | grep -qE '^\(src/|include/|Keraunos_PCIe_tile/SystemC/\)'; then
+            COMMIT_MSG="Update source code - ${TIMESTAMP}"
+        elif git diff --cached --name-only | grep -q 'Test'; then
+            COMMIT_MSG="Update tests - ${TIMESTAMP}"
+        else
+            COMMIT_MSG="Update project files - ${TIMESTAMP}"
+        fi
+        
+        git commit -m "${COMMIT_MSG}" 2>&1 || echo -e "${YELLOW}  Nothing to commit${NC}"
+    fi
 fi
 
 # -------------------------------------------------------
@@ -154,6 +185,9 @@ GIT_TERMINAL_PROMPT=0 git push origin "$BRANCH" 2>&1 | grep -v "Username\|Passwo
         echo -e "${GREEN}  Force push succeeded${NC}"
     else
         echo -e "${RED}  Push aborted${NC}"
+        # Clean token from remote URL (security)
+        git remote set-url origin "https://github.com/${GITHUB_USER}/${REPO_NAME}.git"
+        exit 1
     fi
 }
 
