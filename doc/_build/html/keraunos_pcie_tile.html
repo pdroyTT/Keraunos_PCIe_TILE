@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keraunos Pcie Tile &mdash; Keraunos PCIe Tile 2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script src="https://unpkg.com/mermaid@10.6.1/dist/mermaid.min.js"></script>
+        <script>
+mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    themeVariables: {
+        primaryColor: '#e3f2fd',
+        primaryTextColor: '#000',
+        primaryBorderColor: '#1976d2',
+        lineColor: '#1976d2',
+        secondaryColor: '#fff4e1',
+        tertiaryColor: '#e8f5e9'
+    },
+    flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis',
+        padding: 15
+    },
+    sequence: {
+        useMaxWidth: true,
+        diagramMarginX: 50,
+        diagramMarginY: 10,
+        actorMargin: 50,
+        boxMargin: 10,
+        boxTextMargin: 5,
+        noteMargin: 10,
+        messageMargin: 35
+    },
+    gantt: {
+        useMaxWidth: true,
+        barHeight: 20,
+        barGap: 4,
+        topPadding: 50,
+        leftPadding: 75,
+        gridLineStartPadding: 35
+    },
+    class: {
+        useMaxWidth: true
+    },
+    state: {
+        useMaxWidth: true
+    }
+});
+</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Keraunos PCIe Tile
+          </a>
+              <div class="version">
+                2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html">Keraunos PCIe Tile - High-Level Design Document</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#introduction">1. Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#purpose">1.1 Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#scope">1.2 Scope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#definitions-and-acronyms">1.3 Definitions and Acronyms</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#architecture-overview">2. Architecture Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#top-level-architecture">2.1 Top-Level Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#design-principles">2.2 Design Principles</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#block-diagram">3. Block Diagram</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#tile-level-block-diagram">3.1 Tile-Level Block Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#data-flow-paths">3.2 Data Flow Paths</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#module-descriptions">4. Module Descriptions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-pcie-switch">4.1 NOC-PCIE Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-io-switch">4.2 NOC-IO Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#smn-io-switch">4.3 SMN-IO Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#translation-lookaside-buffers-tlbs">4.4 Translation Lookaside Buffers (TLBs)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-relay-unit">4.5 MSI Relay Unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#system-information-interface-sii-block">4.6 System Information Interface (SII) Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-register-block">4.7 Configuration Register Block</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-and-reset-control">4.8 Clock and Reset Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#pcie-phy-model">4.9 PCIe PHY Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#pll-cgm-clock-generation-module">4.10 PLL/CGM (Clock Generation Module)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#interface-specifications">5. Interface Specifications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#external-tlm-sockets">5.1 External TLM Sockets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#control-input-signals">5.2 Control Input Signals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#output-signals">5.3 Output Signals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#internal-signals">5.4 Internal Signals</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#address-map">6. Address Map</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-address-map-pcie-noc-smn">6.1 Inbound Address Map (PCIe → NOC/SMN)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-address-map-smn">6.2 Configuration Address Map (SMN)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-relay-address-map-0x18800000">6.3 MSI Relay Address Map (0x18800000)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#data-flow">7. Data Flow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-data-flow-pcie-noc">7.1 Inbound Data Flow (PCIe → NOC)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#outbound-data-flow-noc-pcie">7.2 Outbound Data Flow (NOC → PCIe)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-access-flow-smn-config-registers">7.3 Configuration Access Flow (SMN → Config Registers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-generation-flow-noc-pcie-via-msi-relay">7.4 MSI Generation Flow (NOC → PCIe via MSI Relay)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-interrupt-flow-pcie-config-write-config-update">7.5 CII Interrupt Flow (PCIe Config Write → config_update)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-and-reset-strategy">8. Clock and Reset Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-domains">8.1 Clock Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-strategy">8.2 Reset Strategy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#power-on-initialization">8.3 Power-On Initialization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-and-control">9. Configuration and Control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#tile-initialization-sequence">9.1 Tile Initialization Sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#runtime-control">9.2 Runtime Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#status-monitoring">9.3 Status Monitoring</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#references">10. References</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#related-documents">10.1 Related Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#source-code-organization">10.2 Source Code Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#key-design-decisions">10.3 Key Design Decisions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#known-limitations-and-findings">10.4 Known Limitations and Findings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#appendix-a-signal-timing-diagrams">Appendix A: Signal Timing Diagrams</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#a-1-cii-interrupt-timing">A.1 CII Interrupt Timing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#a-2-isolation-sequence">A.2 Isolation Sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#a-3-cold-reset-cycle">A.3 Cold Reset Cycle</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#appendix-b-address-decode-examples">Appendix B: Address Decode Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#b-1-inbound-tlb-translation-tlb-sys-in0">B.1 Inbound TLB Translation (TLB Sys In0)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#b-2-status-register-access">B.2 Status Register Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#b-3-smn-config-write-address-passthrough-issue">B.3 SMN Config Write (Address Passthrough Issue)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#appendix-c-test-coverage-summary">Appendix C: Test Coverage Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html">Keraunos PCIE Tile SystemC/TLM2.0 Design Document</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#sphinx-setup-instructions">Sphinx Setup Instructions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#install-required-extensions">1. Install Required Extensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#configure-conf-py">2. Configure <code class="docutils literal notranslate"><span class="pre">conf.py</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#build-html-documentation">3. Build HTML Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#alternative-use-make">4. Alternative: Use make</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#key-implementation-features">⭐ Key Implementation Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#introduction">1. Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#purpose">1.1 Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#scope">1.2 Scope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#references">1.3 References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#implementation-version">1.4 Implementation Version</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#refactored-architecture-overview-new">1.5 Refactored Architecture Overview ⭐ NEW</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#why-refactoring-was-necessary">1.5.1 Why Refactoring Was Necessary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#refactored-architecture-pattern">1.5.2 Refactored Architecture Pattern</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#original-design-socket-based">Original Design (Socket-Based):</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#refactored-design-function-based">Refactored Design (Function-Based):</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#function-callback-communication-pattern">1.5.3 Function Callback Communication Pattern</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#callback-type-definition">Callback Type Definition:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#setting-up-callbacks-wire-components">Setting Up Callbacks (Wire Components):</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#benefits-of-function-callbacks">Benefits of Function Callbacks:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#smart-pointer-memory-management">1.5.4 Smart Pointer Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#scml2-memory-integration">1.5.5 SCML2 Memory Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#temporal-decoupling-support">1.5.6 Temporal Decoupling Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#modern-c-best-practices-applied">1.5.7 Modern C++ Best Practices Applied</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#file-organization">1.5.8 File Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#component-communication-pattern">1.5.9 Component Communication Pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#null-safety-pattern">1.5.10 Null Safety Pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#performance-characteristics">1.5.11 Performance Characteristics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#code-example-complete-transaction-path">1.5.12 Code Example - Complete Transaction Path</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#system-overview">2. System Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#keraunos-pcie-tile-context">2.1 Keraunos PCIE Tile Context</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#modeled-components">2.2 Modeled Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#design-objectives">2.3 Design Objectives</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#architecture">3. Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#overall-structure">3.1 Overall Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#component-hierarchy">3.2 Component Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#data-flow">3.3 Data Flow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#inbound-traffic-flow">Inbound Traffic Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#outbound-traffic-flow">Outbound Traffic Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#msi-flow">MSI Flow</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#component-design">4. Component Design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlb-common-structures">4.1 TLB Common Structures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlbentry-structure">4.1.1 TlbEntry Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#inbound-tlb-design">4.2 Inbound TLB Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#overview-and-use-cases">4.2.1 Overview and Use Cases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlbsysin0-system-management-inbound-tlb">4.2.2 TLBSysIn0 - System Management Inbound TLB</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlbappin0-application-inbound-tlb-bar0-1">4.2.3 TLBAppIn0 - Application Inbound TLB (BAR0/1)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlbappin1-application-inbound-tlb-bar4-5">4.2.4 TLBAppIn1 - Application Inbound TLB (BAR4/5)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#inbound-tlb-translation-flow">4.2.5 Inbound TLB Translation Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#address-translation-examples">4.2.6 Address Translation Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#axuser-field-format">4.2.7 AxUSER Field Format</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#configuration-and-initialization">4.2.8 Configuration and Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#error-handling">4.2.9 Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#integration-with-system">4.2.10 Integration with System</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#outbound-tlb-design">4.3 Outbound TLB Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id1">4.3.1 Overview and Use Cases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlbsysout0-system-management-outbound-tlb">4.3.2 TLBSysOut0 - System Management Outbound TLB</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlbappout0-application-outbound-tlb-high-address">4.3.3 TLBAppOut0 - Application Outbound TLB (High Address)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlbappout1-application-outbound-tlb-dbi-access">4.3.4 TLBAppOut1 - Application Outbound TLB (DBI Access)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#outbound-tlb-translation-flow">4.3.5 Outbound TLB Translation Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id2">4.3.6 Address Translation Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id3">4.3.7 Configuration and Initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id4">4.3.8 Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id5">4.3.9 Integration with System</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#msi-relay-unit-design">4.4 MSI Relay Unit Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#overview">4.4.1 Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id6">4.4.2 Architecture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#msi-x-table-entry">4.4.3 MSI-X Table Entry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#pending-bit-array-pba">4.4.4 Pending Bit Array (PBA)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#msi-thrower-logic">4.4.5 MSI Thrower Logic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#register-map">4.4.6 Register Map</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#intra-tile-fabric-switch-design">4.5 Intra-Tile Fabric Switch Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#noc-pcie-switch">4.5.1 NOC-PCIE Switch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#noc-io-switch">4.5.2 NOC-IO Switch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#smn-io-switch">4.5.3 SMN-IO Switch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#system-information-interface-sii-block">4.6 System Information Interface (SII) Block</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id7">4.6.1 Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#architecture-and-operation">4.6.2 Architecture and Operation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#cii-tracking-implementation">4.6.3 CII Tracking Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id8">4.6.4 Register Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#clock-domain-crossing">4.6.5 Clock Domain Crossing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#interrupt-generation-and-routing">4.6.6 Interrupt Generation and Routing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#interface-specification">4.6.7 Interface Specification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#implementation-details">4.6.8 Implementation Details</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#configuration-register-block">4.7 Configuration Register Block</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id9">4.7.1 Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#status-registers">4.7.2 Status Registers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#isolation-behavior">4.7.3 Isolation Behavior</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#clock-reset-control-module">4.8 Clock &amp; Reset Control Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id10">4.8.1 Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#clock-domains">4.8.2 Clock Domains</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#reset-sequence">4.8.3 Reset Sequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#interface">4.8.4 Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#pll-cgm-clock-generation-module">4.9 PLL/CGM (Clock Generation Module)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id11">4.9.1 Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#pll-lock">4.9.2 PLL Lock</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id12">4.9.3 Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#pcie-phy-model">4.10 PCIE PHY Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id13">4.10.1 Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#features">4.10.2 Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id14">4.10.3 Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#external-interface-modules">4.11 External Interface Modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#noc-n-interface">4.11.1 NOC-N Interface</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#smn-n-interface">4.11.2 SMN-N Interface</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#top-level-keraunos-pcie-tile-module">4.12 Top-Level Keraunos PCIE Tile Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id15">4.12.1 Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#external-interfaces">4.12.2 External Interfaces</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#internal-connections">4.12.3 Internal Connections</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#interface-specifications">5. Interface Specifications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlm2-0-interfaces">5.1 TLM2.0 Interfaces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#axi4-target-socket-inbound-tlbs">5.1.1 AXI4 Target Socket (Inbound TLBs)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#axi4-initiator-socket-all-tlbs">5.1.2 AXI4 Initiator Socket (All TLBs)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#apb-target-socket-configuration">5.1.3 APB Target Socket (Configuration)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#axi4-lite-initiator-socket-msi-relay">5.1.4 AXI4-Lite Initiator Socket (MSI Relay)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#systemc-signals">5.2 SystemC Signals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#control-signals">5.2.1 Control Signals</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#address-translation-interfaces">5.3 Address Translation Interfaces</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlb-lookup-methods">5.3.1 TLB Lookup Methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#configuration-methods">5.3.2 Configuration Methods</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id16">6. Implementation Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#address-translation-algorithms">6.1 Address Translation Algorithms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#inbound-translation-tlbsysin0">6.1.1 Inbound Translation (TLBSysIn0)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#outbound-translation-tlbappout0">6.1.2 Outbound Translation (TLBAppOut0)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#id17">6.2 Error Handling</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#invalid-tlb-entry">6.2.1 Invalid TLB Entry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#out-of-range-index">6.2.2 Out-of-Range Index</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#msi-relay-unit-state-machine">6.3 MSI Relay Unit State Machine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#threading-model">6.4 Threading Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#memory-modeling">6.5 Memory Modeling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#modeling-approach">7. Modeling Approach</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#abstraction-level">7.1 Abstraction Level</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#scml2-usage">7.2 SCML2 Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#socket-type-selection-rationale">7.2.1 Socket Type Selection Rationale</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlm2-0-compliance">7.3 TLM2.0 Compliance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#design-patterns">7.4 Design Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#performance-considerations">8. Performance Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#simulation-performance">8.1 Simulation Performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#optimization-opportunities">8.2 Optimization Opportunities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#scalability">8.3 Scalability</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#dependencies-and-requirements">9. Dependencies and Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#software-dependencies">9.1 Software Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#hardware-dependencies">9.2 Hardware Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#integration-requirements">9.3 Integration Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#detailed-implementation-architecture">9. Detailed Implementation Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#class-hierarchy-and-relationships">9.1 Class Hierarchy and Relationships</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#top-level-module-only-sc-module">Top-Level Module (Only sc_module):</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#internal-component-pattern">Internal Component Pattern:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#communication-architecture">9.2 Communication Architecture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#transaction-flow-pattern">Transaction Flow Pattern:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#memory-management-architecture">9.3 Memory Management Architecture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#smart-pointer-ownership-tree">Smart Pointer Ownership Tree:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#callback-wiring-implementation">9.4 Callback Wiring Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#complete-wiring-example">Complete Wiring Example:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#scml2-memory-usage-pattern">9.5 SCML2 Memory Usage Pattern</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#configuration-storage-implementation">Configuration Storage Implementation:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#component-lifecycle">9.6 Component Lifecycle</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#initialization-sequence">Initialization Sequence:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#transaction-processing-flow">9.7 Transaction Processing Flow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#inbound-pcie-transaction-example">Inbound PCIe Transaction Example:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#routing-decision-implementation">9.8 Routing Decision Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#noc-pcie-switch-routing-logic">NOC-PCIE Switch Routing Logic:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlb-translation-implementation">9.9 TLB Translation Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#translation-algorithm">Translation Algorithm:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#error-handling-strategy">9.10 Error Handling Strategy</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#layered-error-response">Layered Error Response:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#configuration-register-implementation">9.11 Configuration Register Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#register-access-pattern">Register Access Pattern:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#implementation-guide">10. Implementation Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#building-the-design">10.1 Building the Design</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#prerequisites">Prerequisites:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#build-commands">Build Commands:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#build-output">Build Output:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#running-tests">10.2 Running Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#unit-tests-auto-generated">Unit Tests (Auto-Generated):</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#test-coverage">Test Coverage:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#adding-new-components">10.3 Adding New Components</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#pattern-for-c-class-components">Pattern for C++ Class Components:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#debugging-and-troubleshooting">10.4 Debugging and Troubleshooting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#common-issues-and-solutions">Common Issues and Solutions:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#debug-tools">Debug Tools:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#performance-tuning">10.5 Performance Tuning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#temporal-decoupling-configuration">Temporal Decoupling Configuration:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#adding-timing-annotations">Adding Timing Annotations:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#test-development-guide">10.6 Test Development Guide</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#adding-new-test-cases">Adding New Test Cases:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#configuration-management">10.7 Configuration Management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlb-configuration-example">TLB Configuration Example:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#integration-with-vdk-platform">10.8 Integration with VDK Platform</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#module-instantiation-in-platform">Module Instantiation in Platform:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#memory-management-best-practices">10.9 Memory Management Best Practices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#raii-pattern-already-applied">RAII Pattern (Already Applied):</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#coding-standards-applied">10.10 Coding Standards Applied</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#modern-c-17-features-used">Modern C++17 Features Used:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#test-infrastructure">11. Test Infrastructure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#test-framework-overview">11.1 Test Framework Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#test-categories-33-tests">11.2 Test Categories (33 Tests)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#test-execution-results">11.3 Test Execution Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#test-api-examples">11.4 Test API Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#coverage-goals">11.5 Coverage Goals</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#migration-from-original-design">12. Migration from Original Design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#for-developers-familiar-with-original">12.1 For Developers Familiar with Original</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#api-migration-guide">12.2 API Migration Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#backward-compatibility-notes">12.3 Backward Compatibility Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#known-limitations-and-future-work">13. Known Limitations and Future Work</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#current-limitations">13.1 Current Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#future-enhancements">13.2 Future Enhancements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#lessons-learned-and-best-practices">14. Lessons Learned and Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#architecture-decisions">14.1 Architecture Decisions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#design-patterns-applied">14.2 Design Patterns Applied</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#recommendations-for-similar-projects">14.3 Recommendations for Similar Projects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#appendix-a-implemented-components-summary">Appendix A: Implemented Components Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#a-1-complete-component-list">A.1 Complete Component List</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#a-2-component-statistics">A.2 Component Statistics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#a-3-scml-compliance">A.3 SCML Compliance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#appendix-b-address-map-summary">Appendix B: Address Map Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#b-1-tlb-configuration-space">B.1 TLB Configuration Space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#b-2-msi-relay-unit-address-map">B.2 MSI Relay Unit Address Map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#b-3-sii-block-address-map">B.3 SII Block Address Map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#b-4-config-register-block-address-map">B.4 Config Register Block Address Map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#b-5-smn-io-switch-address-map">B.5 SMN-IO Switch Address Map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#b-6-noc-io-switch-address-map">B.6 NOC-IO Switch Address Map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#b-7-noc-pcie-switch-routing-map">B.7 NOC-PCIE Switch Routing Map</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#appendix-c-acronyms-and-abbreviations">Appendix C: Acronyms and Abbreviations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html">Keraunos PCIE Tile SystemC/TLM2.0 Testplan</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#introduction">1. Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#purpose">1.1 Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#scope">1.2 Scope</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-objectives">1.3 Test Objectives</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#references">1.4 References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-traceability-matrix">1.5 Test Traceability Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-environment">2. Test Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#testbench-structure">2.1 Testbench Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-components">2.2 Test Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-tools">2.3 Test Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-strategy">3. Test Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-levels">3.1 Test Levels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-methodology">3.2 Test Methodology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-phases">3.3 Test Phases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#inbound-tlb-test-cases">4. Inbound TLB Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tlbsysin0-test-cases">4.1 TLBSysIn0 Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-sys-001-basic-address-translation">TC_INBOUND_SYS_001: Basic Address Translation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-sys-002-invalid-entry-detection">TC_INBOUND_SYS_002: Invalid Entry Detection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-sys-003-index-calculation">TC_INBOUND_SYS_003: Index Calculation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-sys-004-page-boundary-crossing">TC_INBOUND_SYS_004: Page Boundary Crossing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-sys-005-axuser-field-mapping">TC_INBOUND_SYS_005: AxUSER Field Mapping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-sys-006-system-ready-bypass">TC_INBOUND_SYS_006: System Ready Bypass</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tlbappin0-test-cases">4.2 TLBAppIn0 Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-app0-001-bar0-1-translation">TC_INBOUND_APP0_001: BAR0/1 Translation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-app0-002-multiple-instance-support">TC_INBOUND_APP0_002: Multiple Instance Support</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-app0-003-16mb-page-size">TC_INBOUND_APP0_003: 16MB Page Size</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-app0-004-non-cacheable-and-qosid">TC_INBOUND_APP0_004: Non-Cacheable and QoSID</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tlbappin1-test-cases">4.3 TLBAppIn1 Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-app1-001-bar4-5-translation">TC_INBOUND_APP1_001: BAR4/5 Translation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-app1-002-8gb-page-size">TC_INBOUND_APP1_002: 8GB Page Size</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-inbound-app1-003-dram-mapping">TC_INBOUND_APP1_003: DRAM Mapping</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#outbound-tlb-test-cases">5. Outbound TLB Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tlbsysout0-test-cases">5.1 TLBSysOut0 Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-outbound-sys-001-dbi-access-translation">TC_OUTBOUND_SYS_001: DBI Access Translation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-outbound-sys-002-64kb-page-size">TC_OUTBOUND_SYS_002: 64KB Page Size</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-outbound-sys-003-all-16-entries">TC_OUTBOUND_SYS_003: All 16 Entries</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tlbappout0-test-cases">5.2 TLBAppOut0 Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-outbound-app0-001-high-address-translation-256tb">TC_OUTBOUND_APP0_001: High Address Translation (&gt;=256TB)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-outbound-app0-002-address-range-check">TC_OUTBOUND_APP0_002: Address Range Check</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-outbound-app0-003-16tb-page-size">TC_OUTBOUND_APP0_003: 16TB Page Size</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tlbappout1-test-cases">5.3 TLBAppOut1 Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-outbound-app1-001-low-address-translation-256tb">TC_OUTBOUND_APP1_001: Low Address Translation (&lt;256TB)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-outbound-app1-002-dbi-access-from-application">TC_OUTBOUND_APP1_002: DBI Access from Application</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#msi-relay-unit-test-cases">6. MSI Relay Unit Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#register-access-tests">6.1 Register Access Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-001-msi-receiver-write">TC_MSI_RELAY_001: MSI Receiver Write</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-002-msi-x-table-configuration">TC_MSI_RELAY_002: MSI-X Table Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-003-outstanding-count">TC_MSI_RELAY_003: Outstanding Count</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#msi-generation-tests">6.2 MSI Generation Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-004-basic-msi-generation">TC_MSI_RELAY_004: Basic MSI Generation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-005-msi-x-enable-control">TC_MSI_RELAY_005: MSI-X Enable Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-006-global-mask-control">TC_MSI_RELAY_006: Global Mask Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-007-vector-mask-control">TC_MSI_RELAY_007: Vector Mask Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-008-invalid-entry-handling">TC_MSI_RELAY_008: Invalid Entry Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-009-multiple-pending-interrupts">TC_MSI_RELAY_009: Multiple Pending Interrupts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-010-setip-signal">TC_MSI_RELAY_010: SetIP Signal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-msi-relay-011-all-16-vectors">TC_MSI_RELAY_011: All 16 Vectors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#integration-test-cases">7. Integration Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tlb-msi-relay-integration">7.1 TLB + MSI Relay Integration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-integration-001-msi-x-table-access-via-tlb">TC_INTEGRATION_001: MSI-X Table Access via TLB</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-integration-002-msi-generation-through-fabric">TC_INTEGRATION_002: MSI Generation Through Fabric</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#multiple-tlb-integration">7.2 Multiple TLB Integration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-integration-003-concurrent-tlb-operations">TC_INTEGRATION_003: Concurrent TLB Operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-integration-004-outbound-inbound-round-trip">TC_INTEGRATION_004: Outbound + Inbound Round Trip</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#switch-test-cases">8. Switch Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#noc-pcie-switch-test-cases">8.1 NOC-PCIE Switch Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-001-address-routing-based-on-axaddr-63-60">TC_SWITCH_NOC_PCIE_001: Address Routing Based on AxADDR[63:60]</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-002-status-register-special-routing">TC_SWITCH_NOC_PCIE_002: Status Register Special Routing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-003-isolation-support">TC_SWITCH_NOC_PCIE_003: Isolation Support</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-004-inbound-enable-control">TC_SWITCH_NOC_PCIE_004: Inbound Enable Control</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#enable-gating-test-cases-new-feb-2026">8.4 Enable Gating Test Cases (NEW - Feb 2026)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-negative-enable-001-inbound-enable-blocks-pcienoc-traffic">TC_NEGATIVE_ENABLE_001: Inbound Enable Blocks PCIe→NOC Traffic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-negative-enable-002-outbound-enable-blocks-nocpcie-traffic">TC_NEGATIVE_ENABLE_002: Outbound Enable Blocks NOC→PCIe Traffic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-negative-enable-003-both-enables-disabled-complete-isolation">TC_NEGATIVE_ENABLE_003: Both Enables Disabled - Complete Isolation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-negative-enable-004-both-enables-active-positive-control">TC_NEGATIVE_ENABLE_004: Both Enables Active - Positive Control</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#enable-gating-implementation-architecture">8.5 Enable Gating Implementation Architecture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-005-bypass-path-routing">TC_SWITCH_NOC_PCIE_005: Bypass Path Routing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-006-address-conversion-64-bit-to-52-bit">TC_SWITCH_NOC_PCIE_006: Address Conversion (64-bit to 52-bit)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#noc-io-switch-test-cases">8.2 NOC-IO Switch Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-io-001-local-resource-routing">TC_SWITCH_NOC_IO_001: Local Resource Routing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-io-002-external-noc-routing">TC_SWITCH_NOC_IO_002: External NOC Routing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-io-003-high-address-routing-axaddr-51-48">TC_SWITCH_NOC_IO_003: High Address Routing (AxADDR[51:48])</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-io-004-timeout-detection">TC_SWITCH_NOC_IO_004: Timeout Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#smn-io-switch-test-cases">8.3 SMN-IO Switch Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-smn-io-001-address-based-routing">TC_SWITCH_SMN_IO_001: Address-Based Routing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-smn-io-002-serdes-routing">TC_SWITCH_SMN_IO_002: SerDes Routing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-smn-io-003-external-smn-routing">TC_SWITCH_SMN_IO_003: External SMN Routing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-smn-io-004-timeout-detection">TC_SWITCH_SMN_IO_004: Timeout Detection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#sii-block-test-cases">9. SII Block Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#id1">9.1 Register Access Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-sii-001-configuration-register-access">TC_SII_001: Configuration Register Access</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-sii-002-cii-tracking">TC_SII_002: CII Tracking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-sii-003-bus-device-number-assignment">TC_SII_003: Bus/Device Number Assignment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#config-register-block-test-cases">10. Config Register Block Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#id2">10.1 Register Access Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-config-reg-001-tlb-configuration-space-access">TC_CONFIG_REG_001: TLB Configuration Space Access</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-config-reg-002-system-ready-register">TC_CONFIG_REG_002: System Ready Register</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-config-reg-003-pcie-enable-registers">TC_CONFIG_REG_003: PCIE Enable Registers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-config-reg-004-isolation-behavior">TC_CONFIG_REG_004: Isolation Behavior</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#clock-reset-test-cases">11. Clock &amp; Reset Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#clock-generation-tests">11.1 Clock Generation Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-clock-reset-001-reference-clock-generation">TC_CLOCK_RESET_001: Reference Clock Generation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-clock-reset-002-pcie-clock-generation">TC_CLOCK_RESET_002: PCIE Clock Generation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#reset-sequence-tests">11.2 Reset Sequence Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-clock-reset-003-cold-reset-sequence">TC_CLOCK_RESET_003: Cold Reset Sequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-clock-reset-004-warm-reset-sequence">TC_CLOCK_RESET_004: Warm Reset Sequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-clock-reset-005-isolation-behavior">TC_CLOCK_RESET_005: Isolation Behavior</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#pll-cgm-test-cases">12. PLL/CGM Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#pll-lock-tests">12.1 PLL Lock Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-pll-cgm-001-pll-lock-sequence">TC_PLL_CGM_001: PLL Lock Sequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-pll-cgm-002-pll-configuration">TC_PLL_CGM_002: PLL Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#pcie-phy-test-cases">13. PCIE PHY Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#phy-configuration-tests">13.1 PHY Configuration Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-phy-001-apb-configuration-access">TC_PHY_001: APB Configuration Access</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-phy-002-ahb-firmware-download">TC_PHY_002: AHB Firmware Download</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-phy-003-lane-reversal-support">TC_PHY_003: Lane Reversal Support</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#external-interface-test-cases">14. External Interface Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#noc-n-interface-tests">14.1 NOC-N Interface Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-external-noc-001-transaction-forwarding">TC_EXTERNAL_NOC_001: Transaction Forwarding</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#smn-n-interface-tests">14.2 SMN-N Interface Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-external-smn-001-transaction-forwarding">TC_EXTERNAL_SMN_001: Transaction Forwarding</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#top-level-integration-test-cases">15. Top-Level Integration Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#full-tile-integration">15.1 Full Tile Integration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-top-level-001-complete-reset-sequence">TC_TOP_LEVEL_001: Complete Reset Sequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-top-level-002-end-to-end-transaction-flow">TC_TOP_LEVEL_002: End-to-End Transaction Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-top-level-003-msi-end-to-end-flow">TC_TOP_LEVEL_003: MSI End-to-End Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-top-level-004-isolation-sequence">TC_TOP_LEVEL_004: Isolation Sequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-top-level-005-multiple-clock-domain-operation">TC_TOP_LEVEL_005: Multiple Clock Domain Operation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#end-to-end-test-cases">16. End-to-End Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#inbound-data-paths-pcie-noc-smn">16.1 Inbound Data Paths (PCIe → NOC/SMN)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-inbound-001-pcie-read-tlb-app0-noc-n">TC_E2E_INBOUND_001: PCIe Read → TLB App0 → NOC-N</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-inbound-002-pcie-write-tlb-app1-noc-n">TC_E2E_INBOUND_002: PCIe Write → TLB App1 → NOC-N</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-inbound-003-pcie-tlb-sys-smn-n">TC_E2E_INBOUND_003: PCIe → TLB Sys → SMN-N</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-inbound-004-pcie-bypass-app-path">TC_E2E_INBOUND_004: PCIe Bypass App Path</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-inbound-005-pcie-bypass-sys-path">TC_E2E_INBOUND_005: PCIe Bypass Sys Path</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#outbound-data-paths-noc-smn-pcie">16.2 Outbound Data Paths (NOC/SMN → PCIe)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-outbound-001-noc-n-tlb-app-out0-pcie">TC_E2E_OUTBOUND_001: NOC-N → TLB App Out0 → PCIe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-outbound-002-smn-n-tlb-sys-out0-pcie">TC_E2E_OUTBOUND_002: SMN-N → TLB Sys Out0 → PCIe</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-outbound-003-noc-n-tlb-app-out1-pcie-dbi">TC_E2E_OUTBOUND_003: NOC-N → TLB App Out1 → PCIe DBI</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#configuration-paths-smn-tlb-sii-msi-config">16.3 Configuration Paths (SMN → TLB/SII/MSI Config)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-config-001-smn-n-tlb-config">TC_E2E_CONFIG_001: SMN-N → TLB Config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-config-002-smn-n-sii-config">TC_E2E_CONFIG_002: SMN-N → SII Config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-config-003-smn-n-msi-relay-config">TC_E2E_CONFIG_003: SMN-N → MSI Relay Config</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#msi-interrupt-flows">16.4 MSI Interrupt Flows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-msi-001-msi-generation-noc-n">TC_E2E_MSI_001: MSI Generation → NOC-N</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-msi-002-downstream-msi-input-processing">TC_E2E_MSI_002: Downstream MSI Input → Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#status-register-access">16.5 Status Register Access</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-status-001-status-register-read-route-0xe">TC_E2E_STATUS_001: Status Register Read (Route 0xE)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-status-002-status-register-disabled-access">TC_E2E_STATUS_002: Status Register Disabled Access</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#isolation-and-error-handling">16.6 Isolation and Error Handling</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-isolation-001-global-isolation">TC_E2E_ISOLATION_001: Global Isolation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-isolation-002-config-access-during-isolation">TC_E2E_ISOLATION_002: Config Access During Isolation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#multi-path-concurrent-traffic">16.7 Multi-Path Concurrent Traffic</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-concurrent-001-simultaneous-inbound-outbound">TC_E2E_CONCURRENT_001: Simultaneous Inbound + Outbound</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-concurrent-002-multiple-tlb-simultaneous-access">TC_E2E_CONCURRENT_002: Multiple TLB Simultaneous Access</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#reset-and-initialization-sequences">16.8 Reset and Initialization Sequences</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-reset-001-cold-reset-sequence">TC_E2E_RESET_001: Cold Reset Sequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-reset-002-warm-reset-sequence">TC_E2E_RESET_002: Warm Reset Sequence</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#complete-transaction-flows">16.9 Complete Transaction Flows</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-flow-001-pcie-memory-read-noc-memory-response">TC_E2E_FLOW_001: PCIe Memory Read → NOC → Memory → Response</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-flow-002-pcie-memory-write-noc-memory-completion">TC_E2E_FLOW_002: PCIe Memory Write → NOC → Memory → Completion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-flow-003-noc-memory-read-pcie-controller">TC_E2E_FLOW_003: NOC Memory Read → PCIe Controller</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-flow-004-smn-config-write-pcie-dbi">TC_E2E_FLOW_004: SMN Config Write → PCIe DBI</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#error-injection-and-recovery">16.10 Error Injection and Recovery</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-error-001-invalid-tlb-entry">TC_E2E_ERROR_001: Invalid TLB Entry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-error-002-timeout-handling">TC_E2E_ERROR_002: Timeout Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-error-003-address-decode-error">TC_E2E_ERROR_003: Address Decode Error</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#msi-x-end-to-end-flow">16.11 MSI-X End-to-End Flow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-msix-001-complete-msi-x-interrupt-flow">TC_E2E_MSIX_001: Complete MSI-X Interrupt Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-msix-002-multiple-vector-interrupts">TC_E2E_MSIX_002: Multiple Vector Interrupts</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#clock-domain-crossing">16.12 Clock Domain Crossing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-cdc-001-axi-clock-pcie-clock">TC_E2E_CDC_001: AXI Clock → PCIe Clock</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#performance-and-stress-tests">16.13 Performance and Stress Tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-perf-001-maximum-throughput-test">TC_E2E_PERF_001: Maximum Throughput Test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-stress-001-address-space-sweep">TC_E2E_STRESS_001: Address Space Sweep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-stress-002-tlb-entry-exhaustion">TC_E2E_STRESS_002: TLB Entry Exhaustion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#power-management">16.14 Power Management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-power-001-isolation-mode-entry-exit">TC_E2E_POWER_001: Isolation Mode Entry/Exit</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#system-integration-scenarios">16.15 System Integration Scenarios</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-system-001-boot-sequence">TC_E2E_SYSTEM_001: Boot Sequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-system-002-shutdown-sequence">TC_E2E_SYSTEM_002: Shutdown Sequence</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-system-003-error-recovery-scenario">TC_E2E_SYSTEM_003: Error Recovery Scenario</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#refactored-architecture-validation">16.16 Refactored Architecture Validation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-refactor-001-function-callback-chain">TC_E2E_REFACTOR_001: Function Callback Chain</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-e2e-refactor-002-no-internal-sockets-remain">TC_E2E_REFACTOR_002: No Internal Sockets Remain</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#coverage-goals">17. Coverage Goals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#id3">16. Coverage Goals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#functional-coverage">16.1 Functional Coverage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tlb-coverage">TLB Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#msi-relay-coverage">MSI Relay Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#switch-coverage">Switch Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#sii-coverage">SII Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#config-register-coverage">Config Register Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#clock-reset-coverage">Clock/Reset Coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#phy-coverage">PHY Coverage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#code-coverage">16.2 Code Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#specification-coverage">16.3 Specification Coverage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-infrastructure">17. Test Infrastructure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#testbench-components">9.1 Testbench Components</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#stimulus-generator">Stimulus Generator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#monitor">Monitor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#reference-model">Reference Model</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-utilities">9.2 Test Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-configuration">9.3 Test Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#regression-testing">18. Regression Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#regression-suite">10.1 Regression Suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#regression-criteria">10.2 Regression Criteria</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#continuous-integration">10.3 Continuous Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#appendix-a-unit-integration-test-case-summary-sections-4-15">Appendix A: Unit/Integration Test Case Summary (Sections 4-15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#appendix-a-2-end-to-end-test-case-summary-section-16-implemented-in-keranous-pcie-tiletest-cc">Appendix A.2: End-to-End Test Case Summary (Section 16) — Implemented in <code class="docutils literal notranslate"><span class="pre">Keranous_pcie_tileTest.cc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#appendix-b-test-execution-plan">Appendix B: Test Execution Plan</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#phase-1-unit-tests-weeks-1-3">Phase 1: Unit Tests (Weeks 1-3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#phase-2-functional-tests-weeks-4-5">Phase 2: Functional Tests (Weeks 4-5)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#phase-3-integration-tests-weeks-6-7">Phase 3: Integration Tests (Weeks 6-7)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#phase-4-system-tests-week-8">Phase 4: System Tests (Week 8)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#phase-5-regression-week-9">Phase 5: Regression (Week 9)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ENABLE_GATING_DESIGN.html">Enable Gating Feature - Design Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ENABLE_GATING_DESIGN.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ENABLE_GATING_DESIGN.html#register-interface">Register Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ENABLE_GATING_DESIGN.html#implementation">Implementation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ENABLE_GATING_DESIGN.html#signal-propagation">Signal Propagation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ENABLE_GATING_DESIGN.html#key-features">Key Features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ENABLE_GATING_DESIGN.html#test-coverage">Test Coverage</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Keraunos PCIe Tile</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Keraunos Pcie Tile</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/keraunos_pcie_tile.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="keraunos-pcie-tile">
+<h1>Keraunos Pcie Tile<a class="headerlink" href="#keraunos-pcie-tile" title="Permalink to this heading"></a></h1>
+<p><em>Converted from PDF: keraunos_pcie_tile.pdf</em></p>
+<hr class="docutils" />
+<p>Keraunos PCIE Tile Specification
+Grendel System-on-Package (SOP) Subsystem</p>
+<section id="version-asciidoc-conversion-2025-08-06-pre-release-version">
+<h2>Version ASCIIDOC Conversion, 2025-08-06: Pre-release version<a class="headerlink" href="#version-asciidoc-conversion-2025-08-06-pre-release-version" title="Permalink to this heading"></a></h2>
+<p><img alt="Page 1, Image 1" src="_images/keraunos_pcie_tile_img-000.png" /></p>
+<hr class="docutils" />
+<p><em>Page 2</em></p>
+<p>Table of Contents</p>
+</section>
+<section id="revision-history-1">
+<h2>1. Revision History… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 1<a class="headerlink" href="#revision-history-1" title="Permalink to this heading"></a></h2>
+</section>
+<section id="keraunos-pci-express-tile-pcie-tile-2">
+<h2>2. Keraunos PCI Express Tile (PCIE Tile) … … … … … … … … … … … … … … … … … … … … … … … … … … … … . . 2<a class="headerlink" href="#keraunos-pci-express-tile-pcie-tile-2" title="Permalink to this heading"></a></h2>
+<p>2.1. External Interface (Clock, Reset, Interrupt, Memory Interface) … … … … … … … … … … … … … … … … … … … . . 2
+2.2. PCI Express Subsystem… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 3
+2.2.1. PCI Express Controller… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . . 3
+PCI Express Controller IP … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . 3
+System Information Interface (SII) and Configuration Intercept Interface (CII) … … … … … … … … … … … … … . 4
+Interrupt Support… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 5
+SerDes Lane Reversal Support … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 5
+Special Reset Support (Isolation Support) … … … … … … … … … … … … … … … … … … … … … … … … … . 6
+Precise Timer Measurement (PTM) Support… … … … … … … … … … … … … … … … … … … … … … … … . . 7
+Power State Support… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . 7
+Flit mode Support… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 7
+2.2.2. PCI Express PHY (SerDes) … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . 7
+2.3. Address Translation… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 8
+2.3.1. Translation Lookaside Buffer (TLB) … … … … … … … … … … … … … … … … … … … … … … … … … … . 8
+Outbound TLB … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . . 9
+Inbound TLB … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 10
+Memory Access … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . 11
+Keraunos TLB Configuration and Potential Test Scenario … … … … … … … … … … … … … … … … … … … … 11
+2.4. Config Register… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . 13
+2.5. Intra-Tile Fabric … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . . 14
+2.5.1. Ports &amp; Switches … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . 14
+2.5.2. Isolation Support … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 15
+2.5.3. Sideband Signals … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 15
+2.5.4. SMN-IO … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . . 19
+2.5.5. NOC-IO … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . . 19
+2.5.6. NOC-PCIE … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . . 20
+2.5.7. Timeout Support … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 21
+2.5.8. Control Traffic from PCI Express Upstream Port (USP)… … … … … … … … … … … … … … … … … … … … 21
+Outbound Traffic Control … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 21
+Inbound Traffic Control … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . 22
+2.6. Feedback from Former Generation (BlackHole) … … … … … … … … … … … … … … … … … … … … … … … . . 22
+2.7. Performance Requirement and Potential Test Scenario … … … … … … … … … … … … … … … … … … … … … . 22
+2.7.1. DMA… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 22
+2.7.2. PIO… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . 23
+2.8. Reset Sequence and Potential Test Scenario… … … … … … … … … … … … … … … … … … … … … … … … … 23
+2.8.1. Power-on Reset (aka Cold Reset) … … … … … … … … … … … … … … … … … … … … … … … … … … … 23
+2.8.2. Function-Level Reset / Hot Reset … … … … … … … … … … … … … … … … … … … … … … … … … … . . 23
+Case 1: FW driven reset sequence … … … … … … … … … … … … … … … … … … … … … … … … … … … . . 23
+Case 2: FW driven reset sequence… … … … … … … … … … … … … … … … … … … … … … … … … … … . . 23
+2.8.3. Other Reset Sequence (e.g., Button Reset)… … … … … … … … … … … … … … … … … … … … … … … … . 24
+2.9. Interrupt Delivery and Potential Test Scenario … … … … … … … … … … … … … … … … … … … … … … … … 24
+2.10. PCIe hang scenario and the solution … … … … … … … … … … … … … … … … … … … … … … … … … … … 24
+2.11. MSI Relay Unit… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 25
+2.11.1. Unit Interface… … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … … 25
+2.11.2. Unit Address Map (CSR) … … … … … … … … … … … … … … … … … … … … … … … … … … … … … . 26
+2.11.3. Pending Bit Array (PBA) and Interrupt Pending (IP) Management … … … … … … … … … … … … … … … … 26</p>
+<p><img alt="Page 2, Image 1" src="_images/keraunos_pcie_tile_img-001.png" /></p>
+<hr class="docutils" />
+<p><em>Page 3</em></p>
+<p>Chapter 1. Revision History | Page 1</p>
+<p>Chapter 1. Revision History
+Revision   Date         Author        Descriptions
+0.0.000    01.16.2025   Yasuo Ishii   Keraunos PCIE specification
+0.0.001    01.17.2025   Yasuo Ishii   Added reset sequence
+0.0.002    01.17.2025   Yasuo Ishii   Added MSI relay unit
+0.1.000    01.18.2025   Yasuo Ishii   Adjust data bus, address map (Version 0.1)
+0.1.001    01.18.2025   Yasuo Ishii   Fix typo
+0.1.002    01.18.2025   Yasuo Ishii   Added potential test case programming guide
+0.1.003    01.18.2025   Yasuo Ishii   Fix revision number before 0.1.000
+0.1.004    01.19.2025   Yasuo Ishii   Other minor fix (list up components etc…)
+0.1.005    01.19.2025   Yasuo Ishii   Add more detail for PCIE TLB
+0.1.006    01.19.2025   Yasuo Ishii   Add CSR list
+0.1.007    01.21.2025   Yasuo Ishii   Fix intra-fabric detail (data bus, routing / filter description)
+0.1.008    01.22.2025   Yasuo Ishii   Apply corrections for NOC-PCIE, SMN-IO and port definitions
+0.1.009    01.22.2025   Yasuo Ishii   Fix routing table for NOC-PCIE
+0.1.010    01.22.2025   Yasuo Ishii   Add isolation clamp logic definition
+0.1.011    01.28.2025   Yasuo Ishii   Remove IOMMU, fix address mapping to adjust to Keraunos chiplet v0.9 candidate
+0.7.000    01.28.2025   Yasuo Ishii   PCIE tile v0.7 candidate
+0.7.001    01.30.2025   Yasuo Ishii   Correct CSR definition
+0.7.002    01.31.2025   Yasuo Ishii   Correct CSR definition for SII block
+0.7.003    02.04.2025   Yasuo Ishii   Add clarification for flit mode support
+0.7.004    02.22.2025   Yasuo Ishii   Adjust address map for NOC / SMN
+0.7.005    02.25.2025   Yasuo Ishii   Add more clarity on FLR reset flow and isolation
+0.7.006    02.26.2025   Yasuo Ishii   Updates figure for AXI network isolation for FLR
+0.7.007    02.26.2025   Yasuo Ishii   Add detail description &amp; interrupt definition for timeout support
+0.7.008    02.28.2025   Yasuo Ishii   Updates CII hold register information
+0.7.009    03.04.2025   Yasuo Ishii   Revert change for 0.7.008 (CII hold register information)
+0.7.010    03.05.2025   Yasuo Ishii   Update NOC-PCIE routing to support System Ready access for FLR
+0.7.011    03.05.2025   Yasuo Ishii   Update NOC-PCIE routing to extend System Ready region size to be 128B
+0.7.012    03.14.2025   Yasuo Ishii   Remove msi_axisideband from the module definition
+0.7.013    03.21.2025   Yasuo Ishii   Fixes typos in the specification, update default TLBSys setting
+0.7.014    03.23.2025   Yasuo Ishii   Update cold reset sequence
+0.7.015    03.24.2025   Yasuo Ishii   Fix default TLBSys setting based on feedback
+0.7.016    03.27.2025   Yasuo Ishii   Added block diagram and clarification for PCIE block isolation
+0.7.017    03.28.2025   Yasuo Ishii   Added more detail on isolation management
+0.7.018    04.05.2025   Yasuo Ishii   Add clarification based on feedback
+0.7.019    04.11.2025   Yasuo Ishii   Add clarification for hot reset
+0.7.020    04.17.2025   Yasuo Ishii   Add DFD under APB demux space
+0.7.021    06.06.2025   Yasuo Ishii   Added lane reversal support for PCIE SerDes
+0.7.022    07.29.2025   Xin He        Add user bit mapping for inbound/outbound TLB
+0.7.023    08.06.2025   Xin He        Add PCIe hang scenario and the solution</p>
+<p>Table 1. Change History</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 3, Image 1" src="_images/keraunos_pcie_tile_img-002.png" /></p>
+<hr class="docutils" />
+<p><em>Page 4</em></p>
+<p>2.1. External Interface (Clock, Reset, Interrupt, Memory Interface) | Page 2</p>
+<p>Chapter 2. Keraunos PCI Express Tile (PCIE Tile)
+Figure 1 shows the high-level block diagram of the PCI Express Tile.</p>
+</section>
+<section id="this-tile-includes-the-following-functionalities">
+<h2>This tile includes the following functionalities:<a class="headerlink" href="#this-tile-includes-the-following-functionalities" title="Permalink to this heading"></a></h2>
+<p>• Synopsys PCIE Controller IP (Gen6 x4)
+• Synopsys PCIE PHY IP (Gen6 x4)
+• SII block for PCIE Controller
+• Clock &amp; reset Control for PCIE Controller.
+• MSI relay unit (catcher &amp; thrower)
+• Translation lookaside buffer for address translation
+• PLL (CGM) for internal clock supply
+• Intra-tile fabric</p>
+<p>Figure 1. PCI Express Tile</p>
+<p>2.1. External Interface (Clock, Reset, Interrupt, Memory Interface)
+The PCIe Tile has a dedicated clock and reset control module because PCIE tile uses its own dedicated voltage domain.</p>
+<p>Most of the standard cell logic in the PCIe Tile uses the PCIE clock. To utilize this main clock, all interface signals for this tile has
+clock domain crossing logic. The required clocks are listed in Table 2.</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 4, Image 1" src="_images/keraunos_pcie_tile_img-003.png" /></p>
+<hr class="docutils" />
+<p><em>Page 5</em></p>
+<p>2.2. PCI Express Subsystem | Page 3</p>
+<p>Name                    Frequency    Description
+NOC Clock               1.65GHz      Clock for external NOC interface. This clock is not used internally.
+SOC Clock               400MHz       Clock for SMN interface. This clock is not used internally.
+PCIE Clock              1.0GHz       Main clock for this module.
+AHB Clock               500MHz       SerDes APB / AHB clock, this clock needs to be between 500MHz - 600MHz.
+Reference Clock         100MHz       Clock for PCIe SerDes and PLL.</p>
+<p>Table 2. PCIE Tile Clock</p>
+<p>PLL and SOC clock domain is reset by dedicated system management network reset signal. To permit to deassert reset separately,
+AXI interface force output valid signal to be 0 while the reset signal is asserted.</p>
+<p>Name                     Signal Name                      Reset Type      Description
+Management Reset         pcie_sii_reset_ctrl              Cold            SMN-IO, CGM PLL
+Main Reset               pcie_reset_ctrl                  Cold, Warm      NOC-PCIe, TLBs, Config Registers, Controllers, SerDes
+Isolation Request        isolate_req                                      1-bit interface to disconnect PCIE SS from external world</p>
+<p>Table 3. PCIE Tile Reset</p>
+<p>Name                                                   Description
+Application AXI Manager Port                           256-bit data width
+Application AXI Subordinate Port                       256-bit data width
+System Management AXI Manager Port                     64-bit data width
+System Management AXI Subordinate Port                 64-bit data width
+PCIE PLL APB Subordinate Port                          32-bit data width</p>
+<p>Table 4. PCIE Tile Memory Interface</p>
+<p>Name                         Description
+function_level_reset         Function Level Reset Request
+hot_reset_requested          Hot Reset Request
+config_update                Configuration Update is Captured
+ras_error                    RAS Error
+dma_completion               DMA Transfer Completion
+controller_misc_int          The other interrupt from Controller IP
+noc_timeout                  NOC / SMN TNIU timeout (total 3-bit)</p>
+<p>Table 5. PCIE Tile Interrupt</p>
+<p>2.2. PCI Express Subsystem</p>
+<p>2.2.1. PCI Express Controller</p>
+<p>The PCI Express Tile integrates a PCI Express controller to support various functionalities.</p>
+<p>This controller IP does not support IDE (encryption).</p>
+<p>PCI Express Controller IP</p>
+<p>The PCI Express Tile deploys the Synopsys PCI Express / CXL Controller. It features one PCI Express controller, as detailed in
+Table 6.</p>
+<p>Config                   Type    CXL.mem       Lane     Interrupt        Description
+Controller 0 (App0)      DM      No            x4       MSI-X / MSI      Primary PCIE Controller</p>
+<p>Table 6. PCI Express Controller</p>
+<p>            Keraunos PCIE is designed / used only for EP mode although the controller is DM controller</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 5, Image 1" src="_images/keraunos_pcie_tile_img-004.png" /></p>
+<hr class="docutils" />
+<p><em>Page 6</em></p>
+<p>2.2. PCI Express Subsystem | Page 4</p>
+<p>PCI Express Gen6 starts supporting flit mode. This feature is mandatory for Gen6 links. However, this feature is optional when the
+Gen6 controller is linked up as Gen5 or earlier generations. The Keraunos PCI Express tile supports flit mode only when the
+controller is linked up as Gen6. When the controller links up as Gen5 or earlier generations, only non-flit mode (classical PCIE TLP
+format) is supported.</p>
+<p>For AXI-to-PCIe conversion, the controller converts CA (Completer Abort) and UR (Unsupported Request) to SLVERR and
+DECERR, respectively (Table 7). DECERR is typically treated as a software issue (e.g., software incorrectly requested unexpected
+TLPs), while SLVERR is generally considered a hardware error (e.g., an uncorrectable ECC error detected in the completer).</p>
+<p>PCI Express Error Type           AXI Error Type
+Completer Abort (CA)             SLVERR
+Unsupported Request (UR)         DECERR</p>
+<p>Table 7. PCI Express Controller Error Response Mapping</p>
+<p>Since the Synopsys controller IP converts both DECERR and SLVERR to CA, the PCIE Controller IP wrapper converts them to
+appropriate error types (Table 8).</p>
+<p>AXI Response from NOC-PCIE           AXI Response to PCIE Controller
+2’b00 (OKAY)                         mstr_*resp[1:0] = 2’b00 (OKAY), mstr_*misc_info_cpl_stat[2:0]=3’b000 (SC)
+2’b01 (EXOKAY)                       mstr_*resp[1:0] = 2’b01 (EXOKAY), mstr_*misc_info_cpl_stat[2:0]=3’b000 (SC)
+2’b10 (SLVERR)                       mstr_*resp[1:0] = 2’b00 (OKAY), mstr_*misc_info_cpl_stat[2:0]=3’b100 (CA)
+2’b11 (DECERR)                       mstr_*resp[1:0] = 2’b00 (OKAY), mstr_*misc_info_cpl_stat[2:0]=3’b001 (UR)</p>
+<p>Table 8. NOC-PCIE Error Response to PCIE Controller Conversion</p>
+<p>Table 9 shows BAR configurations for the PCIE controller.</p>
+<p>Function      BAR0/1    BAR2/3       BAR4/5    Description
+App0, PF0     4GB       1MB          512GB     Grendel main function</p>
+<p>Table 9. Keraunos PCIE Function Definitions</p>
+<p>System Information Interface (SII) and Configuration Intercept Interface (CII)</p>
+<p>The Synopsys PCI Express controller IP includes a System Information Interface (SII) to pass configuration information to the PCI
+Express controller. The SII interface is driven by a block containing memory-mapped registers.</p>
+<p>The SII block interfaces with each controller to specify its bus number as a root port (e.g., app_bus_num, app_dev_num). This port
+assignment is expected to be completed even if the port is disabled.</p>
+<p>             Keraunos use-case is only EP, RP related feature does not need to be tested.</p>
+<p>SII block tracks almost all configuration information from controller IP by using Configuration Intercept Interface (CII). When the
+controller receives the update of configuration registers, it is exposed from CII interface. When a given configuration register is
+updated (e.g., flip of cfg_subbus_num), it records the update information and send interrupt to SMC PLIC. The recording is done
+by RW1C register so that firmware can recognize which bit was flipped and which change was actually captured already.</p>
+<p>This is the pseudo code how system captures the SII configuration information difference.</p>
+<p>// CII tracking config space update (first 128B)
+always_comb begin
+lbc_cii_update[31:0] = 0;
+if (lbc_cii_hv &amp;&amp; (lbc_cii_hdr_type[4:0] == 00100b) &amp;&amp; (lbc_cii_hdr_addr[11:7]==0)) begin
+lbc_cii_modified[lbc_cii_hdr_addr[6:2]] = 1’b1;
+end
+end</p>
+<p>// Software write one to clear the bit
+always_comb begin
+lbc_cii_clear[31:0] = 0;
+if (sw_wr_enable &amp;&amp; sw_wr_addr == XX) begin
+lbc_cii_clear[31:0] = sw_wdata;
+end
+end</p>
+<p>// hold modified register information</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 6, Image 1" src="_images/keraunos_pcie_tile_img-005.png" /></p>
+<hr class="docutils" />
+<p><em>Page 7</em></p>
+<p>2.2. PCI Express Subsystem | Page 5</p>
+<p>always_ff &#64;(posedge clk) begin
+if (reset_n == 0) begin
+cfg_modified &lt;= 0;
+end else begin
+cfg_modified &lt;= (cfg_modified &amp; ~lbc_cii_clear) | lbc_cii_modified;
+end
+end</p>
+<p>// reporting interrupt to SMC (PLIC accept this interrupt)
+assign cfg_int = cfg_modified != 0;</p>
+<p>SII configuration registers run at PCIE core clock instead of AXI clock in PCIE tile. The clock domain crossing logic is inserted
+right before APB port attached to SII block.</p>
+<p>Interrupt Support</p>
+<p>The PCIe Tile provides multiple mechanisms for interrupt reporting. This section describes how each controller may report
+interrupts to the system. By default, Keraunos expects to use MSI-X interrupts.</p>
+<p>Sending Out Interrupt (EP)</p>
+<p>Keraunos can send out interrupt signals via the PCIe network.</p>
+<p>Legacy Interrupt Support</p>
+<p>The sys_int signal is driven by SII register. The software can control the interrupt by writing 0 or 1 to this register.</p>
+<p>MSI-X Support for App0 Controller</p>
+<p>When the controller is configured as an EP, MSI-X requests are handled by the MSI relay unit within the PCIe Tile. MSI relay unit
+consumes following signal from the PCIE controller.</p>
+<p>• cfg_msix_en: Enables MSI-X.
+• cfg_msix_func_mask: Masks MSI-X functions.</p>
+<p>MSI-X relay unit forward the incoming write request to the target.</p>
+<p>Function     MSI-X Catcher
+PF0          0x18800000 or 0x18000000</p>
+<p>Table 10. MSI-X Catcher Address</p>
+<p>MSI-X relay unit has 16KB of configuration register space at 0x12800000. By default, this space is expected to be mapped from
+BAR2/3 (1MB space for PF0, 64KB for other PFs).</p>
+<p>Function    MSI-X Table     MSI-X PBA       MSI-X BIR &amp; Offset
+PF0         0x18002000      0x18001000      BAR2, Table Offset:8kB, PBA Offset:4kB</p>
+<p>Table 11. MSI-X Table and MSI-X PBA</p>
+<p>To route the inbound packets to appropriate destination, iATU is programmed appropriately. The default setting is described in
+Section 2.3.1.4.</p>
+<p>SerDes Lane Reversal Support</p>
+<p>Synopsys PCIE IP has the capability of SerDes lane reversal. This feature swap the location of lane to offer more flexible package
+design. Table 12 shows how the lane reversal happens. Although this changes the lane location, the polarity of SerDes signal does
+not change. This feature can be enabled either (1) automatically or (2) manually via SII register.</p>
+<p>Lane Default   After Reversal
+lane-0 §     lane-3 §
+lane-0 (N)     lane-3 (N)
+lane-1 §     lane-2 §</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 7, Image 1" src="_images/keraunos_pcie_tile_img-006.png" /></p>
+<hr class="docutils" />
+<p><em>Page 8</em></p>
+<p>2.2. PCI Express Subsystem | Page 6</p>
+<p>lane-1 (N)     lane-2 (N)
+lane-2 §     lane-1 §
+lane-2 (N)     lane-1 (N)
+lane-3 §     lane-0 §
+lane-3 (N)     lane-0 (N)</p>
+<p>Table 12. PCIE SerDes Lane Reversal</p>
+<p>Special Reset Support (Isolation Support)</p>
+<p>The PCI express controller support following reset functionalities.</p>
+<p>• Function Level Reset (FLR)
+• Hot Reset / Link-down Reset</p>
+<p>These resets can be controlled by SII block and configuration register access (e.g., FLR has dedicated configuration register).</p>
+<p>To safely reset external logic, PCIE tile supports the isolation notification from SMC. When SMC asserts isolate_req signal,
+PCIE tile tie-off for following input signals.</p>
+<p>• All AXI interfaces to SMN and NOC (RREADY / BREADY are set to 1, other signals are set to 0.)
+• All external clock (clock is gated by gating cells)
+• Reset signal from SMC (reset_n is tie-off to 1)</p>
+<p>             PCIE tile does not need to suppress output signals.</p>
+<p>While isolate_req is asserted, only following signals are valid.</p>
+<p>• Reference clock (for internal CGM and PCIE PHY)
+• External bumps (e.g., bumps connected to PCIE PHY)</p>
+<p>When isolate_req is asserted, following configuration registers are automatically asserted / deasserted. The register keep the
+value after isolate_req deassertion until SMC FW program the registers.</p>
+<p>• o_system_ready is set to 0
+• o_pcie_outbound_app_enable is set to 0
+• o_pcie_inbound_app_enable is set to 0</p>
+<p>Figure 2 shows the block diagram of the isolation mechanism for the PCIE tile.</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 8, Image 1" src="_images/keraunos_pcie_tile_img-007.png" /></p>
+<hr class="docutils" />
+<p><em>Page 9</em></p>
+<p>2.2. PCI Express Subsystem | Page 7</p>
+<p>Figure 2. PCIE Tile Isolation</p>
+<p>Table 13 shows summary how inbound / outbound requests are prevented / drained to make system to be idle.</p>
+<p>Category                         Description
+Inbound request (AR/AW/W)        NOC-PCIE returns DECERR because of o_pcie_inbound_app_enable is set to 0.
+Inbound response (R/B)           Timeout component in Figure 2 eventually return all response.
+Outbound request (AR/AW/W)       isolate_req forces to return DECERR response from power domain boundary.
+Outbound response (R/B)          isolate_req forces to set BREADY / RREADY to be 1 to drain the response.</p>
+<p>Table 13. How Prevent / Drain Outstanding Request for Isolation</p>
+<p>Precise Timer Measurement (PTM) Support</p>
+<p>A timer with nanosecond precision is accessible from the SII block.</p>
+<p>            System team realized some use cases for PTM support for Grendel.</p>
+<p>Power State Support</p>
+<p>Only D0 state is supported.</p>
+<p>Flit mode Support</p>
+<p>Filt mode is supported only for Gen 6 link (64Gbps link only).</p>
+<p>2.2.2. PCI Express PHY (SerDes)</p>
+<p>Keraunos employs 4 lanes of Synopsys 64 Gbps SerDes to support PCI Express Gen 6. The PHY features bifurcation capability,
+allowing the system to split SerDes lanes separately.</p>
+<p>The SerDes configuration register space is accessible via an APB port or AHB port. SerDes firmware download and configuration
+are managed through this interface.</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 9, Image 1" src="_images/keraunos_pcie_tile_img-008.png" /></p>
+<hr class="docutils" />
+<p><em>Page 10</em></p>
+<p>2.3. Address Translation | Page 8</p>
+<p>2.3. Address Translation</p>
+<p>2.3.1. Translation Lookaside Buffer (TLB)</p>
+<p>The Keraunos PCI Express Tile supports an address translation mechanism using a TLB (Translation Lookaside Buffer) structure.
+The TLB is defined as a memory-mapped register, with each TLB entry assigned a 64-byte address space. The TLB data structure is
+detailed in Table 14.</p>
+<p>This TLB structure is implemented for both inbound traffic (from external devices to the Keraunos chiplet) and outbound traffic
+(from the Keraunos chiplet to external devices). Both directions use the same translation table format.</p>
+<p>Field       Port             Description
+[0]         Valid
+[63:12]     ADDR[63:12]      Address for AxADDR field
+[511:256]   ATTR[255:0]      Attribute for AxUSER field</p>
+<p>Table 14. TLB for PCI Express Tile (64B / entry, 16-entry = 1KB)</p>
+<p>The AxUSER field is used for custom payload information and is expected to be mapped to the corresponding sideband when it is
+connected to its destination. TLB entries are mapped from the younger entry number to the older entry number as the mapped
+address increases.</p>
+<p>Figure 3 shows the overview of TLB structure for Keraunos PCIE tile.</p>
+<p>Figure 3. PCIE TLB Structure</p>
+<p>Table 15 shows the summary of address map for total 6 TLBs.</p>
+<p>Offset     Size    Name             AxADD        AxUSER Description
+R
+0x0000 1024B TLBSysOut0             [63:16]      [248:0]    Outbound TLB for System Management PCIE (64KB x 16-entry = 1MB)
+0x1000 1024B TLBAppOut0 [63:44]                  [248:0]    Outbound TLB for Application PCIE from Application Network (16TB x 16-entry = 256TB)
+0x2000 1024B TLBAppOut1             [63:16]      [248:0]    Outbound TLB for Application PCIE from System Management Network (64KB x 16-entry</p>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="mb">
+<h1>= 1MB)<a class="headerlink" href="#mb" title="Permalink to this heading"></a></h1>
+<p>0x3000 4096B TLBSysIn0              [51:14]      [4:0]      Inbound TLB for System Management PCIE (16KB x 64-entry = 1MB)
+0x4000 4096B TLBAppIn0-             [51:24]      [4:0]      Inbound TLB for Application PCIE BAR0/1 as EP (16MB x 64-entry = 1GB)
+0</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 10, Image 1" src="_images/keraunos_pcie_tile_img-009.png" /></p>
+<hr class="docutils" />
+<p><em>Page 11</em></p>
+<p>2.3. Address Translation | Page 9</p>
+<p>0x5000 4096B TLBAppIn0-1 [51:24]          [4:0]       Inbound TLB for Application PCIE BAR0/1 as EP (16MB x 64-entry = 1GB)
+0x6000 4096B TLBAppIn0-         [51:24]   [4:0]       Inbound TLB for Application PCIE BAR0/1 as EP (16MB x 64-entry = 1GB)
+2
+0x7000 4096B TLBAppIn0-         [51:24]   [4:0]       Inbound TLB for Application PCIE BAR0/1 as EP (16MB x 64-entry = 1GB)
+3
+0x8000 4096B TLBAppIn1          [51:33]   [4:0]       Inbound TLB for Application PCIE BAR4/5 as EP (8GB x 64-entry = 512GB)</p>
+<p>Table 15. CSR Mapping for TLB Entry (64KB)</p>
+<p>If a TLB entry is accessed with the valid bit set to 0, the output address is forced to an invalid address, resulting in a DECERR
+response from both NOC-PCIE, NOC-IO and SMN-IO.</p>
+<p>             TLB AxUSER bit width is tentative. This number is likely reduced to some number later depending on the final
+controller configuration.</p>
+<p>Outbound TLB</p>
+<p>The outbound TLB is used to attach memory attributes for PCI Express outbound requests. It also attaches destination
+information, such as routing details for the PCIe Controller.</p>
+<p>// Outbound TLB Translation for TLBAppOut
+uint64_t Outbound_TLBApp_lookup(uint64_t pa)
+{
+if (pa &gt;= (1 &lt;&lt; 48)) { // Above 256TB
+index = (pa &gt;&gt; 44) &amp; 0xf;
+if (TLBAppOut0[index].VALID == 0) return INVALID_ADDRESS_TO_RETURN_DECERR_FROMNOC;
+return {TLBAppOut0[index].ADDR[63:44], pa[43:0]}, TLBAppOut0[index].ATTR[191:0];
+} else { // DBI access
+index = (pa &gt;&gt; 16) &amp; 0xf;
+if (TLBAppOut1[index].VALID == 0) return INVALID_ADDRESS_TO_RETURN_DECERR_FROMNOC;
+return {TLBAppOut1[index].ADDR[63:16], pa[15:0]}, TLBAppOut1[index].ATTR[191:0];
+}
+}</p>
+<p>// Outbound TLB Translation for TLBSys
+uint64_t Outbound_TLBSys0_lookup(uint64_t pa) // input 1MB region
+{
+index = (pa &gt;&gt; 16) &amp; 0xf;
+if (TLBSysOut0[index].VALID == 0) return INVALID_ADDRESS_TO_RETURN_DECERR_FROMNOC;
+return {TLBSysOut0[index].ADDR[63:16], pa[15:0]}, TLBSysOut0[index].ATTR[191:0];
+}</p>
+<p>Memory Access</p>
+<p>Figure 4 illustrates the address translation for outbound memory access.</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 11, Image 1" src="_images/keraunos_pcie_tile_img-010.png" /></p>
+<hr class="docutils" />
+<p><em>Page 12</em></p>
+<p>2.3. Address Translation | Page 10</p>
+<p>Figure 4. Outbound Memory Access</p>
+<p>Inbound TLB</p>
+<p>The PCIe Subsystem uses iATU to place the output port of NOC-PCIE in AxADDR[63:60]. This incoming address is then further
+converted by TLB logic.</p>
+<p>TLBAppIn, TLBSysIn : Inbound TLB
+uint64_t Inbound_TLBApp_lookup(uint64_t pa) // iATU translated address
+{
+port = (pa &gt;&gt; 60) &amp; 1;
+if (port == 0) { // TLB lookup (16MB x 256 = 4GB) for BAR0/1
+index = (pa &gt;&gt; 24) &amp; 0xff;
+if (TLBAppIn0[index].VALID == 0) return INVALID_ADDRESS_TO_RETURN_DECERR_FROMNOC;
+return {TLBAppIn0[index].ADDR[51:24], pa[23:0]}, TLBAppIn0[index].ATTR[4:0]; // [4] non-cacheable,
+[3:0] QoSID
+} else if (port == 1) { // TLB lookup (8GB x 64 = 512GB) for BAR4/5
+index = (pa &gt;&gt; 33) &amp; 0x3f;
+if (TLBAppIn1[index].VALID == 0) return INVALID_ADDRESS_TO_RETURN_DECERR_FROMNOC;
+return {TLBAppIn1[index].ADDR[51:33], pa[32:0]}, TLBAppIn1[index].ATTR[4:0]; // [4] non-cacheable,
+[3:0] QoSID
+}
+}</p>
+<p>DV note: on the inbound axi interface for pcie noc io
+12-bit axuser = {{3’b0, TLBAppIn0[index].ATTR[4:0], 4’b0};};</p>
+<p>uint64_t Inbound_TLBSys_lookup(uint64_t pa) // iATU translated address
+{
+index = (pa &gt;&gt; 14) &amp; 0x3f;
+if (TLBSysIn0[index].VALID == 0) return INVALID_ADDRESS_TO_RETURN_DECERR_FROMNOC;
+return {TLBSysIn0[index].ADDR[51:14], pa[13:0]}, TLBSysIn0[index].ATTR[11:0]; // 3:2 is always 00
+}</p>
+<p>DV note: on the inbound axi interface for pcie noc smn
+12-bit axuser = {TLBSysIn0[index].ATTR[11:4], 2’b0, TLBSysIn0[index].ATTR[1:0]};</p>
+<p>When AxADDR[63:60]=8 or 9 after iATU translation, the request bypasses TLB translation and the request is directly injected into
+internal NOC or SMN. This bypass path is active only when system ready bit is set to 1. If the system ready bit in the configuration</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 12, Image 1" src="_images/keraunos_pcie_tile_img-011.png" /></p>
+<hr class="docutils" />
+<p><em>Page 13</em></p>
+<p>2.3. Address Translation | Page 11</p>
+<p>register is 0, this TLB bypass port returns DECERR. For further security, SMN input port has security firewall (security filter) to
+qualify if the incoming traffic access to non critical resources. The security firewall (security filter) can enforce memory access to
+return DECERR based on sideband or address region.</p>
+<p>Memory Access</p>
+<p>The inbound TLB is used to remap certain address regions. Figure 5 illustrates the translation scheme for inbound traffic from the
+upstream port when the Keraunos PCIe controller is using TLB to apply address translation.</p>
+<p>Figure 5. Inbound Memory Access</p>
+<p>Keraunos TLB Configuration and Potential Test Scenario</p>
+<p>Outbound iATU</p>
+<p>No use case for outbound iATU by default.</p>
+<p>This is reserved when the system needs to access to above 256TB address region.</p>
+<p>            DV team should test if RTL can map certain memory address to make special TLP (e.g., Msg, CfgRd, etc…)</p>
+<p>             DV team should test if RTL can map certain memory address to different memory address (e.g., set some arbitrary
+bits for top N-bits)</p>
+<p>Inbound iATU</p>
+<p>iATU is the address translation feature supported from Synopsys PCIE Controller IP.</p>
+<p>Name             Match Condition      Destination Address
+iATU entry-13    BAR0/1 match         0x0000_0000_xxxx_xxxx (4GB)
+iATU entry-14    BAR2/3 match         0xE000_0000_000x_xxxx (1MB)
+iATU entry-15    BAR4/5 match         0x1000_00xx_xxxx_xxxx (512GB)</p>
+<p>Table 16. iATU Setting for MSI-X Table / PBA</p>
+<p>TLBSysIn0 translates these incoming addresses to fixed addresses. First TLB entry for SysIn0 is reserved for MSI-X PBA / MSI-X
+Table.</p>
+<p>             DV team should test if incoming TLP can program MSI table / MSI PBA. This include dummy MSI transfer by
+writing some value to 0x18000000 (address is TBD).</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 13, Image 1" src="_images/keraunos_pcie_tile_img-012.png" /></p>
+<hr class="docutils" />
+<p><em>Page 14</em></p>
+<p>2.3. Address Translation | Page 12</p>
+<p>Outbound TLB</p>
+<p>Basically, the outbound TLB is straight map for the external world.</p>
+<p>AppOut0 is used for regular memory accesses (e.g., host memory access from Tensix cores). SysOut0 and AppOut1 are used for DBI
+accesses (e.g., access controller’s config space). Table 17 shows the example of SysOut0 setting. This is compatible with SysIn
+setting in the next section (Table 18).</p>
+<p>Index      Name                 Address           Attr Description</p>
+<section id="pcie-dbi-0x0000-xxxx-dbi-pcie-dbi-access">
+<h2>0          PCIE DBI             0x0000_xxxx       DBI   PCIE DBI access<a class="headerlink" href="#pcie-dbi-0x0000-xxxx-dbi-pcie-dbi-access" title="Permalink to this heading"></a></h2>
+</section>
+<section id="pcie-dbi-dma-0x0038-xxxx-dbi-pcie-dbi-access-for-dma">
+<h2>1          PCIE DBI DMA         0x0038_xxxx       DBI   PCIE DBI access for DMA<a class="headerlink" href="#pcie-dbi-dma-0x0038-xxxx-dbi-pcie-dbi-access-for-dma" title="Permalink to this heading"></a></h2>
+</section>
+<section id="pcie-dbi-mask-0x0010-xxxx-dbi-pcie-dbi-access-mask-initialization-only">
+<h2>2          PCIE DBI MASK        0x0010_xxxx       DBI   PCIE DBI access mask (initialization only)<a class="headerlink" href="#pcie-dbi-mask-0x0010-xxxx-dbi-pcie-dbi-access-mask-initialization-only" title="Permalink to this heading"></a></h2>
+</section>
+<section id="pcie-dbi-iatu-0x0030-xxxx-dbi-pcie-dbi-access-for-iatu-initialization-only">
+<h2>3          PCIE DBI iATU        0x0030_xxxx       DBI   PCIE DBI access for iATU (initialization only)<a class="headerlink" href="#pcie-dbi-iatu-0x0030-xxxx-dbi-pcie-dbi-access-for-iatu-initialization-only" title="Permalink to this heading"></a></h2>
+<p>Table 17. TLBSysOut0 / TLBAppOut1 Setting Example</p>
+<p>SysOut is expected to be used by SMC, AppOut is expected to be used from application processors like Tensix. For AppOut0, typical
+mapping is dropping MSB bits [63:48] from outgoing addresses. For AppOut1 and SysOut1, typical mapping is setting DBI access
+bit to access controller’s internal resource.</p>
+<p>                DV team should test if outgoing address from AppOut0 can be successfully remapped to other address (e.g., setting
+[63:48] to be all1).</p>
+<p>                DV team should test if all controller internal registers are accessible from SysOut0 and AppOut1 (e.g., address bit
+toggle coverage).</p>
+<p>Inbound TLB</p>
+<p>BAR0/1 is mapped to AppIn0 (iATU_output_addr[63:60]=0) to use 16MB page size TLB (256 pages) BAR2/3 is mapped to SysIn0
+(iATU_output_addr[63:60]=4) to use 16KB page size TLB (64 pages) BAR4/5 is mapped to AppIn1 (iATU_output_addr[63:60]=1)
+to use 8GB page size TLB (64 pages)</p>
+<p>AppIn0 is used to map Tensix reousrces. 1-2 TLB entry is used to cover one TensixNeo cluster. This AppIn0 is also used to cover
+other tiles (e.g., Ethernet Tile in Keraunos, Memory Tile in Mimir). When the package covers 2 Quasars and 16 Mimir, total 64-128
+pages are used for TensixNeo, 32-64 pages are used for Mimir (one Mimir has 2 memory tiles), and remaining pages are used for
+other purpose (e.g., cover Ethernet tiles).</p>
+<p>SysIn0 is used to map system resource. Each 16KB space is mapped to the resource under SMC or resource accessible from SMN.
+MSI relay unit config space is mapped from SysIn0 TLB entry #0. MSI-X capability point 0x1000 from BAR2/3 as MSI-X PBA and
+0x2000 from BAR2/3 as MSI-X table. SysIn0 is expected to be initialized by SMC to configure the TLB to be programmable from
+host processor.</p>
+<p>Index       Name              Address             Description</p>
+</section>
+<section id="msi-relay-0x1800-0000-msi-x-pba-msi-x-table">
+<h2>0           MSI Relay         0x1800_0000         MSI-X PBA / MSI-X Table<a class="headerlink" href="#msi-relay-0x1800-0000-msi-x-pba-msi-x-table" title="Permalink to this heading"></a></h2>
+</section>
+<section id="tlb-config-0x1804-0000-tlb-configuration-register">
+<h2>1           TLB Config        0x1804_0000         TLB Configuration Register<a class="headerlink" href="#tlb-config-0x1804-0000-tlb-configuration-register" title="Permalink to this heading"></a></h2>
+</section>
+<section id="tlb-config-0x1804-4000-tlb-configuration-register">
+<h2>2           TLB Config        0x1804_4000         TLB Configuration Register<a class="headerlink" href="#tlb-config-0x1804-4000-tlb-configuration-register" title="Permalink to this heading"></a></h2>
+</section>
+<section id="tlb-config-0x1804-8000-tlb-configuration-register">
+<h2>3           TLB Config        0x1804_8000         TLB Configuration Register<a class="headerlink" href="#tlb-config-0x1804-8000-tlb-configuration-register" title="Permalink to this heading"></a></h2>
+</section>
+<section id="dbi-0-0x1840-0000-mapped-to-dbi-tlbsysout-entry-0-dbi-0x0000-xxxx">
+<h2>4           DBI #0            0x1840_0000         Mapped to DBI (TLBSysOut Entry-0, DBI &#64; 0x0000_xxxx)<a class="headerlink" href="#dbi-0-0x1840-0000-mapped-to-dbi-tlbsysout-entry-0-dbi-0x0000-xxxx" title="Permalink to this heading"></a></h2>
+</section>
+<section id="dbi-1-0x1840-4000-mapped-to-dbi-tlbsysout-entry-0-dbi-0x0000-xxxx">
+<h2>5           DBI #1            0x1840_4000         Mapped to DBI (TLBSysOut Entry-0, DBI &#64; 0x0000_xxxx)<a class="headerlink" href="#dbi-1-0x1840-4000-mapped-to-dbi-tlbsysout-entry-0-dbi-0x0000-xxxx" title="Permalink to this heading"></a></h2>
+</section>
+<section id="dbi-2-0x1840-8000-mapped-to-dbi-tlbsysout-entry-0-dbi-0x0000-xxxx">
+<h2>6           DBI #2            0x1840_8000         Mapped to DBI (TLBSysOut Entry-0, DBI &#64; 0x0000_xxxx)<a class="headerlink" href="#dbi-2-0x1840-8000-mapped-to-dbi-tlbsysout-entry-0-dbi-0x0000-xxxx" title="Permalink to this heading"></a></h2>
+</section>
+<section id="dbi-3-0x1840-c000-mapped-to-dbi-tlbsysout-entry-0-dbi-0x0000-xxxx">
+<h2>7           DBI #3            0x1840_C000         Mapped to DBI (TLBSysOut Entry-0, DBI &#64; 0x0000_xxxx)<a class="headerlink" href="#dbi-3-0x1840-c000-mapped-to-dbi-tlbsysout-entry-0-dbi-0x0000-xxxx" title="Permalink to this heading"></a></h2>
+</section>
+<section id="dbi-dma-0-0x1843-0000-mapped-to-dbi-dma-tlbsysout-entry-1-dbi-0x0038-xxxx">
+<h2>8           DBI DMA #0        0x1843_0000         Mapped to DBI DMA (TLBSysOut Entry-1, DBI &#64; 0x0038_xxxx)<a class="headerlink" href="#dbi-dma-0-0x1843-0000-mapped-to-dbi-dma-tlbsysout-entry-1-dbi-0x0038-xxxx" title="Permalink to this heading"></a></h2>
+</section>
+<section id="dbi-dma-1-0x1843-4000-mapped-to-dbi-dma-tlbsysout-entry-1-dbi-0x0038-xxxx">
+<h2>9           DBI DMA #1        0x1843_4000         Mapped to DBI DMA (TLBSysOut Entry-1, DBI &#64; 0x0038_xxxx)<a class="headerlink" href="#dbi-dma-1-0x1843-4000-mapped-to-dbi-dma-tlbsysout-entry-1-dbi-0x0038-xxxx" title="Permalink to this heading"></a></h2>
+</section>
+<section id="dbi-dma-2-0x1843-8000-mapped-to-dbi-dma-tlbsysout-entry-1-dbi-0x0038-xxxx">
+<h2>10          DBI DMA #2        0x1843_8000         Mapped to DBI DMA (TLBSysOut Entry-1, DBI &#64; 0x0038_xxxx)<a class="headerlink" href="#dbi-dma-2-0x1843-8000-mapped-to-dbi-dma-tlbsysout-entry-1-dbi-0x0038-xxxx" title="Permalink to this heading"></a></h2>
+</section>
+<section id="dbi-dma-3-0x1843-c000-mapped-to-dbi-dma-tlbsysout-entry-1-dbi-0x0038-xxxx">
+<h2>11          DBI DMA #3        0x1843_C000         Mapped to DBI DMA (TLBSysOut Entry-1, DBI &#64; 0x0038_xxxx)<a class="headerlink" href="#dbi-dma-3-0x1843-c000-mapped-to-dbi-dma-tlbsysout-entry-1-dbi-0x0038-xxxx" title="Permalink to this heading"></a></h2>
+<p>Table 18. TLBSysIn Setting Example</p>
+<p>AppIn1 is used to map DRAM resoruces. 1-4 TLB entries are mapped to one Mimir. When 16 Mimir is deployed, 16-64 TLB entries
+are used to map DRAM space on Mimir. This address space can be utilized to map Ethernet address space if Grendel support eager
+operation.</p>
+<p>              When the system wants to bypass address translation, iATU_output_addr[63:60] should be programmed to 3.</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 14, Image 1" src="_images/keraunos_pcie_tile_img-013.png" /></p>
+<hr class="docutils" />
+<p><em>Page 15</em></p>
+<p>2.4. Config Register | Page 13</p>
+<p>Figure 6. Default Setting for Inbound Traffic</p>
+<p>2.4. Config Register
+The PCIE Tile implements configuration registers for TLB and Status Register. The tile also implements SII register for each
+controller. Table 19 shows the list of configuration registers outside of IP.</p>
+<p>Both bank-0 and bank-SII are connected to SMN-IO. Bank-SII contains APB demux to determine the final destination. In APB
+demux region, offset 0x00000 is attached to PHY control register and 0x04000 is attached to SII block.</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 15, Image 1" src="_images/keraunos_pcie_tile_img-014.png" /></p>
+<hr class="docutils" />
+<p><em>Page 16</em></p>
+<p>2.5. Intra-Tile Fabric | Page 14</p>
+<p>Bank                  Offset       Size   SW HW          Field Description                          Related Interface Signal                      Reset
+TLB                   0x0000       4KB    RW R                    TLBSysOut0
+0
+0x01000 4KB         RW R                    TLBAppOut0
+0x0200       4KB    RW R                    TLBAppOut1
+0
+0x0300       4KB    RW R                    TLBSysIn0
+0
+0x0400       16KB RW R                      TLBAppIn0
+0
+0x0800       4KB    RW R                    TLBAppIn1
+0
+0x0FFF8 4B          RW R, CLR [0]           PCIE Outbound Enable              o_pcie_outbound_app_enable[0],                0
+i_isolate_req
+RW R, CLR [16]          PCIE Inbound Enable               o_pcie_inbound_app_enable[0],                 0
+i_isolate_req
+0x0FFFC 4B          RW R, CLR [0]           System Ready                      o_system_ready, i_isolate_req                 0
+SII, PHY_CFG,         0x0000       4B     RW R           [1:0]    PIPE mux mode (unused)            pmux_mode_en</p>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="dfd-0">
+<h1>DFD                   0<a class="headerlink" href="#dfd-0" title="Permalink to this heading"></a></h1>
+<p>0x0000       4B     RW R           [0]      PHY0 CPU Run Request              phy0_cpu_run_req
+8
+RW R           [1]      PHY1 CPU Run Request              phy1_cpu_run_req
+(unused)
+RW R           [2]      PHY2 CPU Run Request              phy2_cpu_run_req
+(unused)
+RW R           [3]      PHY3 CPU Run Request              phy3_cpu_run_req
+(unused)
+R      W       [7:4]    PHY CPU Halt Status (valid [4]    phy_cpu_sys_halt
+only)
+0x01000 4KB                                 SII Block (App0)
+0x10000 64KB                                DFD</p>
+<p>Table 19. Keraunos PCIE CSR</p>
+<p>Status register is used to notify the system status. When the system is in “not-ready” state, FW may set this bit to 0 to notify the
+system is preparing something different.</p>
+<p>2.5. Intra-Tile Fabric
+An AXI switch is implemented to route packets to their destinations.</p>
+<p>2.5.1. Ports &amp; Switches</p>
+<p>In the PCI Express Tile, there are three different network switches (Table 20) and various ports associated with its subcomponents
+(Table 21). The NOC-PCIE switch uses 64-bit addresses, while the NOC-IO and SMN-IO switches use 52-bit addresses.</p>
+<p>Label          Clock      Data Bus       R/W Split    Description
+SMN-IO         IO Clock   64-bit         No           SMN for PCIE Subsystem
+NOC-IO         IO Clock   256-bit        Yes          NOC for PCIE Subsystem
+NOC-PCIE       IO Clock   256-bit        Yes          NOC for PCIE Controller IP and TLB</p>
+<p>Table 20. Keraunos PCIE Tile Switch List</p>
+<p>Manager              Subordinate          AxID           AxADDR               AxDATA         AxUSER           Protocol Optional Feature
+Width          Width                Width          Width
+SMN-N                SMN-IO               7              52                   64             12               AXI4        Subsystem External Interface
+SMN-IO               SMN-N                7              52                   64             12               AXI4        Subsystem External Interface
+SMN-IO               TLB Config Reg       0              32                   32             0                APB
+SMN-IO               SII Config Space     0              32                   32             0                APB
+SMN-IO               MSI Relay            0              32                   32             0                APB
+(Config)</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 16, Image 1" src="_images/keraunos_pcie_tile_img-015.png" /></p>
+<hr class="docutils" />
+<p><em>Page 17</em></p>
+<p>2.5. Intra-Tile Fabric | Page 15</p>
+<p>Manager            Subordinate       AxID          AxADDR          AxDATA           AxUSER          Protocol Optional Feature
+Width         Width           Width            Width
+SMN-IO             TLB Sys           7             52              64               12              AXI4
+Outbound
+SMN-IO             SerDes APB        0             32              32               0               APB
+TLB Sys Inbound SMN-IO               7             52              64               12              AXI4
+NOC-N              NOC-IO            10            52              256              12              AXI4      Subsystem External Interface
+NOC-IO             NOC-N             10            52              256              12              AXI4      Subsystem External Interface
+NOC-IO             TLBApp            10            52              256              12              AXI4
+Outbound
+NOC-IO             MSI Relay (MSI)   0             32              32               0               AXI4-
+Lite
+TLBApp Inbound NOC-IO                10            52              256              12              AXI4
+TLBApp             NOC-PCIE          10            64              256              256             AXI4
+Outbound
+TLBSys             NOC-PCIE          7             64              64               256             AXI4
+Outbound
+MSI Relay (MSI)    NOC-PCIE          0             64              32               0               AXI4-
+Lite
+NOC-PCIE           IOMMU DMA         9             64              256              256             AXI4
+NOC-PCIE           TLBApp Inbound 10               64              256              256             AXI4
+NOC-PCIE           TLBSys Inbound    7             64              64               256             AXI4
+NOC-PCIE           Config Register   0             32              32               0               APB       Always return reset / ready
+status
+NOC-PCIE           PCIE Controller   10            64              256              256             AXI4
+NOC-PCIE           NOC-IO            10            52              256              12              AXI4
+NOC-PCIE           SMN-IO            7             52              64               12              AXI4
+PCIE Controller    NOC-PCIE          10            64              256              256             AXI4</p>
+<p>Table 21. Keraunos PCIE Tile Port List</p>
+<p>              NoC_PCIE to PCIE controller axlen is configured to be 7-bit wide, because PCIE controller supports up to 128
+bursts.</p>
+<p>2.5.2. Isolation Support</p>
+<p>When the chiplet is resetting other components while the PCIE tile is operating normally, PCIE tile clamp incoming signals to
+prevent X-leakage into the tile. This isolation is controlled by the input from external interface. This protects all input signals
+including APB port for PLL.</p>
+<p>The isolation boundary is presented in Figure 1.</p>
+<p>For AXI interface, all READY signals are tie-off to one and all other signals are tie-off to 0.</p>
+<p>Section 2.2.1.5 shows more detail.</p>
+<p>2.5.3. Sideband Signals</p>
+<p>Table 22 and Table 23 show the sideband mapping from PCIE controller to AXI network. This sideband signal notify the PCIE TLP
+information.</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 17, Image 1" src="_images/keraunos_pcie_tile_img-016.png" /></p>
+<hr class="docutils" />
+<p><em>Page 18</em></p>
+<p>2.5. Intra-Tile Fabric | Page 16</p>
+<p>Field                               Subfield          Range        Description
+armisc_info                         BAR / Msg Code    [8:0]        [8:6] BAR number of TLP, [7:0] Msg Code
+IO                [9:9]        IO access
+ROM               [10:10]      ROM access</p>
+<section id="function-13-11-function-number">
+<h2>Function          [13:11]      Function Number<a class="headerlink" href="#function-13-11-function-number" title="Permalink to this heading"></a></h2>
+<p>NS                [14:14]      No Snoop in TLP header
+RO                [15:15]      RO (relax-order) bit in TLP header
+TC                [18:16]      Traffic Class
+TYPE              [23:19]      Request Type (e.g., 00000 : MRd/MWr)
+RID               [39:24]      Requester ID</p>
+</section>
+<section id="tag-53-40-tlps-tag">
+<h2>Tag               [53:40]      TLP’s Tag<a class="headerlink" href="#tag-53-40-tlps-tag" title="Permalink to this heading"></a></h2>
+<p>armisc_info_ats                     ATS               [55:54]      (00: Untranslated, 01: Translation Request, 10: Translated)
+armisc_info_nw                      NW                [56:56]      ATS No Write (NW) Bit
+armisc_info_req_segment             Segment           [64:57]      Requester Segment</p>
+</section>
+<section id="segment-valid-65-65-requester-segment-valid">
+<h2>Segment Valid     [65:65]      Requester Segment Valid<a class="headerlink" href="#segment-valid-65-65-requester-segment-valid" title="Permalink to this heading"></a></h2>
+<p>armisc_info_tlpprfx                 Prefix 0          [97:66]      TLP Prefix 0 (FMT=7:5, Type=4:0). This is big endian,
+Prefix 1          [129:98]     TLP Prefix 1 (FMT=7:5, Type=4:0). This is big endian,
+Prefix 2          [161:130]    TLP Prefix 2 (FMT=7:5, Type=4:0). This is big endian,
+armisc_info_tph                     TH                [162:162]    TLP Processing Hint present
+PH                [164:163]    TLP Processing Hint
+ST                [172:165]    Steering Tag
+armisc_info_dma                     Request Type      [175:173]    DMA Request Type (000: Non-DMA, non-000: DMA)
+Channel           [177:176]    DMA Channel Number (pad 0 for MSB if only 1 channel)
+armisc_info_zeroread                Zero              [178:178]    Zero Byte Read to Squash Write Operation
+armisc_info_ido                     IDO               Unused       ID-base Ordering Enabled
+armisc_info_last_dcmp_tlp           Last TLP          Unused       AXI Manager Read Request last TLP bit.
+armisc_info_dst_segment             Segment           Unused       Destination Segment
+Segment Valid     Unused       Destination Segment Valid
+armisc_info_cxlsrc                  CXL src           Unused       CXL.cache is requesting the translation (no CXL.cache support)</p>
+</section>
+<section id="table-22-keraunos-pcie-tile-aruser-assignment-pcie-controller-manager">
+<h2>Table 22. Keraunos PCIE Tile ARUSER Assignment (PCIE Controller: Manager)<a class="headerlink" href="#table-22-keraunos-pcie-tile-aruser-assignment-pcie-controller-manager" title="Permalink to this heading"></a></h2>
+<p>Field                               Subfield           Range       Description
+awmisc_info                         BAR / Msg Code     [8:0]       [8:6] BAR number of TLP, [7:0] Msg Code
+IO                 [9:9]       IO access
+ROM                [10:10]     ROM access</p>
+</section>
+<section id="id1">
+<h2>Function           [13:11]     Function Number<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<p>NS                 [14:14]     No Snoop in TLP header
+RO                 [15:15]     RO (relax-order) bit in TLP header
+TC                 [18:16]     Traffic Class
+TYPE               [23:19]     Request Type (e.g., 00000 : MRd/MWr)
+RID                [39:24]     Requester ID</p>
+</section>
+<section id="id2">
+<h2>Tag                [53:40]     TLP’s Tag<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
+<p>awmisc_info_ats                     ATS                [55:54]     (00: Untranslated, 01: Translation Request, 10: Translated)
+awmisc_info_nw                      NW                 [56:56]     ATS No Write (NW) Bit
+awmisc_info_req_segment             Segment            [64:57]     Requester Segment</p>
+</section>
+<section id="id3">
+<h2>Segment Valid      [65:65]     Requester Segment Valid<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
+<p>awmisc_info_tlpprfx                 Prefix 0           [97:66]     TLP Prefix 0 (FMT=7:5, Type=4:0).</p>
+</section>
+<section id="prefix-1-129-98-tlp-prefix-1-fmt-7-5-type-4-0">
+<h2>Prefix 1           [129:98]    TLP Prefix 1 (FMT=7:5, Type=4:0).<a class="headerlink" href="#prefix-1-129-98-tlp-prefix-1-fmt-7-5-type-4-0" title="Permalink to this heading"></a></h2>
+</section>
+<section id="prefix-2-161-130-tlp-prefix-2-fmt-7-5-type-4-0">
+<h2>Prefix 2           [161:130]   TLP Prefix 2 (FMT=7:5, Type=4:0).<a class="headerlink" href="#prefix-2-161-130-tlp-prefix-2-fmt-7-5-type-4-0" title="Permalink to this heading"></a></h2>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 18, Image 1" src="_images/keraunos_pcie_tile_img-017.png" /></p>
+<hr class="docutils" />
+<p><em>Page 19</em></p>
+<p>2.5. Intra-Tile Fabric | Page 17</p>
+<p>Field                             Subfield          Range       Description
+awmisc_info_tph                   TH                [162:162]   TLP Processing Hint present
+PH                [164:163]   TLP Processing Hint
+ST                [172:165]   Steering Tag
+awmisc_info_dma                   Request Type      [175:173]   DMA Request Type (000: Non-DMA, non-000: DMA)
+Channel           [177:176]   DMA Channel Number (pad 0 for MSB if only 1 channel)
+awmisc_info_hdr_34dw              34DW              [241:178]   Header 3rd / 4th word [63:32] 3rd DW, [31:0] 4th DW
+awmisc_info_ido                   IDO               Unused      ID-base Ordering Enabled
+awmisc_info_last_dcmp_tlp         Last TLP          Unused      AXI Manager Read Request last TLP bit.
+awmisc_info_dst_segment           Segment           Unused      Destination Segment
+Segment Valid     Unused      Destination Segment Valid
+awmisc_info_fmt                   Format            Unused      LSB of FMT field
+awmisc_info_dwlen                 DWLEN             Unused      Data length
+awmisc_info_ep                    EP                Unused      Error Forwarding (Data Poison)
+awmisc_info_cxlsrc                CXL src           Unused      CXL.cache is requesting the translation (no CXL.cache support)</p>
+</section>
+<section id="table-23-keraunos-pcie-tile-awuser-assignment-pcie-controller-manager">
+<h2>Table 23. Keraunos PCIE Tile AWUSER Assignment (PCIE Controller: Manager)<a class="headerlink" href="#table-23-keraunos-pcie-tile-awuser-assignment-pcie-controller-manager" title="Permalink to this heading"></a></h2>
+<p>Table 24 and Table 25 show the sideband mapping from AXI network to PCIE controller. This sideband signal control the PCIE
+TLP information.</p>
+<p>Field                         Subfield         Range       Description
+armisc_info                   TLP Type         [4:0]       TLP Type</p>
+</section>
+<section id="serialize-np-5-5-serialize-np-requests">
+<h2>Serialize NP     [5:5]       Serialize NP requests<a class="headerlink" href="#serialize-np-5-5-serialize-np-requests" title="Permalink to this heading"></a></h2>
+</section>
+<section id="reserved-7-6-rom-access">
+<h2>Reserved         [7:6]       ROM access<a class="headerlink" href="#reserved-7-6-rom-access" title="Permalink to this heading"></a></h2>
+<p>NS               [8:8]       No Snoop bit
+RO               [9:9]       Relax Order bit
+TC               [12:10]     Traffic Class</p>
+</section>
+<section id="msg-code-20-13-message-code">
+<h2>Msg Code         [20:13]     Message Code<a class="headerlink" href="#msg-code-20-13-message-code" title="Permalink to this heading"></a></h2>
+<p>DBI              [21:21]     DBI Access Indicator
+Function         [24:22]     Function number of initiators (only for x16 controller)
+armisc_info_ats               ATS              [26:25]     (00: Untranslated, 01: Translation Request, 10: Translated)
+armisc_info_nw                NW               [27:27]     ATS No Write (NW) Bit
+armisc_info_dst_segment       Segment          [35:28]     Destination Segment</p>
+</section>
+<section id="segment-valid-36-36-destination-segment-valid">
+<h2>Segment Valid    [36:36]     Destination Segment Valid<a class="headerlink" href="#segment-valid-36-36-destination-segment-valid" title="Permalink to this heading"></a></h2>
+<p>armisc_info_tlpprfx           Prefix 0         [68:37]     TLP Prefix 0 (FMT=7:5, Type=4:0). This is big endian,
+Prefix 1         [100:69]    TLP Prefix 1 (FMT=7:5, Type=4:0). This is big endian,
+Prefix 2         [132:101]   TLP Prefix 2 (FMT=7:5, Type=4:0). This is big endian,
+armisc_info_tph               TH               [133:133]   TLP Processing Hint present
+PH               [135:134]   TLP Processing Hint
+ST               [143:136]   Steering Tag
+armisc_info_atu_bypass        ATU Bypass       [144:144]   Bypass address translation
+armisc_info_ido               IDO              Unused      ID-base Ordering Enabled</p>
+</section>
+<section id="table-24-keraunos-pcie-tile-aruser-assignment-pcie-controller-subordinate">
+<h2>Table 24. Keraunos PCIE Tile ARUSER Assignment (PCIE Controller: Subordinate)<a class="headerlink" href="#table-24-keraunos-pcie-tile-aruser-assignment-pcie-controller-subordinate" title="Permalink to this heading"></a></h2>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 19, Image 1" src="_images/keraunos_pcie_tile_img-018.png" /></p>
+<hr class="docutils" />
+<p><em>Page 20</em></p>
+<p>2.5. Intra-Tile Fabric | Page 18</p>
+<p>Field                             Subfield            Range       Description
+armisc_info                       TLP Type            [4:0]       TLP Type</p>
+</section>
+<section id="id4">
+<h2>Serialize NP        [5:5]       Serialize NP requests<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id5">
+<h2>Reserved            [7:6]       ROM access<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
+<p>NS                  [8:8]       No Snoop bit
+RO                  [9:9]       Relax Order bit
+TC                  [12:10]     Traffic Class</p>
+</section>
+<section id="id6">
+<h2>Msg Code            [20:13]     Message Code<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h2>
+<p>DBI                 [21:21]     DBI Access Indicator
+Function            [24:22]     Function number of initiators (only for x16 controller)
+armisc_info_ats                   ATS                 [26:25]     (00: Untranslated, 01: Translation Request, 10: Translated)
+armisc_info_nw                    NW                  [27:27]     ATS No Write (NW) Bit
+armisc_info_dst_segment           Segment             [35:28]     Destination Segment</p>
+</section>
+<section id="id7">
+<h2>Segment Valid       [36:36]     Destination Segment Valid<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h2>
+<p>armisc_info_tlpprfx               Prefix 0            [68:37]     TLP Prefix 0 (FMT=7:5, Type=4:0). This is big endian,
+Prefix 1            [100:69]    TLP Prefix 1 (FMT=7:5, Type=4:0). This is big endian,
+Prefix 2            [132:101]   TLP Prefix 2 (FMT=7:5, Type=4:0). This is big endian,
+armisc_info_tph                   TH                  [133:133]   TLP Processing Hint present
+PH                  [135:134]   TLP Processing Hint
+ST                  [143:136]   Steering Tag
+armisc_info_atu_bypass            ATU Bypass          [144:144]   Bypass address translation
+awmisc_info_hdr_34dw              34DW                [208:145]   Header 3rd / 4th word [63:32] 3rd DW, [31:0] 4th DW
+awmisc_info_p_tag                 P_tag               [222:209]   iTag field for ATS invalidate request
+armisc_info_ido                   IDO                 Unused      ID-base Ordering Enabled
+awmisc_info_ep                    EP                  Unused      Error Forwarding (Data Poison)</p>
+</section>
+<section id="table-25-keraunos-pcie-tile-awuser-assignment-pcie-controller-subordinate">
+<h2>Table 25. Keraunos PCIE Tile AWUSER Assignment (PCIE Controller: Subordinate)<a class="headerlink" href="#table-25-keraunos-pcie-tile-awuser-assignment-pcie-controller-subordinate" title="Permalink to this heading"></a></h2>
+<p>Table 26 shows RUSER, WUSER, BUSER assignment. In Keraunos PCIE tile, these signals are unused (majority of signals are tie-off
+to 0).</p>
+<p>Field                            Subfield           Range      Description
+wmisc_info_ep                    EP                 Unused     Error Forwarding (Data Poison)
+wmisc_info_silentDrop            Drop               Unused     Permit to silently drop write operation
+bmisc_info                       TO                 Unused     Completion Timeout
+EP                 Unused     Error Forwarding (Data Poison)
+TC                 Unused     Traffic Class
+NS                 Unused     No Snoop
+RO                 Unused     Relaxed Ordered Requests
+Status             Unused     Comletion Status
+NP                 Unused     Non-posted request
+Function           Unused     Function Number
+bmisc_info_cpl_segment           Segment            Unused     Completion Segment
+bmisc_info_dst_segment           Segment            Unused     Destination Segment
+Segment Valid      Unused     Destination Segment Valid</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 20, Image 1" src="_images/keraunos_pcie_tile_img-019.png" /></p>
+<hr class="docutils" />
+<p><em>Page 21</em></p>
+<p>2.5. Intra-Tile Fabric | Page 19</p>
+<p>Field                           Subfield             Range        Description
+rmisc_info                      TO                   Unused       Completion Timeout
+EP                   Unused       Error Forwarding (Data Poison)
+TC                   Unused       Traffic Class
+NS                   Unused       No Snoop
+RO                   Unused       Relaxed Ordered Requests
+Status               Unused       Comletion Status
+NP                   Unused       Non-posted request
+Function             Unused       Function Number
+rmisc_info_cpl_segment          Segment              Unused       Completion Segment
+rmisc_info_dst_segment          Segment              Unused       Destination Segment
+Segment Valid        Unused       Destination Segment Valid
+rmisc_info_ido                  IDO                  Unused       ID-order routing</p>
+<p>Table 26. Keraunos PCIE Tile RUSER / BUSER / WUSER Assignment (PCIE Controller: Subordinate)</p>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="smn-io">
+<h1>2.5.4. SMN-IO<a class="headerlink" href="#smn-io" title="Permalink to this heading"></a></h1>
+<p>SMN-IO is the network designated for system management messages. It is not designed for high-performance packet processing.</p>
+<p>Typically, SMN-IO accepts packet from PCIE controller from TLBSysIn. For debug and bring up purpose, there are also bypass
+functionality from NOC-PCIE to SMN-IO. This path is protected by security firewall (security filter). AXI USER bits from this
+bypass path is marked as all0.</p>
+<p>SMN-IO                       SMN-N   MSI Relay Cfg     Config TLB      SII Block        TLBOut Sys       SerDes AHB/APB         Outstanding Requests
+SMN-N                                x                 x               x                x                x                      8
+TLB Sys Inbound              x       x                 x               x                x                x                      8
+Outstanding Requests         8       1                 1               8                8                8</p>
+<p>Table 27. Keraunos PCIE Tile SMN-IO Connection</p>
+<p>Subordinate             Address, Config       Mask                                           Comment
+MSI Relay Cfg           0x1800_0000           0xF_FFFF_FFFC_0000 (256KB)                     8 PF x 16KB
+TLB Config              0x1804_0000           0xF_FFFF_FFFF_0000 (64KB)                      Bank-0: 16 TLB x 4KB
+SMN-IO Fabric CSR       0x1805_0000           0xF_FFFF_FFFF_0000 (64KB)
+PCIE SerDes AHB0        0x1808_0000           0xF_FFFF_FFFC_0000 (256KB)
+PCIE SerDes APB0        0x180C_0000           0xF_FFFF_FFFC_0000 (256KB)
+SII Cfg (APB Demux)     0x1810_0000           0xF_FFFF_FFF0_0000 (1MB)                       SII, PIPE Control
+Reserved (DECERR)       0x1820_0000           0xF_FFFF_FFE0_0000 (2MB)
+TLBSys0 Outbound        0x1840_0000           0xF_FFFF_FFF0_0000 (1MB)                       Outbound access
+Reserved (DECERR)       0x1850_0000           0xF_FFFF_FFF0_0000 (1MB)
+Reserved (DECERR)       0x1860_0000           0xF_FFFF_FFF0_0000 (1MB)
+Reserved (DECERR)       0x1870_0000           0xF_FFFF_FFF0_0000 (1MB)
+SMN-N                   Default               Default</p>
+<p>Table 28. Keraunos PCIE Tile SMN-IO Routing</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="noc-io">
+<h1>2.5.5. NOC-IO<a class="headerlink" href="#noc-io" title="Permalink to this heading"></a></h1>
+<p>NOC-IO is the network interface for the NOC-N network. It is designed for high-performance applications.</p>
+<p>Typically, NOC-IO accepts packet from PCIE controller from TLBAppIn. For debug and bring up purpose, there are also bypass
+functionality from NOC-PCIE to NOC-IO. AXI USER bits from this bypass path is marked as all0.</p>
+<p>NOC-IO                   NOC-N         TLBApp Outbound          MSI Relay (MSI)           Outstanding Requests
+NOC-N                                  x                        x                         128
+TLBApp Inbound           x                                                                128</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 21, Image 1" src="_images/keraunos_pcie_tile_img-020.png" /></p>
+<hr class="docutils" />
+<p><em>Page 22</em></p>
+<p>2.5. Intra-Tile Fabric | Page 20</p>
+<p>NOC-IO                           NOC-N       TLBApp Outbound        MSI Relay (MSI)   Outstanding Requests
+Outstanding Requests             128         128                    1</p>
+<p>Table 29. Keraunos PCIE Tile NOC-IO Connection</p>
+<p>Subordinate                  Address                    Mask                                Comment
+MSI Relay MSI                0x1880_0000                0xF_FFFF_FFF0_0000 (1MB)
+TLBApp Outbound              0x1890_0000                0xF_FFFF_FFF0_0000 (1MB)            DBI access
+DECERR                       0x18A0_0000                0xF_FFFF_FFE0_0000 (2MB)
+DECERR                       0x18C0_0000                0xF_FFFF_FFE0_0000 (2MB)
+DECERR                       0x18E0_0000                0xF_FFFF_FFE0_0000 (2MB)
+TLBApp Outbound              AxADDR[51:48] != 0         AxADDR[51:48] != 0</p>
+<p>Table 30. Keraunos PCIE Tile NOC-IO Routing</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="noc-pcie">
+<h1>2.5.6. NOC-PCIE<a class="headerlink" href="#noc-pcie" title="Permalink to this heading"></a></h1>
+<p>NOC-PCIE is the network interface for the PCI Express Controller IPs. This network uses a 64-bit address, with the top 4 bits
+([63:60]) used to select the output port.</p>
+<p>For inbound read operation, there are special manipulation for Sys TLB0 vs System Ready register. The architectural requirement
+is to route minimum 4B of region to be routed to System Ready register. However, because of the implementation restriction from
+Arteris FlexNOC enforce us to make the region size to be 128B (checking AxADDR[59:7]).</p>
+<p>Unnamed: 0                  TLBApp Inbound             TLBSys Inbound        Status Reg     NOC-IO    SMN-IO   PCIE App0      Outstanding Reuqests
+TLBApp Outbound                                                                                                x              128
+TLBSys Outbound                                                                                                x              8
+MSI Relay (MSI)                                                                                                x              8
+PCIE Controller App0        x                          x                     x              x         x                       128
+Outstanding Request         128                        8                     1              128       8        128</p>
+<p>Table 31. Keraunos PCIE Tile NOC-PCIE Connection</p>
+<p>Direction        Subordinate                   Condition
+Outbound         PCIE Controller App0          Always</p>
+<section id="inbound-tlb-app0-app1-axaddr-63-60-0">
+<h2>Inbound          TLB App0 / App1               AxADDR[63:60] = 0<a class="headerlink" href="#inbound-tlb-app0-app1-axaddr-63-60-0" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-tlb-app0-app1-axaddr-63-60-1">
+<h2>Inbound          TLB App0 / App1               AxADDR[63:60] = 1<a class="headerlink" href="#inbound-tlb-app0-app1-axaddr-63-60-1" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-decerr-axaddr-63-60-2">
+<h2>Inbound          DECERR                        AxADDR[63:60] = 2<a class="headerlink" href="#inbound-decerr-axaddr-63-60-2" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-decerr-axaddr-63-60-3">
+<h2>Inbound          DECERR                        AxADDR[63:60] = 3<a class="headerlink" href="#inbound-decerr-axaddr-63-60-3" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-tlb-sys0-axaddr-63-60-4">
+<h2>Inbound          TLB Sys0                      AxADDR[63:60] = 4<a class="headerlink" href="#inbound-tlb-sys0-axaddr-63-60-4" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-decerr-axaddr-63-60-5">
+<h2>Inbound          DECERR                        AxADDR[63:60] = 5<a class="headerlink" href="#inbound-decerr-axaddr-63-60-5" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-decerr-axaddr-63-60-6">
+<h2>Inbound          DECERR                        AxADDR[63:60] = 6<a class="headerlink" href="#inbound-decerr-axaddr-63-60-6" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-decerr-axaddr-63-60-7">
+<h2>Inbound          DECERR                        AxADDR[63:60] = 7<a class="headerlink" href="#inbound-decerr-axaddr-63-60-7" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-bypass-tlb-app-axaddr-63-60-8">
+<h2>Inbound          Bypass TLB (App)              AxADDR[63:60] = 8<a class="headerlink" href="#inbound-bypass-tlb-app-axaddr-63-60-8" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-bypass-tlb-sys-axaddr-63-60-9">
+<h2>Inbound          Bypass TLB (Sys)              AxADDR[63:60] = 9<a class="headerlink" href="#inbound-bypass-tlb-sys-axaddr-63-60-9" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-decerr-axaddr-63-60-10">
+<h2>Inbound          DECERR                        AxADDR[63:60] = 10<a class="headerlink" href="#inbound-decerr-axaddr-63-60-10" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-decerr-axaddr-63-60-11">
+<h2>Inbound          DECERR                        AxADDR[63:60] = 11<a class="headerlink" href="#inbound-decerr-axaddr-63-60-11" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-decerr-axaddr-63-60-12">
+<h2>Inbound          DECERR                        AxADDR[63:60] = 12<a class="headerlink" href="#inbound-decerr-axaddr-63-60-12" title="Permalink to this heading"></a></h2>
+</section>
+<section id="inbound-decerr-axaddr-63-60-13">
+<h2>Inbound          DECERR                        AxADDR[63:60] = 13<a class="headerlink" href="#inbound-decerr-axaddr-63-60-13" title="Permalink to this heading"></a></h2>
+<p>Inbound          Status Register               AxADDR[63:60] = 14 &amp;&amp; (AxADDR[59:7]==0 &amp;&amp; Read Request)
+Inbound          TLB Sys0                      AxADDR[63:60] = 14 &amp;&amp; (AxADDR[59:7]!=0 || Write Request)</p>
+</section>
+<section id="inbound-status-register-axaddr-63-60-15">
+<h2>Inbound          Status Register               AxADDR[63:60] = 15<a class="headerlink" href="#inbound-status-register-axaddr-63-60-15" title="Permalink to this heading"></a></h2>
+<p>Table 32. Keraunos PCIE Tile NOC-PCIE Routing</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 22, Image 1" src="_images/keraunos_pcie_tile_img-021.png" /></p>
+<hr class="docutils" />
+<p><em>Page 23</em></p>
+<p>2.5. Intra-Tile Fabric | Page 21</p>
+<p>2.5.7. Timeout Support</p>
+<p>PCIE tile internal NOC supports timeout for NOC-IO and SMN-IO. NOC-IO has two timeout signals. One is associated with read
+request for HSIO and the other is associated with write request for HSIO. SMN-IO has one timeout signal. This signal covers both
+read and write requests for SMN.</p>
+<p>The timeout duration is programmable.</p>
+<p>2.5.8. Control Traffic from PCI Express Upstream Port (USP)</p>
+<p>NOC has the CSR to control traffic from upstream port (traffic from host processor). The CSR has following information.</p>
+<p>• o_pcie_outbound_app_enable : when bit is 0, requests from / to PCIE controller returns DECERR for NOC-PCIE
+(outbound), connected to NOC-PCIE firewall (security filter) sideband
+• o_pcie_inbound_app_enable : when bit is 0, requests from / to PCIE controller returns DECERR for NOC-PCIE (inbound),
+permit memory access only for system ready register</p>
+<p>Section 2.5.8.1 and Section 2.5.8.2 show more detail on traffic control.</p>
+<p>Outbound Traffic Control</p>
+<p>For outbound traffic control, the hardware also utilize Bus Master Enable (BME) to determine the final decision. The outbound
+traffic is qualified by NOC-PCIE by using PCIE controller’s output signal. Table 33 shows how it should be qualified.</p>
+<p>TLB Config          SII Block            Controller IP           Access Permitted?
+Outbound Enable     Controller Mode      Bus Master Enable       Mem TLP     Cfg TLP     DBI</p>
+</section>
+<section id="rp-x-decerr-decerr-decerr">
+<h2>0                   RP                   x                       DECERR      DECERR      DECERR<a class="headerlink" href="#rp-x-decerr-decerr-decerr" title="Permalink to this heading"></a></h2>
+</section>
+<section id="rp-x-okay-okay-okay">
+<h2>1                   RP                   x                       OKAY        OKAY        OKAY<a class="headerlink" href="#rp-x-okay-okay-okay" title="Permalink to this heading"></a></h2>
+</section>
+<section id="ep-x-decerr-decerr-decerr">
+<h2>0                   EP                   x                       DECERR      DECERR      DECERR<a class="headerlink" href="#ep-x-decerr-decerr-decerr" title="Permalink to this heading"></a></h2>
+</section>
+<section id="ep-0-decerr-okay-okay">
+<h2>1                   EP                   0                       DECERR      OKAY        OKAY<a class="headerlink" href="#ep-0-decerr-okay-okay" title="Permalink to this heading"></a></h2>
+</section>
+<section id="ep-1-okay-okay-okay">
+<h2>1                   EP                   1                       OKAY        OKAY        OKAY<a class="headerlink" href="#ep-1-okay-okay-okay" title="Permalink to this heading"></a></h2>
+<p>Table 33. Keraunos PCIE Bus Master Enable (BME) Decision Taable</p>
+<p>To make the decision, the logic needs to identify the TLP type if the TLP is affected by BME or not. The command listed in Table 34
+is not affected by BME because these are not treated as memory accesses.</p>
+<p>TLP           Type    Description</p>
+</section>
+<section id="cfgrd-wr-0010x-x-0-cfgrd0-cfgwr0-x-1-cfgrd1-cfgwr1">
+<h2>CfgRd/Wr      0010x   x=0: CfgRd0 / CfgWr0, x=1: CfgRd1 / CfgWr1<a class="headerlink" href="#cfgrd-wr-0010x-x-0-cfgrd0-cfgwr0-x-1-cfgrd1-cfgwr1" title="Permalink to this heading"></a></h2>
+<p>Msg/MsgD      10xxx   xxx represents message type</p>
+<p>Table 34. TLP Type and Encoding for BME Feature</p>
+<p>Figure 7 shows how bus master enable signal is routed from PCIE controller to internal logic. The decision table is affected by
+controller mode (RP or EP) and bus master enable signals.</p>
+<p>Figure 7. Keraunos PCIE Bus Master Enable (BME) Process</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 23, Image 1" src="_images/keraunos_pcie_tile_img-022.png" /></p>
+<hr class="docutils" />
+<p><em>Page 24</em></p>
+<p>2.6. Feedback from Former Generation (BlackHole) | Page 22</p>
+<p>Inbound Traffic Control</p>
+<p>The inbound traffic control is done by incoming address and inbound enable signal. The decision is made based on the pseudo
+code below (Example 1)</p>
+<p>// AxADDR is the address for the inbound traffic
+bool pcie_inbound_return_decerr(o_pcie_inbound_app_enable, AxADDR)
+{
+// this function returns true when NOC should return DECERR</p>
+<p>// If the inbound traffic is enabled, NOC-PCIE accept the traffic.
+if (o_pcie_inbound_app_enable) return false;</p>
+<p>// If the inbound traffic accesses Status Register, NOC-PCIE accept the traffic
+if (AxADDR[63:60] == 0xF) return false;
+if (AxADDR[63:60] == 0xE &amp;&amp; AxADDR[59:7] == 0 &amp;&amp; AR-channel) return false;</p>
+<p>// If none of conditions above are satisfied, return DECERR
+return true;
+}</p>
+<p>Example 1. Inbound Traffic Control</p>
+<p>2.6. Feedback from Former Generation (BlackHole)
+• Good
+◦ Completion timeout range ⇒ Synop IP setting?
+◦ LTSSM and link up status in SII reg ⇒ SII register design
+◦ ATE debug pins to measure internal voltages ⇒ PHY feature (we switched from AlphaWave to Synopsys)
+◦ all outbound traffic from different masters can be sent to target DBI/outbound at the same time ⇒ supported
+◦ direct mapping of SII, SERDES, DBI registers ⇒ will be supported
+◦ Note that we depend on NOC loopback for some PCIe block register accesses to work
+• Bad
+◦ function level reset (for resetting PCIe only) ⇒ carefully review Synop IP to enable all reset feature (3 reset mechanisms)
+◦ ability to overwrite default preset for equalization ⇒ link training related.
+◦ For PCIe card, some way of resetting the card only replying on the PCIe link, reset control mapped directly to config space
+◦ Currently, reset requests need going through NOC to ARC. This should be fixed.
+◦ can’t access inbound TLB config from on-chip ⇒ covered by spec
+◦ Interrupt to ARC on config write: must be able to act on various config changes ⇒ covered by spec
+◦ Interrupt to ARC on DMA completion (controller has it, not connected) ⇒ let’s support
+• May not needed
+◦ PTM? Not sure about the plan of it ⇒ We may just keep it unless it is significant design pain.</p>
+<p>2.7. Performance Requirement and Potential Test Scenario</p>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="dma">
+<h1>2.7.1. DMA<a class="headerlink" href="#dma" title="Permalink to this heading"></a></h1>
+<p>DMA should achieve following sustained performance. The numbers are calculated based on the 90% of theoretical performance
+numbers.</p>
+<p>• Inbound : 28.8GB/s (theoretical link bandwidth : 32GB/s) to local scratch pad memory.
+• Outbound : 28.8GB/s (theoretical link bandwidth : 32GB/s) from local scratch pad memory.</p>
+<p>Transfer size is programmed to reasonably large size like 8MB (~128k cycle to complete the transfer).</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 24, Image 1" src="_images/keraunos_pcie_tile_img-023.png" /></p>
+<hr class="docutils" />
+<p><em>Page 25</em></p>
+<p>2.8. Reset Sequence and Potential Test Scenario | Page 23</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="pio">
+<h1>2.7.2. PIO<a class="headerlink" href="#pio" title="Permalink to this heading"></a></h1>
+<p>Traffic go through TLBApp0 should sustain wire rate.</p>
+<p>2.8. Reset Sequence and Potential Test Scenario</p>
+<p>2.8.1. Power-on Reset (aka Cold Reset)</p>
+<p>• External cold reset signal assertion automatically asserts pcie_sii_reset_ctrl.cold_reset_n and
+pcie_reset_ctrl.cold_reset_n.
+• SMC FW deasserts pcie_sii_reset_ctrl.cold_reset_n.
+• PCIE CGM PLL starts locking PLL based on PLL init code input.
+• SMC FW programs pcie_sii_csr CORE_CONTROL.device_type. 0: pcie end point, 4: Root Port. Default value for device type
+is 0, so for Keraunos, this step can be skipped.
+• SMC FW waits for PLL to be locked (SW can either wait for 170 ref clocks or poll the pcie_phy_csr
+CGM_PLL_CSR.cgm_pll_lock).
+• SMC FW deasserts pcie_reset_ctrl.cold_reset_n.
+• SMC FW sets the pcie_sii_reset_ctrl.force_to_ref_clk_n to 1 to select function clock from the PLL.
+• SMC FW waits for 10 ref clocks to allow the clock switching to complete.</p>
+<p>2.8.2. Function-Level Reset / Hot Reset</p>
+<p>Synopsys controller IP may report FLR (cfg_flr_pf_active) or hot reset (link_req_rst_not) to SMC.</p>
+<section id="case-1-fw-driven-reset-sequence">
+<h2>Case 1: FW driven reset sequence<a class="headerlink" href="#case-1-fw-driven-reset-sequence" title="Permalink to this heading"></a></h2>
+<p>• PCIE IP receives FLR or hot reset. Reset is notified to SMC via wired interrupt.
+• If the interrupt is aggregated interrupt, SMC FW accesses to SII register to confirm the real source.
+• SMC FW sets configuration register to make the system to be “not ready”.
+• SMC FW clears o_pcie_outbound_app_enable and o_pcie_inbound_app_enable to prevent from leaking bad traffic
+into PCIE tile.
+• SMC FW waits N-cycles (e.g., 1 ms) to timeout all pending requests.
+• SMC FW sets FLR complete to notify the completion of FLR (FLR only).
+• SMC FW assert isolate_req to disconnect PCIE SS from external world.
+• SMC FW reset rest of the world (this process may reset SMN as well).
+• SMC FW deasserts reset and intialize the system (DV NOTE: this step should make all signal to be X except for ref clock).
+• SMC FW deasserts isolate_req to connect PCIE SS to rest of the world.
+• SMC FW initiates appropriate reset sequence to PCIE controller IP (hot reset case only).
+• SMC FW set o_pcie_outbound_app_enable and o_pcie_inbound_app_enable to permit injecting packets into chiplet.
+• SMC FW sets configuration register to make the system to be “ready”.</p>
+<p>           DV team should test this reset sequence for both FLR and Hot Reset.</p>
+</section>
+<section id="case-2-fw-driven-reset-sequence">
+<h2>Case 2: FW driven reset sequence<a class="headerlink" href="#case-2-fw-driven-reset-sequence" title="Permalink to this heading"></a></h2>
+<p>• PCIE IP receives FLR or hot reset. Reset is notified to SMC via wired interrupt.
+• SMC FW assert isolate_req to disconnect PCIE SS from external world.
+◦ Assertion of isolate_req clear system_ready, o_pcie_outbound_app_enable, and o_pcie_inbound_app_enable.
+• SMC FW waits N msec to timeout all outstanding requests.
+• SMC FW reset rest of the world (this process may reset SMN as well).
+• SMC FW deasserts reset and intialize the system (DV NOTE: this step should make all signal to be X except for ref clock).
+• SMC FW deasserts isolate_req to connect PCIE SS to rest of the world.</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 25, Image 1" src="_images/keraunos_pcie_tile_img-024.png" /></p>
+<hr class="docutils" />
+<p><em>Page 26</em></p>
+<p>2.9. Interrupt Delivery and Potential Test Scenario | Page 24</p>
+<p>• SMC FW initiates appropriate reset sequence to PCIE controller IP (hot reset case only).
+• SMC FW sets FLR complete to notify the completion of FLR (FLR only).
+• SMC FW set o_pcie_outbound_app_enable and o_pcie_inbound_app_enable to permit injecting packets into chiplet.
+• SMC FW sets configuration register to make the system to be “ready”.</p>
+<p>             DV team should test this reset sequence for both FLR and Hot Reset.</p>
+<p>2.8.3. Other Reset Sequence (e.g., Button Reset)</p>
+<p>Other reset sequence are supported by SMC FW. Typically, the flow disable the network by clearing
+o_pcie_outbound_app_enable and o_pcie_inbound_app_enable to isolate the controller followed by resetting the entire
+system.</p>
+<p>2.9. Interrupt Delivery and Potential Test Scenario
+MSI-X is the expected to way to transfer interrupt to host processor.</p>
+<p>• Program TLBSysIn to map BAR2 to MSI relay unit (this is default iATU / TLB setting Section 2.3.1.4).
+• Host processor accesses to PCIE capability register to set MSI-X to be enabled and all MSI-X function to be masked.
+• Host processor accesses to MSI-X table to configure MSI address from BAR2+0x2000 since this is mapped to MSI-X table
+(0x18002000).
+• Host processor accesses to PCIE capability register to unmask MSI-X.
+• Application processor write 0-15 integer number to address 0x18800000.
+• If host processor want to inject dummy interrupt, host should access to 0x0 offset from BAR2. This initiate the access to
+0x18000000 to generate MSI.
+• If the MSI is masked, host processor can confirm the pending bits from BAR2+0x1000 since it is mapped to MSI-X PBA
+(0x18001000).</p>
+<p>2.10. PCIe hang scenario and the solution
+In a scenario where PCIe is writing to some location in quasar that is hung, eventually the fabric will back-pressure all the way to
+the PCIe controller. For debugging, SMN needs to be used to access NoC registers without a cold reset. But PCIE controller uses the
+shared link to send out SMN request and APP request. If PCIe controller has backpressure from IO path, it also cannot send out
+SMN request. To support this, we need to resolve the back pressure to the PCIE controller.</p>
+</section>
+<section id="timeout-on-both-pcie-smn-noc-and-io-noc-is-enabled">
+<h2>Timeout on both PCIE SMN NoC and IO NoC is enabled:<a class="headerlink" href="#timeout-on-both-pcie-smn-noc-and-io-noc-is-enabled" title="Permalink to this heading"></a></h2>
+<p>• Inbound requests from PCIE controller to SoC (e.g., Keraunos) will be tracked in a programmable timeout counter inside the
+PCIE SMN/IO NoC.
+• In a scenario of targets hanging (in Quasar), the timeout FSM will eventually send out AXI SlvErr response back to the PCIE
+controller.
+• SlvErr response will deallocate all pending transaction table entries to remove back pressure.
+• PCIe tile can continue to inject requests into SMN. The address can be controlled by TLBSys (not as big as TLB for NOC, but, it
+is programmable). This allow x86 host processor to access any resource in SOC.
+• This also allows host processor to access resource in NOC if the path following SMN/NOC/target still offer appropriate
+service.</p>
+<p>Another possible backpressure case is that targets don’t assert ready signal because of its internal deadlock.</p>
+<p>• SMC can assert isolation_req to PCIe.
+• Isolation_req will assert aw/w/ar ready for the PCIe SMN/IO interface. This will allow pending request packets to drain.
+• SMC FW waits N-cycles (e.g., 1 ms) to clear all pending requests.
+• SMC deasserts isolate_req to connect PCIE SS to rest of the world.
+• PCIe tile can continue to inject requests into SMN. (same as the scenario above)</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 26, Image 1" src="_images/keraunos_pcie_tile_img-025.png" /></p>
+<hr class="docutils" />
+<p><em>Page 27</em></p>
+<p>2.11. MSI Relay Unit | Page 25</p>
+<p>2.11. MSI Relay Unit
+The Athena chiplet supports various system configurations, each with its own interrupt delivery system. To efficiently manage
+interrupt transfers for these configurations, the Athena chiplet deploys an MSI relay unit.</p>
+<p>The MSI relay unit receives MSI messages from downstream and transfers them upstream based on the configuration of the MSI-X
+table attached to each subsystem / tile. This allows Quasar to assume the same MSI receiver address for interrupt processing,
+regardless of the system configuration.</p>
+</section>
+<section id="the-msi-relay-unit-has-three-main-functionalities">
+<h2>The MSI relay unit has three main functionalities:<a class="headerlink" href="#the-msi-relay-unit-has-three-main-functionalities" title="Permalink to this heading"></a></h2>
+<p>• Catching MSI from downstream and registering the interrupt information in the Pending Bit Array (PBA) flop-array.
+• Picking pending interrupts from the PBA and transferring the interrupt information upstream.
+• Providing appropriate CSR services (Table 36).</p>
+<p>Figure 8 illustrates the block diagram of the MSI relay logic.</p>
+<p>Figure 8. Athena MSI Relay Logic</p>
+<p>The MSI relay unit has two possible input signals to send out MSI: one is a memory-mapped register and the other is a wired
+interrupt. These interrupts are registered in the MSI-X Pending Bit Array (PBA). Once an interrupt is registered in the PBA, the
+MSI thrower picks an unmasked pending interrupt and generates a memory write request based on the MSI-X table contents.
+Detailed operation conditions are described in Section 2.11.3.</p>
+<p>2.11.1. Unit Interface</p>
+<p>The MSI relay unit has the following interface signals. This interface assumes N as the number of MSI-X vectors.</p>
+<p>            This module supports N=16 in the Athena chiplet design.</p>
+<p>Port     Width    Name                            Description
+Input             APB Subordinate Port 1          APB Subordinate Port for CSR access (connected to upstream)
+Input             APB Subordinate Port 2          APB Subordinate Port to receive MSI (connected to downstream)
+Output            AXI-Lite Manager Port           AXI4-Lite Manager Port to generate MSI
+Input    1-bit    MSI-X Enable (msix_enable)      MSI-X Enable signal from PCI Express Root Complex</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 27, Image 1" src="_images/keraunos_pcie_tile_img-026.png" /></p>
+<hr class="docutils" />
+<p><em>Page 28</em></p>
+<p>2.11. MSI Relay Unit | Page 26</p>
+<p>Input     1-bit         MSI-X Mask (msix_mask)              MSI-X Mask signal from PCI Express Root Complex
+Input     N-bit         Interrupt Pending (setip)           Setting Interrupt Pending Signal (optional)</p>
+<p>Table 35. MSI Relay Unit Interface (N-entry interrupt support)</p>
+<p>2.11.2. Unit Address Map (CSR)</p>
+<p>The MSI relay unit has the following CSR registers. These registers are accessible from APB subordinate port 1. Access from APB
+subordinate port 2 is automatically routed to the msi_receiver register.</p>
+<p>Offset                  Size Port         Name                    Description
+0x0000                  4B      W-only    msi_receiver            MSI Receiving window.
+0x0004                  4B      R-only    msi_outstanding         MSI outstanding request count.
+0x1000                  4B      R-only    msix_pba                MSI-X Pending Bit Array (PBA)
+0x2000                  16B     RW        msix_table0             MSI-X Table Entry 0: [96] mask, [95:64] MSI Data, [63:2] MSI Address
+0x2010                  16B     RW        msix_table1             MSI-X Table Entry 1: [96] mask, [95:64] MSI Data, [63:2] MSI Address
+0x2020                  16B     RW        msix_table2             MSI-X Table Entry 2: [96] mask, [95:64] MSI Data, [63:2] MSI Address
+0x2030                  16B     RW        msix_table3             MSI-X Table Entry 3: [96] mask, [95:64] MSI Data, [63:2] MSI Address
+…                       …       …         …                       …
+0x2000 + 16 x N         16B     RW        msix_tableN             MSI-X Table Entry N: [96] mask, [95:64] MSI Data, [63:2] MSI Address</p>
+<p>Table 36. MSI Relay Unit CSR (16KB)</p>
+<p>The msi_receiver is typically accessed from downstream via the AXI4-Lite subordinate port. The downstream components
+generate interrupts by writing data to this register. A write operation to msi_receiver sets the PBA to generate MSI to the
+upstream port. This register is write-only. Read operations for this register may return 0 or DECERR.</p>
+<p>The msi_outstanding register shows the count of outstanding AXI write operations generated for MSI. When this register reports
+0 after all MSIs are masked, the system can assume all pending MSIs are drained from the AXI network.</p>
+<p>The msix_pba and msix_table* are MSI-X registers. The PBA is a read-only register, while the MSI-X Table is a read-write
+register.</p>
+<p>2.11.3. Pending Bit Array (PBA) and Interrupt Pending (IP) Management</p>
+</section>
+<section id="the-pending-bit-array-pba-register-operates-as-follows">
+<h2>The Pending Bit Array (PBA) register operates as follows:<a class="headerlink" href="#the-pending-bit-array-pba-register-operates-as-follows" title="Permalink to this heading"></a></h2>
+<p>• When the msi_receiver register is accessed (32-bit data X is written into the register), the hardware generates an integer
+value i=X[15:0] from the written data. The hardware uses i to set msix_pba[i]. If the corresponding msix_table does not
+have an entry, the hardware ignores the write operation.
+• When setip[n] is asserted, the MSI relay unit sets the corresponding PBA bit (msix_pba[n]).
+• When msix_enable &amp; !msix_mask &amp; !msix_table[i][96] (mask-bit) &amp; msix_pba[i], the MSI thrower picks one
+pending bit (msix_pba[i]) and clears it.</p>
+</section>
+<section id="the-following-pseudo-code-describes-how-msi-ip-and-msix-pba-should-behave">
+<h2>The following pseudo-code describes how msi_ip and msix_pba should behave:<a class="headerlink" href="#the-following-pseudo-code-describes-how-msi-ip-and-msix-pba-should-behave" title="Permalink to this heading"></a></h2>
+<p>// NOTE: implementation should insert appropriate clock gating.</p>
+<p>// msix_pba manipulation
+always_ff &#64;(posedge clk) begin
+foreach(i={0…N-1}) {
+if (MSI is sent for msix_pba[i]) { // MSI message has passed point-of-no-return
+msix_pba[i] &lt;= 0;
+} else if (APB write to msi_receiver &amp;&amp; Write {i} to the register) {
+msix_pba[i] &lt;= 1;
+} else if (setip[i]) {
+msix_pba[i] &lt;= 1;
+}
+}
+end</p>
+<p>Keraunos PCIE Tile Specification | © Tenstorrent Confidential</p>
+<p><img alt="Page 28, Image 1" src="_images/keraunos_pcie_tile_img-027.png" /></p>
+<p><img alt="Page 28, Image 2" src="_images/keraunos_pcie_tile_img-028.png" /></p>
+<p><img alt="Page 28, Image 3" src="_images/keraunos_pcie_tile_img-029.png" /></p>
+<p><img alt="Page 28, Image 4" src="_images/keraunos_pcie_tile_img-030.png" /></p>
+<p><img alt="Page 28, Image 5" src="_images/keraunos_pcie_tile_img-031.png" /></p>
+<p><img alt="Page 28, Image 6" src="_images/keraunos_pcie_tile_img-032.png" /></p>
+<p><img alt="Page 28, Image 7" src="_images/keraunos_pcie_tile_img-033.png" /></p>
+<p><img alt="Page 28, Image 8" src="_images/keraunos_pcie_tile_img-034.png" /></p>
+<p><img alt="Page 28, Image 9" src="_images/keraunos_pcie_tile_img-035.png" /></p>
+<p><img alt="Page 28, Image 10" src="_images/keraunos_pcie_tile_img-036.png" /></p>
+<p><img alt="Page 28, Image 11" src="_images/keraunos_pcie_tile_img-037.png" /></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, SystemC Modeling Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

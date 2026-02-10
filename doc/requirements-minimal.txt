@@ -1,0 +1,15 @@
+# Minimal Sphinx Documentation Requirements
+# Fallback for older Python environments
+# Install with: pip install -r requirements-minimal.txt
+
+# Core Sphinx - use latest available in your environment
+sphinx
+
+# Theme
+sphinx_rtd_theme
+
+# Markdown support
+myst-parser
+
+# Mermaid diagram support
+sphinxcontrib-mermaid

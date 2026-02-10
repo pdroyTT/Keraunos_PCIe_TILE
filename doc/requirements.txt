@@ -1,0 +1,22 @@
+# Sphinx Documentation Requirements
+# Install with: pip install -r requirements.txt
+# Updated to use Sphinx 5.x
+
+# Core Sphinx (upgrading to 5.x to work with sphinx-rtd-theme 2.0)
+sphinx>=5.0.0,<6.0.0
+
+# Theme (compatible with Sphinx 5.x - your installed version 2.0.0 works!)
+sphinx_rtd_theme>=1.0.0
+
+# Markdown support (compatible with your environment - max 0.16.1)
+myst-parser>=0.15.0,<=0.16.1
+
+# Mermaid diagram support
+sphinxcontrib-mermaid>=0.7.0
+
+# Optional: For live reload during development
+# sphinx-autobuild>=2021.3.14
+
+# Optional: Enhanced extensions (commented out for compatibility)
+# sphinx-copybutton>=0.4.0
+# sphinx-tabs>=3.2.0

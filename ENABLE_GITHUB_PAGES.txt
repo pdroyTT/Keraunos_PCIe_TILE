@@ -1,0 +1,171 @@
+================================================================================
+            ENABLE GITHUB PAGES - YOUR DOCUMENTATION IS READY!
+================================================================================
+
+✅ GOOD NEWS: All documentation is already on GitHub!
+   Repository: https://github.com/pdroyTT/Keraunos_PCIe_TILE
+   Files pushed: gh-pages/ directory with all HTML
+
+❌ ISSUE: GitHub Pages is NOT enabled (shows 404)
+   Status: has_pages = false
+
+⚡ SOLUTION: Enable GitHub Pages (2-minute one-time setup)
+
+================================================================================
+                        STEP-BY-STEP INSTRUCTIONS
+================================================================================
+
+STEP 1: Open Repository Settings
+---------------------------------
+
+Go to: https://github.com/pdroyTT/Keraunos_PCIe_TILE/settings/pages
+
+(You may need to login with pdroy@tenstorrent.com / KairuHanika@2025)
+
+
+STEP 2: Configure GitHub Pages
+-------------------------------
+
+Under "Build and deployment" section:
+
+1. Source: Select "Deploy from a branch"
+
+2. Branch: Select "master" (NOT main!)  ← IMPORTANT
+          Folder: Select "/gh-pages"   ← IMPORTANT
+
+3. Click "Save"
+
+
+STEP 3: Wait for Deployment
+---------------------------
+
+GitHub will show: "Your site is ready to be published"
+
+Wait 1-2 minutes, then refresh the page.
+
+You should see: "Your site is live at https://pdroytt.github.io/Keraunos_PCIe_TILE/"
+
+
+STEP 4: View Your Documentation
+-------------------------------
+
+Open: https://pdroytt.github.io/Keraunos_PCIe_TILE/
+
+(Note: lowercase 'tt' in URL)
+
+================================================================================
+                        IMPORTANT NOTES
+================================================================================
+
+⚠️  Branch Name: Use "master" (your local repo is on master, not main)
+
+⚠️  Folder: MUST be "/gh-pages" (not root /)
+
+⚠️  Case Sensitive: URL is lowercase "pdroytt" but repo is "pdroyTT"
+    - Repository: https://github.com/pdroyTT/Keraunos_PCIe_TILE
+    - GitHub Pages: https://pdroytt.github.io/Keraunos_PCIe_TILE/
+                              ^^^^^^^^ (lowercase)
+
+⚠️  Wait Time: First deployment takes 1-2 minutes
+
+================================================================================
+                     VERIFICATION STEPS
+================================================================================
+
+After configuring (wait 2 minutes), check:
+
+1. Settings page should show:
+   ✅ "Your site is live at https://pdroytt.github.io/Keraunos_PCIe_TILE/"
+
+2. Visiting the URL should show:
+   ✅ "Keraunos PCIe Tile Documentation" landing page
+
+3. Navigation links should work:
+   ✅ High-Level Design
+   ✅ SystemC Implementation
+   ✅ Test Plan
+
+================================================================================
+                     WHAT'S ALREADY ON GITHUB
+================================================================================
+
+✅ Repository created: pdroyTT/Keraunos_PCIe_TILE
+✅ Files pushed: gh-pages/ directory
+✅ Content includes:
+   - index.html (16 KB)
+   - hld.html (52 KB with 16 Mermaid diagrams)
+   - systemc_design.html (469 KB)
+   - testplan.html (204 KB)
+   - _static/ (CSS, JS, images)
+   - All Mermaid diagrams
+   - .nojekyll file
+   - Search functionality
+
+✅ Total size: ~1.5 MB
+
+❌ GitHub Pages: NOT enabled (that's why you see 404)
+
+================================================================================
+                     QUICK SETTINGS URL
+================================================================================
+
+Direct link to enable GitHub Pages:
+
+https://github.com/pdroyTT/Keraunos_PCIe_TILE/settings/pages
+
+Just set:
+- Branch: master
+- Folder: /gh-pages
+- Click Save
+
+Then wait 1-2 minutes and open:
+https://pdroytt.github.io/Keraunos_PCIe_TILE/
+
+================================================================================
+                     IF YOU SEE ERRORS
+================================================================================
+
+Error: "404 - Page not found"
+→ GitHub Pages not enabled yet (follow Step 2 above)
+→ OR still deploying (wait 2 minutes)
+
+Error: "There isn't a GitHub Pages site here"
+→ Wrong folder selected (must be /gh-pages not /)
+→ Wrong branch (must be master not main)
+
+Error: "404 on specific page like hld.html"
+→ Wait for deployment to complete
+→ Check files exist: https://github.com/pdroyTT/Keraunos_PCIe_TILE/tree/master/gh-pages
+
+================================================================================
+                     TROUBLESHOOTING
+================================================================================
+
+If after 5 minutes you still see 404:
+
+1. Check branch at: https://github.com/pdroyTT/Keraunos_PCIe_TILE/branches
+
+2. Verify files at: https://github.com/pdroyTT/Keraunos_PCIe_TILE/tree/master/gh-pages
+
+3. Check Pages status: https://github.com/pdroyTT/Keraunos_PCIe_TILE/settings/pages
+
+4. Look for: "Your site is published at..." message
+
+================================================================================
+                     NO FURTHER PUSHES NEEDED
+================================================================================
+
+You DO NOT need to run publish_docs.sh again.
+
+All files are already on GitHub.
+
+You ONLY need to:
+1. Enable GitHub Pages in settings
+2. Wait 1-2 minutes
+3. View the site
+
+================================================================================
+
+SUMMARY: Your documentation IS on GitHub, just enable Pages in settings!
+
+================================================================================

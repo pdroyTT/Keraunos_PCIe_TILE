@@ -1,0 +1,111 @@
+================================================================================
+   KERAUNOS PCIe TILE - IMPROVED DIAGRAMS - QUICK ACCESS ✅
+================================================================================
+
+🎨 ALL IMPROVEMENTS APPLIED:
+
+   ✅ All Mermaid syntax errors fixed (11 instances)
+   ✅ Diagram sizes increased (800px minimum, 1200px for section 3.1)
+   ✅ Font sizes increased (16-18px, was 14px)
+   ✅ Node spacing increased (+40%)
+   ✅ Better colors and borders
+   ✅ Section 3.1 specially enhanced (largest diagram)
+
+📊 SECTION 3.1 - COMPLETE SYSTEM ARCHITECTURE:
+
+   This diagram is now EXTRA LARGE with:
+   - Minimum width: 1200px (was unrestricted)
+   - Font size: 18px (was 14px) = +29% larger
+   - Enhanced spacing and readability
+   - Professional blue borders
+
+📖 TO VIEW IMPROVED DOCUMENTATION:
+
+   Method 1 - Direct Browser:
+   $ firefox /localdev/pdroy/keraunos_pcie_workspace/docs/_build/html/hld.html
+
+   Method 2 - Section 3.1 Direct:
+   $ firefox /localdev/pdroy/keraunos_pcie_workspace/docs/_build/html/hld.html#complete-system-architecture
+
+   Method 3 - Start Index:
+   $ firefox /localdev/pdroy/keraunos_pcie_workspace/docs/_build/html/index.html
+
+📈 IMPROVEMENTS BY THE NUMBERS:
+
+   Font Sizes:
+   - Base diagrams: 14px → 16px (+14%)
+   - Section 3.1: 14px → 18px (+29%)
+   - Cluster labels: 14px → 18px (+29%)
+
+   Diagram Sizes:
+   - Min width: None → 800px (general)
+   - Min width: None → 1200px (section 3.1)
+   - Node spacing: 50 → 70 (+40%)
+   - Padding: 15px → 25px (+67%)
+
+   Syntax Fixes:
+   - Errors fixed: 11
+   - Diagrams corrected: 3
+   - Build errors: 0
+
+🔧 FILES MODIFIED:
+
+   1. docs/conf.py - Mermaid configuration enhanced
+   2. docs/_static/custom.css - CSS styling improved
+   3. docs/hld.md - Syntax errors fixed
+
+📝 ALL 16 DIAGRAMS STATUS:
+
+   Section 2.1: Architecture Overview          ✅ Enlarged
+   Section 3.1: Complete System Architecture   ✅ Fixed + EXTRA LARGE (18px, 1200px)
+   Section 4.1: Inbound Data Flow              ✅ Enlarged
+   Section 4.2: Outbound Data Flow             ✅ Enlarged
+   Section 4.3: Configuration Flow             ✅ Enlarged
+   Section 4.4: MSI Generation Flow            ✅ Enlarged
+   Section 4.5: CII Interrupt Flow             ✅ Enlarged
+   Section 5.2: TLB Configuration              ✅ Fixed + Enlarged
+   Section 5.3: MSI Relay Architecture         ✅ Enlarged
+   Section 5.4: CII State Machine              ✅ Enlarged
+   Section 6.1: Inbound Address Routing        ✅ Fixed + Enlarged
+   Section 7.1: Reset Hierarchy                ✅ Enlarged
+   Section 7.3: Isolation Sequence             ✅ Enlarged
+   Section 9.1: Known Limitations              ✅ Enlarged
+   Section 10.1: Test Distribution (Pie)       ✅ Enlarged
+   Section 10.1: Test Breakdown                ✅ Enlarged
+
+🎯 RECOMMENDED VIEWING:
+
+   Start here to see the biggest improvements:
+   1. Section 3.1 - Complete System Architecture (LARGEST)
+   2. Section 4.1-4.5 - All data flow sequence diagrams
+   3. Section 5.2 - TLB configuration diagram
+   4. Section 6.1 - Address routing diagram
+
+💡 TIPS:
+
+   - Use Ctrl+Plus/Minus to zoom in browser if needed
+   - All diagrams are now minimum 800px wide
+   - Section 3.1 is minimum 1200px wide
+   - Diagrams are responsive and will scale with window
+
+📚 DOCUMENTATION:
+
+   Full Details:
+   /localdev/pdroy/keraunos_pcie_workspace/docs/DIAGRAM_IMPROVEMENTS_COMPLETE.md
+
+   Mermaid Fixes:
+   /localdev/pdroy/keraunos_pcie_workspace/docs/MERMAID_FIX_SUMMARY.md
+
+🔄 TO REBUILD (if needed):
+
+   $ cd /localdev/pdroy/keraunos_pcie_workspace/docs
+   $ rm -rf _build/html
+   $ sphinx-build -b html . _build/html
+
+================================================================================
+                        IMPROVEMENTS COMPLETE! ✅
+================================================================================
+
+Access at: file:///localdev/pdroy/keraunos_pcie_workspace/docs/_build/html/hld.html
+
+Section 3.1: file:///localdev/pdroy/keraunos_pcie_workspace/docs/_build/html/hld.html#complete-system-architecture

@@ -1,0 +1,13 @@
+cwr
+workaread
+*.o
+*.vpcfg
+*.dladapter.cc
+.settings
+SystemC/lib
+snps.vpproject
+*_build.tcl
+*_import.tcl
+*_callback.tcl
+*Base.h
+*Base.cc

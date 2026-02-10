@@ -1,7 +1,7 @@
 # Keraunos PCIE Tile SystemC/TLM2.0 Design Document
 
 **Version:** 2.0 (Refactored Architecture)  
-**Date:** February 2026  
+**Date:** February 10, 2026  
 **Author:** SystemC Modeling Team  
 **Based on:** Keraunos PCIE Tile Specification v0.7.023  
 **Implementation:** Refactored C++ class architecture with function callbacks
@@ -90,7 +90,7 @@ make html
 ## ⭐ Key Implementation Features
 
 - ✅ **E126 Error Eliminated** - FastBuild compatible architecture
-- ✅ **100% Test Pass Rate** - 33/33 E2E tests passing
+- ✅ **100% Test Pass Rate** - 81/81 tests passing (0 failures)
 - ✅ **Zero Memory Leaks** - Smart pointer (RAII) based design
 - ✅ **Modern C++17** - Best practices throughout
 - ✅ **SCML2 Memory** - Proper persistent storage
@@ -201,7 +201,7 @@ This design document covers:
 - Eliminated internal TLM socket bindings (30+) → Function callbacks
 - Applied modern C++17 best practices (smart pointers, RAII)
 - Integrated SCML2 memory for configuration persistence
-- Achieved 100% test pass rate (33/33 E2E tests)
+- Achieved 100% test pass rate (81/81 tests, 0 failures)
 - **Result:** E126 socket binding error eliminated, FastBuild compatible
 
 ---
@@ -3740,11 +3740,11 @@ The use of `tlm::tlm_target_socket` for TLB translation logic is **appropriate**
 class KeraunosPcieTile : public sc_core::sc_module {
     // External TLM Sockets (6 total)
     tlm_utils::simple_target_socket<...> noc_n_target;
-    tlm_utils::simple_target_socket<...> noc_n_initiator;
+    tlm_utils::simple_initiator_socket<KeraunosPcieTile, 64> noc_n_initiator;
     tlm_utils::simple_target_socket<...> smn_n_target;
-    tlm_utils::simple_target_socket<...> smn_n_initiator;
+    tlm_utils::simple_initiator_socket<KeraunosPcieTile, 64> smn_n_initiator;
     tlm_utils::simple_target_socket<...> pcie_controller_target;
-    tlm_utils::simple_target_socket<...> pcie_controller_initiator;
+    tlm_utils::simple_initiator_socket<KeraunosPcieTile, 64> pcie_controller_initiator;
     
     // Control Signal Ports
     sc_in<bool> cold_reset_n, warm_reset_n, isolate_req;
@@ -4305,7 +4305,7 @@ make -f Makefile.Keranous_pcie_tile.linux
 make -f Makefile.Keranous_pcie_tile.linux check
 
 # Expected output:
-# 33 tests, 33 passing, 0 failing
+# 81 tests, 81 passing, 0 failing
 # NO E126 errors!
 ```
 
@@ -4738,12 +4738,12 @@ Copyright (c) 1996-2022 by all Contributors
 Test Suite: Keranous_pcie_tileTest
 ==================================
 
-✅ 33 tests executed
-✅ 33 tests PASSING
+✅ 81 tests executed
+✅ 81 tests PASSING
 ✅ 0 tests failing
 ✅ 0 not run
 ✅ 0 not finished
-✅ 34 checks performed
+✅ 251 checks performed
 
 Critical Validation:
 ✅ testE2E_Refactor_NoInternalSockets_E126Check PASSED

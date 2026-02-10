@@ -1,0 +1,886 @@
+{
+  "mtype" : "model",
+  "vendor" : "",
+  "library" : "Keranous_pcie_tile",
+  "name" : "Keranous_pcie_tile",
+  "version" : "",
+  "author" : "",
+  "description" : "The SystemC import template is used to bring existing SystemC models into TLM Creator.\nFill in the source information (ie. include paths, preprocessor defines, header and source file names) in the Compiler Settings section of the default Build Configuration, provide a model instantiation line in the General tab and click the Synchronize button.\nTLM Creator will extract the model properties from the C++ source code. ",
+  "category" : "",
+  "specification" : "",
+  "spec_link" : "",
+  "spec_restricted" : false,
+  "based_on" : "",
+  "tlmc_path" : "Keraunos_PCIe_tile.tlmc",
+  "modeling_objects" : [ ],
+  "protocol_engines" : [ ],
+  "interfaces" : {
+    "axi_clk" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Clock",
+      "mode" : ""
+    },
+    "cold_reset_n" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Reset",
+      "mode" : ""
+    },
+    "config_update" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "controller_misc_int" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "dma_completion" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "function_level_reset" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Reset",
+      "mode" : ""
+    },
+    "hot_reset_requested" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Reset",
+      "mode" : ""
+    },
+    "isolate_req" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "noc_n_initiator" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Memory",
+      "mode" : ""
+    },
+    "noc_n_target" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Memory",
+      "mode" : ""
+    },
+    "noc_timeout" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_app_bus_num" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_app_dev_num" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_cii_hdr_addr" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_cii_hdr_type" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_cii_hv" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_controller_initiator" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Memory",
+      "mode" : ""
+    },
+    "pcie_controller_reset_n" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Reset",
+      "mode" : ""
+    },
+    "pcie_controller_target" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Memory",
+      "mode" : ""
+    },
+    "pcie_core_clk" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Clock",
+      "mode" : ""
+    },
+    "pcie_device_type" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_dma_completion" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_flr_request" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_hot_reset" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Reset",
+      "mode" : ""
+    },
+    "pcie_misc_int" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_ras_error" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "pcie_sys_int" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "ras_error" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Control",
+      "mode" : ""
+    },
+    "smn_n_initiator" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Memory",
+      "mode" : ""
+    },
+    "smn_n_target" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Memory",
+      "mode" : ""
+    },
+    "warm_reset_n" : {
+      "protocol" : "None",
+      "role" : "",
+      "category" : "Reset",
+      "mode" : ""
+    }
+  },
+  "callbacks" : {
+    "expectedCallbackCount" : 0,
+    "actualCallbackCount" : 0,
+    "missingCallbacks" : { },
+    "callbackImplementations" : { }
+  },
+  "bblocks" : { },
+  "copy_files" : {
+    ".cproject" : {
+      "type" : "Other",
+      "overwrite" : "Never",
+      "classification" : "Project",
+      "desc" : "",
+      "header" : false
+    },
+    ".project" : {
+      "type" : "Other",
+      "overwrite" : "Never",
+      "classification" : "Project",
+      "desc" : "",
+      "header" : false
+    },
+    "Keraunos_PCIe_tile.tlmc" : {
+      "type" : "Other",
+      "overwrite" : "Never",
+      "classification" : "Project",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/Keranous_pcie_tileCovermodel.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/Keranous_pcie_tileCovermodelBase.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_clock_reset.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_clock_reset.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_common.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_config_reg.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_config_reg.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_external_interfaces.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_external_interfaces.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_inbound_tlb.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_inbound_tlb.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_msi_relay.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_msi_relay.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_msi_relay_refactored.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_msi_relay_refactored.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_noc_io_switch.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_noc_io_switch.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_noc_pcie_switch.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_noc_pcie_switch.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_outbound_tlb.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_outbound_tlb.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_phy.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_phy.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_pll_cgm.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_pll_cgm.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_sii.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_sii.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_smn_io_switch.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_smn_io_switch.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_tile.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/keraunos_pcie_tile.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/keraunos_pcie_tlb_common.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/sc_dt.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/backup_original/scml2_debug_callback_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/scml2_event_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/scml2_logging_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/scml2_module_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/scml2_payload_trace_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/scml2_simcontext_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/scml2_vtable_impls.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/backup_original/scml2_writer_policy_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/include/Keranous_pcie_tile.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelDerivedClass",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/Keranous_pcie_tileBase.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelBaseClass",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/Keranous_pcie_tileCovermodel.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "Coverage",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/Keranous_pcie_tileCovermodelBase.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "Coverage",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_clock_reset.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_common.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_config_reg.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_external_interfaces.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_inbound_tlb.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_msi_relay.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_noc_io_switch.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_noc_pcie_switch.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_outbound_tlb.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_phy.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_pll_cgm.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_sii.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_smn_io_switch.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_tile.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/keraunos_pcie_tlb_common.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/include/sc_dt.h" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : true
+    },
+    "SystemC/src/Keranous_pcie_tile.cc" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelDerivedClass",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/Keranous_pcie_tileBase.cc" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelBaseClass",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_clock_reset.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_config_reg.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_external_interfaces.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_inbound_tlb.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_msi_relay.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_noc_io_switch.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_noc_pcie_switch.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_outbound_tlb.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_phy.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_pll_cgm.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_sii.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_smn_io_switch.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/keraunos_pcie_tile.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/scml2_debug_callback_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/scml2_event_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/scml2_logging_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/scml2_module_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/scml2_payload_trace_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/scml2_simcontext_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/scml2_vtable_impls.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "SystemC/src/scml2_writer_policy_stub.cpp" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "Tests/Keranous_pcie_tileMirror.h" : {
+      "type" : "Test",
+      "overwrite" : "Never",
+      "classification" : "TestMirrorDerivedClass",
+      "desc" : "",
+      "header" : true
+    },
+    "Tests/Keranous_pcie_tileMirrorBase.h" : {
+      "type" : "Test",
+      "overwrite" : "Never",
+      "classification" : "TestMirrorBaseClass",
+      "desc" : "",
+      "header" : true
+    },
+    "Tests/Manual/manual_test_harness.cpp" : {
+      "type" : "Test",
+      "overwrite" : "Never",
+      "classification" : "TestUnknown",
+      "desc" : "",
+      "header" : false
+    },
+    "Tests/Unittests/Keranous_pcie_tileTest.cc" : {
+      "type" : "Test",
+      "overwrite" : "Never",
+      "classification" : "TestTestcases",
+      "desc" : "",
+      "header" : false
+    },
+    "Tests/Unittests/Keranous_pcie_tileTestHarness.h" : {
+      "type" : "Test",
+      "overwrite" : "Never",
+      "classification" : "TestHarness",
+      "desc" : "",
+      "header" : true
+    },
+    "Tool/PCT/Keranous_pcie_tile_build.tcl" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "Tool/PCT/Keranous_pcie_tile_callback.tcl" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "Tool/PCT/Keranous_pcie_tile_import.tcl" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    },
+    "Tool/PCT/regenerate_tests_no_coverage.tcl" : {
+      "type" : "Component",
+      "overwrite" : "Never",
+      "classification" : "ModelUserDefined",
+      "desc" : "",
+      "header" : false
+    }
+  }
+}

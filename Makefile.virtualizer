@@ -1,0 +1,129 @@
+# Makefile for Keraunos PCIE Tile SystemC/SCML Project
+# Using Virtualizer's Build Environment
+
+# Source Virtualizer environment
+# This sets COWAREHOME, SNPS_VP_HOME, and other required variables
+VIRTUALIZER_HOME := /tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03
+VIRTUALIZER_SETUP := $(VIRTUALIZER_HOME)/SLS/linux/setup.sh
+
+# Check if Virtualizer environment is set up
+ifeq ($(COWAREHOME),)
+    $(warning COWAREHOME not set. Please run: source $(VIRTUALIZER_SETUP) -vze)
+    COWAREHOME := $(VIRTUALIZER_HOME)/SLS/linux
+endif
+
+# Virtualizer paths (using COWAREHOME if set)
+SNPS_VP_HOME ?= $(COWAREHOME)
+SCML_HOME = $(SNPS_VP_HOME)/..
+SCML_INC = $(SNPS_VP_HOME)/common/include
+SCML_LIB = $(SNPS_VP_HOME)/common/lib-gcc-9.2-64
+TLM_INC = $(SCML_INC)/tlm
+
+# SystemC - Virtualizer uses its own SystemC headers with extensions
+# Note: Virtualizer doesn't provide standalone SystemC library
+# We still need to link against a SystemC library, but use Virtualizer's headers
+# Override environment variable to use our SystemC 2.3.4 installation
+SYSTEMC_HOME := /localdev/pdroy/systemc-2.3.4
+SYSTEMC_INC_VZ = $(SCML_INC)  # Use Virtualizer's SystemC headers
+SYSTEMC_INC = $(SYSTEMC_HOME)/include
+SYSTEMC_LIB = $(SYSTEMC_HOME)/lib64
+
+# Project directories
+SRC_DIR = src
+TB_DIR = tb/src
+INC_DIR = include
+TB_INC_DIR = tb/include
+
+# Compiler and flags
+CXX = g++
+CXXFLAGS = -std=c++14 -Wall -g -O2 -DSC_DISABLE_API_VERSION_CHECK -DSC_DISABLE_VCD_SCOPES -DSC_DISABLE_TRACE
+# Use Virtualizer's headers first (required for SCML2)
+# The segfault is due to vtable entries being NULL for virtual functions
+# declared in Virtualizer's headers but not in standard SystemC library
+INCLUDES = -I$(SYSTEMC_INC_VZ) -I$(INC_DIR) -I$(TB_INC_DIR) -I$(SCML_INC) -I$(TLM_INC)
+LDFLAGS = -L$(SYSTEMC_LIB) -L$(SCML_LIB)
+# Allow undefined symbols for trace/debug functions (we don't need them)
+# These are virtual functions in vtables for debug/trace functionality
+LIBS = -lsystemc -lscml2_testing -lsnps_vp_expat -lpthread -ldl
+
+# Source files
+SRC_FILES = $(filter-out $(SRC_DIR)/scml2_%_stub.cpp, $(wildcard $(SRC_DIR)/*.cpp))
+TB_FILES = $(wildcard $(TB_DIR)/*.cpp)
+# Stub files for missing Synopsys extensions
+SRC_FILES += $(SRC_DIR)/scml2_logging_stub.cpp
+SRC_FILES += $(SRC_DIR)/scml2_debug_callback_stub.cpp
+SRC_FILES += $(SRC_DIR)/scml2_writer_policy_stub.cpp
+SRC_FILES += $(SRC_DIR)/scml2_simcontext_stub.cpp
+SRC_FILES += $(SRC_DIR)/scml2_event_stub.cpp
+SRC_FILES += $(SRC_DIR)/scml2_module_stub.cpp
+SRC_FILES += $(SRC_DIR)/scml2_payload_trace_stub.cpp
+ALL_SRC = $(SRC_FILES) $(TB_FILES)
+
+# Object files
+OBJ_DIR = build/obj
+OBJ_FILES = $(ALL_SRC:%.cpp=$(OBJ_DIR)/%.o)
+
+# Executable
+EXEC = build/tb_keraunos_pcie
+
+# Default target
+all: check_env $(EXEC)
+
+# Check Virtualizer environment
+check_env:
+	@if [ -z "$(COWAREHOME)" ]; then \
+		echo "ERROR: Virtualizer environment not set."; \
+		echo "Please run: source $(VIRTUALIZER_SETUP) -vze"; \
+		exit 1; \
+	fi
+	@echo "Using Virtualizer environment:"
+	@echo "  COWAREHOME=$(COWAREHOME)"
+	@echo "  SCML_INC=$(SCML_INC)"
+	@echo "  SCML_LIB=$(SCML_LIB)"
+
+# Create executable
+# Note: Using --unresolved-symbols=ignore-all to allow undefined trace/debug functions
+# These are virtual functions in vtables that we don't need for basic functionality
+$(EXEC): $(OBJ_FILES) | build
+	@echo "Linking $(EXEC)..."
+	@echo "Note: Allowing undefined symbols for trace/debug functions (not needed)"
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) $(LDFLAGS) $(LIBS) -Wl,--unresolved-symbols=ignore-all -o $(EXEC)
+	@echo "Build complete: $(EXEC)"
+
+# Compile source files
+$(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
+	@echo "Compiling $<..."
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# Create directories
+build:
+	@mkdir -p build
+
+$(OBJ_DIR):
+	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(OBJ_DIR)/$(SRC_DIR)
+	@mkdir -p $(OBJ_DIR)/$(TB_DIR)
+
+# Run the testbench
+run: $(EXEC)
+	@echo "Running testbench..."
+	LD_LIBRARY_PATH=$(SYSTEMC_LIB):$(SCML_LIB):$$LD_LIBRARY_PATH ./$(EXEC)
+
+# Clean build artifacts
+clean:
+	rm -rf build
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  make          - Build the testbench (requires Virtualizer environment)"
+	@echo "  make run      - Build and run the testbench"
+	@echo "  make clean    - Remove build artifacts"
+	@echo "  make help     - Show this help message"
+	@echo ""
+	@echo "Setup:"
+	@echo "  source $(VIRTUALIZER_SETUP) -vze"
+
+.PHONY: all run clean help check_env
+

@@ -1,0 +1,5 @@
+# User extension for test harness build
+# DUT library (.so) is built by the Virtualizer library build step with fPIC.
+# Test harness only needs to compile the test source and link with SCML2 testing.
+# The DUT .so is loaded dynamically at runtime by vpsession (FastBuild mode).
+EXTRA_CXXFLAGS =

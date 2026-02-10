@@ -1,0 +1,130 @@
+================================================================================
+         HOW TO PUBLISH - NO USERNAME/PASSWORD PROMPTS
+================================================================================
+
+The script has been fixed to ONLY use Personal Access Token.
+No username/password prompts will appear.
+
+QUICK START (2 steps):
+================================================================================
+
+STEP 1: Get Your Personal Access Token (2 minutes)
+---------------------------------------------------
+
+1. Open: https://github.com/settings/tokens/new
+
+2. Login with:
+   Username: pdroy@tenstorrent.com
+   Password: KairuHanika@2025
+
+3. Create token:
+   Name: Keraunos_Documentation
+   Expiration: 90 days
+   Scopes: [✓] repo (all), [✓] workflow
+
+4. Click "Generate token"
+
+5. COPY THE TOKEN (starts with ghp_)
+   Example: ghp_1234567890abcdefghijklmnopqrstuvwxyz1234
+
+STEP 2: Run Publish Script (1 minute)
+--------------------------------------
+
+cd /localdev/pdroy/keraunos_pcie_workspace
+
+# Set token
+export GITHUB_TOKEN="ghp_paste_your_token_here"
+
+# Publish (NO PROMPTS!)
+./publish_docs.sh
+
+================================================================================
+                         WHAT THE SCRIPT DOES
+================================================================================
+
+✅ Uses ONLY your token (no username/password)
+✅ Creates repository automatically
+✅ Pushes documentation
+✅ Configures GitHub Pages
+✅ NO interactive prompts
+
+If token is not set, it will ask ONCE for the token (not username/password).
+
+================================================================================
+                    WHY YOUR PASSWORD WON'T WORK
+================================================================================
+
+❌ Password: "KairuHanika@2025" won't work for Git operations
+✅ Token: Required by GitHub (security policy since Aug 2021)
+
+Your password works for:
+- ✅ Logging into github.com website
+- ✅ Creating Personal Access Token
+
+Your password does NOT work for:
+- ❌ Git push/pull commands
+- ❌ GitHub API calls
+- ❌ Repository operations
+
+================================================================================
+                         COMPLETE COMMAND
+================================================================================
+
+Copy and paste this (replace token):
+
+export GITHUB_TOKEN="ghp_YOUR_ACTUAL_TOKEN_HERE"
+cd /localdev/pdroy/keraunos_pcie_workspace
+./publish_docs.sh
+
+================================================================================
+                         AFTER PUBLISHING
+================================================================================
+
+1. Repository created at:
+   https://github.com/pdroyTT/Keraunos_PCIe_TILE
+
+2. Enable GitHub Pages (one-time):
+   - Go to: https://github.com/pdroyTT/Keraunos_PCIe_TILE/settings/pages
+   - Source: Deploy from a branch
+   - Branch: main
+   - Folder: /gh-pages
+   - Click Save
+
+3. View documentation (after 1-2 minutes):
+   https://pdroyTT.github.io/Keraunos_PCIe_TILE/
+
+================================================================================
+                    TOKEN vs PASSWORD EXPLAINED
+================================================================================
+
+Your GitHub Account:
+  Login: pdroy@tenstorrent.com
+  Password: KairuHanika@2025
+  ↓
+  Used for: Logging into github.com ONLY
+
+Personal Access Token:
+  Format: ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ↓
+  Used for: Git operations, API calls, script automation
+
+The token is DIFFERENT from your password!
+You create the token using your password on the GitHub website.
+
+================================================================================
+                         SECURITY NOTES
+================================================================================
+
+✅ Token is used only during push
+✅ Token is removed from git config after push
+✅ Token never stored in repository
+✅ Token has specific permissions only
+✅ Token can be revoked anytime
+
+================================================================================
+
+READY TO PUBLISH: All documentation built (0 errors)
+SIZE: ~1.5 MB with 16 Mermaid diagrams
+ACTION: Get token → Set export → Run script
+
+================================================================================

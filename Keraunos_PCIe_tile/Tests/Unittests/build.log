@@ -1,0 +1,287 @@
+/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/bin/g++ -I/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/include -I/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/include/tlm -I/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/include/tlm/tlm_utils      -I/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/include/uvmc-2.3.1 -fmessage-length=0 -fno-var-tracking-assignments --param inline-unit-growth=300 -Wno-deprecated -std=c++17  -I/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/IP_common/AMBA_TLM2_BL/AMBA-PV/include -I/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/IP_common/AMBA_TLM2_BL/include -Wall -g -O0  -I"/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/tlmcreator/templates/models/common/include" -I"/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/IP_common/AMBA_TLM2_BL/AMBA-PV/include" -I"/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/IP_common/AMBA_TLM2_BL/include" -I"/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/include/tlm_serial" -I"/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/../../IP/tlm_ft_can_bus/SystemC/include" -I"/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/../../IP/tlm_ft_spi_bus/SystemC/include" -I"/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/../../IP/tlm_ft_lin_bus/SystemC/include" -I"./../.."  -I"../../SystemC/include" -I".." -I"."     -o Keranous_pcie_tileTest.gcc-9.5-64.o -c Keranous_pcie_tileTest.cc
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::configure_tlb_entry_via_smn(uint32_t, uint8_t, uint64_t, uint32_t)':
+Keranous_pcie_tileTest.cc:158:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  158 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::send_pcie_write(uint64_t, uint32_t)':
+Keranous_pcie_tileTest.cc:184:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  184 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Inbound_PcieRead_TlbApp0_NocN()':
+Keranous_pcie_tileTest.cc:210:14: warning: variable 'read_data' set but not used [-Wunused-but-set-variable]
+  210 |     uint32_t read_data = 0;
+      |              ^~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Outbound_NocN_TlbAppOut0_Pcie()':
+Keranous_pcie_tileTest.cc:319:14: warning: variable 'read_data' set but not used [-Wunused-but-set-variable]
+  319 |     uint32_t read_data = 0;
+      |              ^~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Outbound_NocN_TlbAppOut1_PcieDBI()':
+Keranous_pcie_tileTest.cc:354:14: warning: variable 'read_data' set but not used [-Wunused-but-set-variable]
+  354 |     uint32_t read_data = 0;
+      |              ^~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Config_SmnToTlb()':
+Keranous_pcie_tileTest.cc:368:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  368 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Config_SmnToSII()':
+Keranous_pcie_tileTest.cc:382:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  382 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Config_SmnToMsiRelay()':
+Keranous_pcie_tileTest.cc:406:14: warning: unused variable 'read_addr_low' [-Wunused-variable]
+  406 |     uint32_t read_addr_low = smn_n_target.read32(msix_table_base, &ok);
+      |              ^~~~~~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_MSI_Generation_ToNocN()':
+Keranous_pcie_tileTest.cc:418:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  418 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_MSI_DownstreamInput_Processing()':
+Keranous_pcie_tileTest.cc:437:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  437 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_MSIX_MultipleVectors()':
+Keranous_pcie_tileTest.cc:451:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  451 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_StatusRegister_DisabledAccess()':
+Keranous_pcie_tileTest.cc:499:14: warning: variable 'status_val' set but not used [-Wunused-but-set-variable]
+  499 |     uint32_t status_val = 0;
+      |              ^~~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Isolation_GlobalBlock()':
+Keranous_pcie_tileTest.cc:513:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  513 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc:526:14: warning: unused variable 'dummy_data' [-Wunused-variable]
+  526 |     uint32_t dummy_data = pcie_controller_target.read32(0x1000, &pcie_ok);
+      |              ^~~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Isolation_ConfigAccessAllowed()':
+Keranous_pcie_tileTest.cc:544:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  544 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Error_InvalidTlbEntry()':
+Keranous_pcie_tileTest.cc:569:14: warning: unused variable 'data' [-Wunused-variable]
+  569 |     uint32_t data = pcie_controller_target.read32(pcie_addr, &ok);
+      |              ^~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Error_AddressDecodeError()':
+Keranous_pcie_tileTest.cc:577:10: warning: unused variable 'ok' [-Wunused-variable]
+  577 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc:582:14: warning: variable 'data' set but not used [-Wunused-but-set-variable]
+  582 |     uint32_t data = pcie_controller_target.read32(decerr_addr, &trans_ok);
+      |              ^~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Concurrent_InboundOutbound()':
+Keranous_pcie_tileTest.cc:607:14: warning: unused variable 'pcie_data' [-Wunused-variable]
+  607 |     uint32_t pcie_data = pcie_controller_target.read32(pcie_addr, &pcie_ok);
+      |              ^~~~~~~~~
+Keranous_pcie_tileTest.cc:611:10: warning: variable 'noc_ok' set but not used [-Wunused-but-set-variable]
+  611 |     bool noc_ok = false;
+      |          ^~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Concurrent_MultipleTlbs()':
+Keranous_pcie_tileTest.cc:620:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  620 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Reset_ColdResetSequence()':
+Keranous_pcie_tileTest.cc:641:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  641 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Reset_WarmResetSequence()':
+Keranous_pcie_tileTest.cc:656:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  656 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Flow_PcieMemoryRead_Complete()':
+Keranous_pcie_tileTest.cc:682:14: warning: unused variable 'read_data' [-Wunused-variable]
+  682 |     uint32_t read_data = pcie_controller_target.read32(addr, &ok);
+      |              ^~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Flow_PcieMemoryWrite_Complete()':
+Keranous_pcie_tileTest.cc:690:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  690 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Flow_NocMemoryRead_ToPcie()':
+Keranous_pcie_tileTest.cc:711:14: warning: variable 'read_data' set but not used [-Wunused-but-set-variable]
+  711 |     uint32_t read_data = 0;
+      |              ^~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Refactor_FunctionCallbackChain()':
+Keranous_pcie_tileTest.cc:741:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  741 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_System_BootSequence()':
+Keranous_pcie_tileTest.cc:776:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  776 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_System_ErrorRecovery()':
+Keranous_pcie_tileTest.cc:801:14: warning: unused variable 'data' [-Wunused-variable]
+  801 |     uint32_t data = pcie_controller_target.read32(addr, &ok);
+      |              ^~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_MSIX_CompleteMsixInterruptFlow()':
+Keranous_pcie_tileTest.cc:844:14: warning: unused variable 'pba_val' [-Wunused-variable]
+  844 |     uint32_t pba_val = smn_n_target.read32(msi_config_base + 0x3000, &ok);  // PBA offset
+      |              ^~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Error_TimeoutHandling()':
+Keranous_pcie_tileTest.cc:866:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  866 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc:883:14: warning: variable 'dummy' set but not used [-Wunused-but-set-variable]
+  883 |     uint32_t dummy = pcie_controller_target.read32(0x0000000001000000, &trans_ok);
+      |              ^~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_CDC_AxiToPcieClock()':
+Keranous_pcie_tileTest.cc:912:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  912 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc:921:19: warning: unused variable 'bus_num' [-Wunused-variable]
+  921 |     unsigned char bus_num = pcie_app_bus_num_signal.read();
+      |                   ^~~~~~~
+Keranous_pcie_tileTest.cc:922:19: warning: unused variable 'dev_num' [-Wunused-variable]
+  922 |     unsigned char dev_num = pcie_app_dev_num_signal.read();
+      |                   ^~~~~~~
+Keranous_pcie_tileTest.cc:928:19: warning: unused variable 'bus_num2' [-Wunused-variable]
+  928 |     unsigned char bus_num2 = pcie_app_bus_num_signal.read();
+      |                   ^~~~~~~~
+Keranous_pcie_tileTest.cc:929:19: warning: unused variable 'dev_num2' [-Wunused-variable]
+  929 |     unsigned char dev_num2 = pcie_app_dev_num_signal.read();
+      |                   ^~~~~~~~
+Keranous_pcie_tileTest.cc:939:10: warning: unused variable 'config_upd' [-Wunused-variable]
+  939 |     bool config_upd = config_update_signal.read();
+      |          ^~~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Perf_MaximumThroughput()':
+Keranous_pcie_tileTest.cc:978:18: warning: unused variable 'data' [-Wunused-variable]
+  978 |         uint32_t data = pcie_controller_target.read32(addr, &rd_ok);
+      |                  ^~~~
+Keranous_pcie_tileTest.cc:993:18: warning: unused variable 'data' [-Wunused-variable]
+  993 |         uint32_t data = noc_n_target.read32(addr, &rd_ok);
+      |                  ^~~~
+Keranous_pcie_tileTest.cc:955:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+  955 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Stress_AddressSpaceSweep()':
+Keranous_pcie_tileTest.cc:1064:22: warning: unused variable 'data' [-Wunused-variable]
+ 1064 |             uint32_t data = pcie_controller_target.read32(addr, &trans_ok);
+      |                      ^~~~
+Keranous_pcie_tileTest.cc:1092:22: warning: unused variable 'data' [-Wunused-variable]
+ 1092 |             uint32_t data = noc_n_target.read32(noc_addrs[i], &trans_ok);
+      |                      ^~~~
+Keranous_pcie_tileTest.cc:1036:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+ 1036 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc:1056:9: warning: unused variable 'error_count' [-Wunused-variable]
+ 1056 |     int error_count = 0;
+      |         ^~~~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Stress_TlbEntryExhaustion()':
+Keranous_pcie_tileTest.cc:1157:18: warning: unused variable 'data' [-Wunused-variable]
+ 1157 |         uint32_t data = pcie_controller_target.read32(pcie_addr, &rd_ok);
+      |                  ^~~~
+Keranous_pcie_tileTest.cc:1135:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+ 1135 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_Power_IsolationModeEntryExit()':
+Keranous_pcie_tileTest.cc:1191:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+ 1191 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc:1202:14: warning: variable 'rd_data' set but not used [-Wunused-but-set-variable]
+ 1202 |     uint32_t rd_data = noc_n_target.read32(0x10001000000000, &rd_ok);
+      |              ^~~~~~~
+Keranous_pcie_tileTest.cc:1212:14: warning: unused variable 'blocked_data' [-Wunused-variable]
+ 1212 |     uint32_t blocked_data = pcie_controller_target.read32(0x0000000001000000, &pcie_blocked);
+      |              ^~~~~~~~~~~~
+Keranous_pcie_tileTest.cc:1215:14: warning: unused variable 'noc_data' [-Wunused-variable]
+ 1215 |     uint32_t noc_data = noc_n_target.read32(0x10001000000000, &noc_blocked);
+      |              ^~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testE2E_System_ShutdownSequence()':
+Keranous_pcie_tileTest.cc:1262:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+ 1262 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc:1277:14: warning: unused variable 'rd_data' [-Wunused-variable]
+ 1277 |     uint32_t rd_data = noc_n_target.read32(0x10001000000000, &rd_ok);
+      |              ^~~~~~~
+Keranous_pcie_tileTest.cc:1294:14: warning: unused variable 'dummy' [-Wunused-variable]
+ 1294 |     uint32_t dummy = pcie_controller_target.read32(0x0000000001000000, &blocked);
+      |              ^~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_Switch_RouteDecodeErrors()':
+Keranous_pcie_tileTest.cc:1344:16: warning: unused variable 'data' [-Wunused-variable]
+ 1344 |       uint32_t data = pcie_controller_target.read32(addr, &trans_ok);
+      |                ^~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testNegative_OutboundDisabled_BlocksNocToPcie()':
+Keranous_pcie_tileTest.cc:1436:14: warning: unused variable 'dummy' [-Wunused-variable]
+ 1436 |     uint32_t dummy = noc_n_target.read32(0x10001000001000, &ok);
+      |              ^~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testNegative_BothEnabled_AllowsBidirectional()':
+Keranous_pcie_tileTest.cc:1538:14: warning: variable 'rd_val' set but not used [-Wunused-but-set-variable]
+ 1538 |     uint32_t rd_val = pcie_controller_target.read32(0x0000000001000100, &ok);
+      |              ^~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_InboundTlb_InvalidEntry()':
+Keranous_pcie_tileTest.cc:1890:14: warning: variable 'data' set but not used [-Wunused-but-set-variable]
+ 1890 |     uint32_t data = pcie_controller_target.read32(entry1_addr, &entry1_ok);
+      |              ^~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_InboundTlb_ValidEntryVerify()':
+Keranous_pcie_tileTest.cc:1925:14: warning: unused variable 'rd_data' [-Wunused-variable]
+ 1925 |     uint32_t rd_data = pcie_controller_target.read32(0x1000000000000000, &rd_ok);
+      |              ^~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_InboundTlb_MultipleEntryIndex()':
+Keranous_pcie_tileTest.cc:1957:14: warning: variable 'd' set but not used [-Wunused-but-set-variable]
+ 1957 |     uint32_t d = pcie_controller_target.read32(0x0000000005100000, &e5_ok);
+      |              ^
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_OutboundTlb_SysOut0_All16Entries()':
+Keranous_pcie_tileTest.cc:2052:14: warning: variable 'd' set but not used [-Wunused-but-set-variable]
+ 2052 |     uint32_t d = smn_n_target.read32(0x18510000, &e1_ok);
+      |              ^
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_OutboundTlb_HighAddressRouting()':
+Keranous_pcie_tileTest.cc:2078:14: warning: variable 'rd_data' set but not used [-Wunused-but-set-variable]
+ 2078 |     uint32_t rd_data = noc_n_target.read32(high_addr, &rd_ok);
+      |              ^~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_OutboundTlb_AppOut1_Routing()':
+Keranous_pcie_tileTest.cc:2105:14: warning: unused variable 'rd_data' [-Wunused-variable]
+ 2105 |     uint32_t rd_data = noc_n_target.read32(noc_addr, &rd_ok);
+      |              ^~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_MsiRelay_ReceiverInput()':
+Keranous_pcie_tileTest.cc:2126:10: warning: unused variable 'ok' [-Wunused-variable]
+ 2126 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_MsiRelay_MultiVectorConfig()':
+Keranous_pcie_tileTest.cc:2151:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+ 2151 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_SII_BusDevNumberOutput()':
+Keranous_pcie_tileTest.cc:2357:10: warning: unused variable 'ok' [-Wunused-variable]
+ 2357 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_SII_CiiConfigUpdate()':
+Keranous_pcie_tileTest.cc:2388:10: warning: unused variable 'ok' [-Wunused-variable]
+ 2388 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_SII_CiiInterruptClear()':
+Keranous_pcie_tileTest.cc:2450:10: warning: variable 'ok' set but not used [-Wunused-but-set-variable]
+ 2450 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_SII_CiiEdgeCases()':
+Keranous_pcie_tileTest.cc:2526:10: warning: unused variable 'ok' [-Wunused-variable]
+ 2526 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_SII_ResetClearsConfigUpdate()':
+Keranous_pcie_tileTest.cc:2643:10: warning: unused variable 'ok' [-Wunused-variable]
+ 2643 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_Reset_WarmPreservesConfig()':
+Keranous_pcie_tileTest.cc:2852:14: warning: unused variable 'pre_status' [-Wunused-variable]
+ 2852 |     uint32_t pre_status = pcie_controller_target.read32(status_addr, &ok);
+      |              ^~~~~~~~~~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_TlbConfig_AllBanksAccessible()':
+Keranous_pcie_tileTest.cc:2926:14: warning: unused variable 'rd' [-Wunused-variable]
+ 2926 |     uint32_t rd = noc_n_target.read32(0x10001000000000, &rd_ok);
+      |              ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_Integration_BidirectionalVerified()':
+Keranous_pcie_tileTest.cc:2945:14: warning: variable 'rd' set but not used [-Wunused-but-set-variable]
+ 2945 |     uint32_t rd = noc_n_target.read32(0x10001000000000, &rd_ok);
+      |              ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_SII_DeviceTypeAndSysInt()':
+Keranous_pcie_tileTest.cc:2999:10: warning: unused variable 'ok' [-Wunused-variable]
+ 2999 |     bool ok = false;
+      |          ^~
+Keranous_pcie_tileTest.cc: In member function 'void Keranous_pcie_tileTest::testDirected_Switch_BadCommandResponse()':
+Keranous_pcie_tileTest.cc:3106:14: warning: variable 'rd_val' set but not used [-Wunused-but-set-variable]
+ 3106 |     uint32_t rd_val = pcie_controller_target.read32(0x1000000000000000, &ok);
+      |              ^~~~~~
+Keranous_pcie_tileTest.cc:3110:14: warning: unused variable 'status' [-Wunused-variable]
+ 3110 |     uint32_t status = pcie_controller_target.read32(0xE000000000000000, &ok);
+      |              ^~~~~~
+export COWARE_CXX_COMPILER=gcc-9.5-64
+export SNPS_VP_PRODUCT=Virtualizer-Elite
+/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/bin/g++ -o Keranous_pcie_tileTests.gcc-9.5-64 Keranous_pcie_tileTest.gcc-9.5-64.o  -Wl,--start-group    -lscml2_testing_systemc_main -lscml2_testing -L/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/lib-gcc-9.5-64 -L/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/sd/coware/lib-gcc-9.5-64 -L/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/lib-any-64      -usc_main_hook -lsc_main -uSnpsVPExtLinkHook -lSnpsVPExt -lSnpsVPFt -lSnpsVP -ltbb -Wl,--export-dynamic  -L/tools_vendor/synopsys/virtualizer-tool-elite/V-2024.03/SLS/linux/common/libso-gcc-9.5-64 -lomniORB4 -lomniDynamic4 -lomnithread -lpthread -ldwarf -lelf -lrt -ldl   -Wl,--end-group -m64

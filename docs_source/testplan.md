@@ -1,7 +1,7 @@
 # Keraunos PCIE Tile SystemC/TLM2.0 Testplan
 
-**Version:** 2.0  
-**Date:** 2025-01-XX  
+**Version:** 2.1  
+**Date:** February 10, 2026  
 **Author:** Verification Team  
 **Based on:** Keraunos PCIE Tile Specification v0.7.023  
 **Updated:** Added test cases for all new IP blocks (switches, SII, config regs, clock/reset, PHY, external interfaces, top-level integration)
@@ -83,7 +83,7 @@ This testplan covers:
 
 ## 1.5 Test Traceability Matrix
 
-The following table maps test plan IDs to their implementing test functions in `Keranous_pcie_tileTest.cc`. All 76 tests pass (0 failures, 251 checks).
+The following table maps test plan IDs to their implementing test functions in `Keranous_pcie_tileTest.cc`. 81 tests total: 81 passing, 0 failing. Cross-socket data verification via sparse_backing_memory.
 
 **E2E Tests (41 tests):**
 
@@ -187,6 +187,8 @@ The following table maps test plan IDs to their implementing test functions in `
 ## 2. Test Environment
 
 ### 2.1 Testbench Structure
+
+> **Updated Feb 2026:** The testbench now uses `scml2::testing::initiator_socket_proxy` for DUT output ports with custom `sparse_backing_memory` (std::map-based) for cross-socket data verification. DUT output ports are `tlm_utils::simple_initiator_socket<64>` types.
 
 ```{mermaid}
 graph TB
