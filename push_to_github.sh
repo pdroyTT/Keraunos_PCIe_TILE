@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Build documentation and push to GitHub
-# Rebuilds Sphinx HTML only if source .md or config files changed
+# Push to GitHub
+# HTML should be pre-built manually with: cd doc && sphinx-build -b html . _build/html
 #
 
 set -e
@@ -16,80 +16,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 echo "=================================================="
-echo " Keraunos PCIe Tile - Build & Push to GitHub"
+echo " Keraunos PCIe Tile - Push to GitHub"
 echo "=================================================="
 echo ""
 
 # -------------------------------------------------------
-# Step 1: Check if HTML rebuild needed
+# Step 1: Get GitHub token
 # -------------------------------------------------------
-echo -e "${BLUE}[1/5] Checking if HTML rebuild needed...${NC}"
-
-REBUILD_NEEDED=false
-
-# Check for changes in documentation source files
-if git diff --name-only HEAD | grep -E '^doc/.*\.(md|rst|py)$|^doc/_static/|^doc/conf\.py$|^doc/index\.rst$' > /dev/null; then
-    echo -e "${YELLOW}  Documentation source files modified${NC}"
-    REBUILD_NEEDED=true
-elif git diff --cached --name-only | grep -E '^doc/.*\.(md|rst|py)$|^doc/_static/|^doc/conf\.py$|^doc/index\.rst$' > /dev/null; then
-    echo -e "${YELLOW}  Documentation source files staged${NC}"
-    REBUILD_NEEDED=true
-else
-    # Check if doc/ source files exist and docs/ HTML is missing or older
-    if [ -d "doc" ] && [ ! -d "docs" ]; then
-        echo -e "${YELLOW}  docs/ directory missing${NC}"
-        REBUILD_NEEDED=true
-    elif [ -d "doc" ] && [ ! -f "docs/index.html" ]; then
-        echo -e "${YELLOW}  docs/index.html missing${NC}"
-        REBUILD_NEEDED=true
-    else
-        echo -e "${GREEN}  No documentation source changes detected - skipping rebuild${NC}"
-    fi
-fi
-
-# -------------------------------------------------------
-# Step 2: Build Sphinx HTML documentation (if needed)
-# -------------------------------------------------------
-if [ "$REBUILD_NEEDED" = true ]; then
-    echo ""
-    echo -e "${BLUE}[2/5] Building Sphinx HTML documentation...${NC}"
-
-    if command -v sphinx-build &> /dev/null; then
-        cd doc
-        rm -rf _build
-        if sphinx-build -b html --keep-going . _build/html 2>&1 | tail -10; then
-            echo -e "${GREEN}  Sphinx build succeeded${NC}"
-            
-            # Sync to docs/
-            cd "$SCRIPT_DIR"
-            echo -e "  Syncing HTML to docs/ ..."
-            rsync -a --delete \
-                --exclude='.doctrees' \
-                --exclude='.buildinfo' \
-                doc/_build/html/ docs/
-
-            # GitHub Pages needs .nojekyll for _static/
-            touch docs/.nojekyll
-            
-            echo -e "${GREEN}  Synced $(find docs -type f | wc -l) files to docs/${NC}"
-        else
-            echo -e "${RED}  Sphinx build failed - continuing with existing docs${NC}"
-        fi
-        cd "$SCRIPT_DIR"
-    else
-        echo -e "${YELLOW}  sphinx-build not found - skipping HTML rebuild${NC}"
-        echo -e "${YELLOW}  Install: pip3 install sphinx sphinx_rtd_theme myst-parser sphinxcontrib-mermaid${NC}"
-    fi
-else
-    echo ""
-    echo -e "${BLUE}[2/5] Skipping HTML rebuild (no source changes)${NC}"
-fi
-
-# -------------------------------------------------------
-# Step 3: Get GitHub token
-# -------------------------------------------------------
-echo ""
-echo -e "${BLUE}[3/5] Authenticating with GitHub...${NC}"
+echo -e "${BLUE}[1/3] Authenticating with GitHub...${NC}"
 
 if [ -z "$GITHUB_TOKEN" ]; then
     echo -e "${YELLOW}  GitHub Personal Access Token required${NC}"
@@ -111,10 +45,10 @@ REPO_URL="https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${REPO_NAME}.git"
 echo -e "${GREEN}  Token received${NC}"
 
 # -------------------------------------------------------
-# Step 4: Stage and commit changes
+# Step 2: Stage and commit changes
 # -------------------------------------------------------
 echo ""
-echo -e "${BLUE}[4/5] Staging and committing changes...${NC}"
+echo -e "${BLUE}[2/3] Staging and committing changes...${NC}"
 
 # Show what will be committed
 CHANGED=$(git status --porcelain | wc -l)
@@ -162,10 +96,10 @@ else
 fi
 
 # -------------------------------------------------------
-# Step 5: Push to GitHub
+# Step 3: Push to GitHub
 # -------------------------------------------------------
 echo ""
-echo -e "${BLUE}[5/5] Pushing to GitHub...${NC}"
+echo -e "${BLUE}[3/3] Pushing to GitHub...${NC}"
 
 # Temporarily set remote with token
 git remote set-url origin "$REPO_URL" 2>/dev/null || git remote add origin "$REPO_URL"
@@ -210,5 +144,9 @@ echo "  2. Source: Deploy from a branch"
 echo "  3. Branch: ${BRANCH} / Folder: /docs"
 echo "  4. Click Save, wait 1-2 minutes"
 echo "  5. View: https://${GITHUB_USER,,}.github.io/${REPO_NAME}/"
+echo ""
+echo -e "${YELLOW}Note: To rebuild HTML documentation, run:${NC}"
+echo "  cd doc && sphinx-build -b html . _build/html"
+echo "  rsync -a --delete --exclude='.doctrees' --exclude='.buildinfo' _build/html/ ../docs/"
 echo ""
 echo "=================================================="
