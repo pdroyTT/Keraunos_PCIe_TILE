@@ -1,4 +1,5 @@
-docs/_build/doctrees/
+doc/_build/
+docs/.doctrees/
 *.pyc
 __pycache__/
 .vscode/

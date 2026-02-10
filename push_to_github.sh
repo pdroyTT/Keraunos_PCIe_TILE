@@ -50,12 +50,12 @@ if [ -d "doc/_build/html" ]; then
     rsync -a --delete \
         --exclude='.doctrees' \
         --exclude='.buildinfo' \
-        doc/_build/html/ docs_build/
+        doc/_build/html/ docs/
 
     # GitHub Pages needs a .nojekyll file to serve _static/ correctly
-    touch docs_build/.nojekyll
+    touch docs/.nojekyll
 
-    echo -e "${GREEN}  Synced $(find docs_build -type f | wc -l) files to docs_build/${NC}"
+    echo -e "${GREEN}  Synced $(find docs -type f | wc -l) files to docs/${NC}"
 else
     echo -e "${YELLOW}  No Sphinx output found at doc/_build/html - skipping sync${NC}"
 fi
@@ -101,7 +101,7 @@ else
     # Stage key directories
     git add -A \
         doc/ \
-        docs_build/ \
+        docs/ \
         docs_source/ \
         src/ \
         include/ \
@@ -173,7 +173,7 @@ echo ""
 echo -e "${BLUE}GitHub Pages Setup:${NC}"
 echo "  1. Go to: https://github.com/${GITHUB_USER}/${REPO_NAME}/settings/pages"
 echo "  2. Source: Deploy from a branch"
-echo "  3. Branch: ${BRANCH} / Folder: /docs_build"
+echo "  3. Branch: ${BRANCH} / Folder: /docs"
 echo "  4. Click Save, wait 1-2 minutes"
 echo "  5. View: https://${GITHUB_USER,,}.github.io/${REPO_NAME}/"
 echo ""
