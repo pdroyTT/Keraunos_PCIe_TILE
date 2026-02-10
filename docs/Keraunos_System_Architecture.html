@@ -1021,18 +1021,17 @@ mermaid.initialize({
 <li><p><strong>System management</strong> capabilities via integrated SMC (System Management Controller)</p></li>
 </ul>
 <div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph TB
-    subgraph &quot;Grendel Package&quot;
-        QUASAR[Quasar Chiplets&lt;br/&gt;AI/ML Compute]
-        MIMIR[Mimir Chiplets&lt;br/&gt;GDDR Memory]
-        KERAUNOS[Keraunos-E100&lt;br/&gt;I/O Chiplet]
-        
-        QUASAR &lt;--&gt;|D2D BoW| KERAUNOS
-        MIMIR &lt;--&gt;|D2D BoW| QUASAR
+    subgraph pkg[&quot;Grendel Package&quot;]
+        QUASAR[Quasar]
+        MIMIR[Mimir]
+        KERAUNOS[Keraunos-E100]
+        QUASAR --- KERAUNOS
+        MIMIR --- QUASAR
     end
-    
-    HOST[Host System&lt;br/&gt;x86/ARM Server] &lt;--&gt;|PCIe Gen5 x16| KERAUNOS
-    REMOTE[Remote Grendel&lt;br/&gt;Package] &lt;--&gt;|400G/800G&lt;br/&gt;Ethernet| KERAUNOS
-    
+
+    HOST[Host] &lt;--&gt;|PCIe x16| KERAUNOS
+    REMOTE[Remote Package] &lt;--&gt;|Ethernet| KERAUNOS
+
     style KERAUNOS fill:#e1f5ff
     style QUASAR fill:#ffe1e1
     style MIMIR fill:#e1ffe1
@@ -1047,74 +1046,82 @@ mermaid.initialize({
 <h2>2. Keraunos-E100 Chiplet Architecture<a class="headerlink" href="#keraunos-e100-chiplet-architecture" title="Permalink to this heading"></a></h2>
 <section id="high-level-block-diagram">
 <h3>2.1 High-Level Block Diagram<a class="headerlink" href="#high-level-block-diagram" title="Permalink to this heading"></a></h3>
-<p>The Keraunos-E100 chiplet contains the following major subsystems:</p>
+<p>The Keraunos-E100 chiplet contains the following major subsystems. The diagram is split into two parts for reliable rendering.</p>
+<p><strong>Part A — Internal subsystems and NOC:</strong></p>
 <div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph TB
-    subgraph &quot;Keraunos-E100 Chiplet&quot;
-        subgraph &quot;Chiplet Harness&quot;
-            SMC[SMC&lt;br/&gt;System Management&lt;br/&gt;Controller]
-            SEP[SEP&lt;br/&gt;Security Engine&lt;br/&gt;Processor]
-            SMU[SMU&lt;br/&gt;System Management&lt;br/&gt;Unit]
-        end
-        
-        subgraph &quot;PCIe Subsystem&quot;
-            PCIE_TILE[PCIe Tile&lt;br/&gt;PCIe Gen5 x16&lt;br/&gt;Controller]
-            PCIE_SERDES[PCIe SerDes&lt;br/&gt;PHY]
-        end
-        
-        subgraph &quot;HSIO Tiles x2&quot;
-            CCE0[CCE 0&lt;br/&gt;Keraunos Compute&lt;br/&gt;Engine]
-            CCE1[CCE 1&lt;br/&gt;Keraunos Compute&lt;br/&gt;Engine]
-            ETH_CTRL0[TT Ethernet&lt;br/&gt;Controller 0]
-            ETH_CTRL1[TT Ethernet&lt;br/&gt;Controller 1]
-            MAC0[MAC/PCS 0&lt;br/&gt;800G]
-            MAC1[MAC/PCS 1&lt;br/&gt;800G]
-            SRAM[HSIO SRAM&lt;br/&gt;8MB]
-            HSIO_FABRIC[HSIO Fabric&lt;br/&gt;AXI Crossbar]
-        end
-        
-        subgraph &quot;NOC Infrastructure&quot;
-            SMN[SMN&lt;br/&gt;System Management&lt;br/&gt;Network]
-            QNP[QNP Mesh&lt;br/&gt;NOC-N]
-            D2D[D2D Tiles x5&lt;br/&gt;Die-to-Die&lt;br/&gt;Interfaces]
-        end
-        
-        PCIE_TILE &lt;--&gt; SMN
-        PCIE_TILE &lt;--&gt; QNP
-        
-        CCE0 &lt;--&gt; HSIO_FABRIC
-        CCE1 &lt;--&gt; HSIO_FABRIC
-        ETH_CTRL0 &lt;--&gt; HSIO_FABRIC
-        ETH_CTRL1 &lt;--&gt; HSIO_FABRIC
-        HSIO_FABRIC &lt;--&gt; SRAM
-        HSIO_FABRIC &lt;--&gt; SMN
-        HSIO_FABRIC &lt;--&gt; QNP
-        
-        ETH_CTRL0 &lt;--&gt; MAC0
-        ETH_CTRL1 &lt;--&gt; MAC1
-        
-        SMN &lt;--&gt; SMC
-        SMN &lt;--&gt; SEP
-        SMN &lt;--&gt; D2D
-        
-        QNP &lt;--&gt; D2D
-        
-        MAC0 -.-&gt;|Ethernet&lt;br/&gt;SerDes| EXT_ETH0[External&lt;br/&gt;Ethernet 0]
-        MAC1 -.-&gt;|Ethernet&lt;br/&gt;SerDes| EXT_ETH1[External&lt;br/&gt;Ethernet 1]
-        
-        PCIE_SERDES -.-&gt;|PCIe&lt;br/&gt;Lanes| EXT_PCIE[External&lt;br/&gt;PCIe Host]
-        PCIE_TILE &lt;--&gt; PCIE_SERDES
-        
-        D2D -.-&gt;|BoW| EXT_D2D[Quasar/Mimir&lt;br/&gt;Chiplets]
+    subgraph harness[&quot;Chiplet Harness&quot;]
+        SMC[SMC]
+        SEP[SEP]
+        SMU[SMU]
     end
-    
-    style PCIE_TILE fill:#ffcccc,stroke:#ff0000,stroke-width:3px
-    style SMC fill:#cce5ff
-    style SEP fill:#cce5ff
-    style CCE0 fill:#ffe6cc
-    style CCE1 fill:#ffe6cc
+
+    subgraph pcie[&quot;PCIe Subsystem&quot;]
+        PCIE_TILE[PCIe Tile]
+        PCIE_SERDES[PCIe SerDes]
+    end
+
+    subgraph hsio[&quot;HSIO Tiles (2)&quot;]
+        CCE0[CCE 0]
+        CCE1[CCE 1]
+        ETH0[TT Eth Ctrl 0]
+        ETH1[TT Eth Ctrl 1]
+        MAC0[MAC PCS 0]
+        MAC1[MAC PCS 1]
+        SRAM[HSIO SRAM]
+        FABRIC[HSIO Fabric]
+    end
+
+    subgraph noc[&quot;NOC Infrastructure&quot;]
+        SMN[SMN]
+        QNP[QNP Mesh]
+        D2D[D2D Tiles]
+    end
+
+    PCIE_TILE --- SMN
+    PCIE_TILE --- QNP
+    PCIE_TILE --- PCIE_SERDES
+
+    CCE0 --- FABRIC
+    CCE1 --- FABRIC
+    ETH0 --- FABRIC
+    ETH1 --- FABRIC
+    FABRIC --- SRAM
+    FABRIC --- SMN
+    FABRIC --- QNP
+    ETH0 --- MAC0
+    ETH1 --- MAC1
+
+    SMN --- SMC
+    SMN --- SEP
+    SMN --- D2D
+    QNP --- D2D
+
+    style PCIE_TILE fill:#ffcccc,stroke:#c00
+    style FABRIC fill:#d9f7d9
     style SMN fill:#e6ccff
     style QNP fill:#e6ccff
-    style HSIO_FABRIC fill:#d9f7d9
+</pre></div>
+</div>
+<p><strong>Part B — External interfaces:</strong></p>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph LR
+    subgraph chip[&quot;Keraunos-E100 Chiplet&quot;]
+        PCIE[PCIe Tile]
+        MAC_A[MAC PCS 0]
+        MAC_B[MAC PCS 1]
+        D2D_T[D2D Tiles]
+    end
+
+    HOST[PCIe Host]
+    ETH_A[Ethernet 0]
+    ETH_B[Ethernet 1]
+    QUASAR[Quasar Mimir]
+
+    HOST &lt;--&gt;|PCIe x16| PCIE
+    MAC_A --&gt;|800G| ETH_A
+    MAC_B --&gt;|800G| ETH_B
+    D2D_T --&gt;|BoW| QUASAR
+
+    style PCIE fill:#ffcccc,stroke:#c00
 </pre></div>
 </div>
 </section>
@@ -1170,50 +1177,46 @@ mermaid.initialize({
 </section>
 <section id="architectural-position">
 <h3>3.2 Architectural Position<a class="headerlink" href="#architectural-position" title="Permalink to this heading"></a></h3>
-<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph LR
-    subgraph &quot;Host System&quot;
-        CPU[Host CPU&lt;br/&gt;x86/ARM]
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph TB
+    subgraph host[&quot;Host System&quot;]
+        CPU[Host CPU]
         DRAM[Host DRAM]
     end
-    
-    subgraph &quot;Keraunos-E100 Chiplet&quot;
-        subgraph &quot;PCIe Tile&quot;
-            PCIE_CTRL[PCIe Controller]
-            TLB_IN[Inbound TLB&lt;br/&gt;8 Entries]
-            TLB_OUT[Outbound TLB&lt;br/&gt;8 Entries]
-            PCIE_SWITCH[PCIe-SMN-IO&lt;br/&gt;Switch]
-            MSI_RELAY[MSI Relay]
-        end
-        
-        SMN_NET[SMN Network&lt;br/&gt;System Management]
-        QNP_NET[QNP/NOC-N&lt;br/&gt;High-BW Data]
-        
-        HSIO_TILES[HSIO Tiles&lt;br/&gt;Ethernet CCE]
-        D2D_LINKS[D2D Links&lt;br/&gt;to Quasar]
+
+    subgraph tile[&quot;PCIe Tile&quot;]
+        PCIE_CTRL[PCIe Controller]
+        TLB_IN[Inbound TLB]
+        TLB_OUT[Outbound TLB]
+        SWITCH[PCIe-SMN-IO Switch]
+        MSI_RELAY[MSI Relay]
     end
-    
-    CPU &lt;--&gt;|PCIe TLP| PCIE_CTRL
-    PCIE_CTRL &lt;--&gt;|Inbound| TLB_IN
-    PCIE_CTRL &lt;--&gt;|Outbound| TLB_OUT
-    TLB_IN --&gt; PCIE_SWITCH
-    PCIE_SWITCH --&gt; QNP_NET
-    PCIE_SWITCH --&gt; SMN_NET
-    
-    TLB_OUT &lt;--&gt; QNP_NET
-    TLB_OUT &lt;--&gt; SMN_NET
-    
-    SMN_NET &lt;--&gt; PCIE_CTRL
-    SMN_NET &lt;--&gt; HSIO_TILES
-    QNP_NET &lt;--&gt; HSIO_TILES
-    QNP_NET &lt;--&gt; D2D_LINKS
-    
-    MSI_RELAY --&gt; PCIE_CTRL
-    SMN_NET --&gt; MSI_RELAY
-    
-    style PCIE_CTRL fill:#ffcccc,stroke:#ff0000,stroke-width:3px
+
+    subgraph chip[&quot;Keraunos-E100&quot;]
+        SMN_NET[SMN]
+        QNP_NET[QNP NOC-N]
+        HSIO_TILES[HSIO Tiles]
+        D2D_LINKS[D2D Links]
+    end
+
+    CPU --- PCIE_CTRL
+    PCIE_CTRL --- TLB_IN
+    PCIE_CTRL --- TLB_OUT
+    TLB_IN --- SWITCH
+    SWITCH --- QNP_NET
+    SWITCH --- SMN_NET
+    TLB_OUT --- QNP_NET
+    TLB_OUT --- SMN_NET
+    SMN_NET --- PCIE_CTRL
+    SMN_NET --- HSIO_TILES
+    QNP_NET --- HSIO_TILES
+    QNP_NET --- D2D_LINKS
+    MSI_RELAY --- PCIE_CTRL
+    SMN_NET --- MSI_RELAY
+
+    style PCIE_CTRL fill:#ffcccc,stroke:#c00
     style TLB_IN fill:#ffe6cc
     style TLB_OUT fill:#ffe6cc
-    style PCIE_SWITCH fill:#d9f7d9
+    style SWITCH fill:#d9f7d9
     style SMN_NET fill:#e6ccff
     style QNP_NET fill:#cce5ff
 </pre></div>
@@ -1279,28 +1282,29 @@ mermaid.initialize({
     participant Host as Host CPU
     participant PCIe as PCIe Tile
     participant TLB as Inbound TLB
-    participant Switch as PCIe-SMN-IO&lt;br/&gt;Switch
-    participant NOC as NOC-N (QNP)
-    participant Quasar as Quasar Chiplet
+    participant Switch as PCIe-SMN-IO Switch
+    participant NOC as NOC-N
+    participant SMN as SMN
+    participant Quasar as Quasar
 
-    Host-&gt;&gt;PCIe: PCIe Memory Write&lt;br/&gt;(Host Address)
-    PCIe-&gt;&gt;TLB: Lookup Translation&lt;br/&gt;(Host Addr → System Addr)
-    TLB--&gt;&gt;PCIe: System Address&lt;br/&gt;(NOC Address)
-    PCIe-&gt;&gt;Switch: Forward to Switch
-    Switch-&gt;&gt;Switch: Route Decision&lt;br/&gt;(NOC or SMN?)
-    
-    alt NOC-bound traffic
-        Switch-&gt;&gt;NOC: Forward to NOC-N
-        NOC-&gt;&gt;Quasar: D2D BoW to Quasar
-        Quasar--&gt;&gt;NOC: Write Response
+    Host-&gt;&gt;PCIe: Memory Write
+    PCIe-&gt;&gt;TLB: Lookup Translation
+    TLB--&gt;&gt;PCIe: System Address
+    PCIe-&gt;&gt;Switch: Forward
+    Switch-&gt;&gt;Switch: Route Decision
+
+    alt NOC-bound
+        Switch-&gt;&gt;NOC: Forward
+        NOC-&gt;&gt;Quasar: D2D to Quasar
+        Quasar--&gt;&gt;NOC: Response
         NOC--&gt;&gt;Switch: Response
-    else SMN-bound traffic
-        Switch-&gt;&gt;SMN: Forward to SMN
+    else SMN-bound
+        Switch-&gt;&gt;SMN: Forward
         SMN--&gt;&gt;Switch: Response
     end
-    
+
     Switch--&gt;&gt;PCIe: Completion
-    PCIe--&gt;&gt;Host: PCIe Completion TLP
+    PCIe--&gt;&gt;Host: Completion TLP
 </pre></div>
 </div>
 <p><strong>Key Steps:</strong></p>
@@ -1323,22 +1327,22 @@ mermaid.initialize({
 <h3>4.2 Outbound Data Path (Chip → Host)<a class="headerlink" href="#outbound-data-path-chip-host" title="Permalink to this heading"></a></h3>
 <p><strong>Use Case:</strong> Quasar compute cores send results back to host DRAM or trigger MSI interrupts.</p>
 <div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>sequenceDiagram
-    participant Quasar as Quasar Chiplet
-    participant NOC as NOC-N (QNP)
+    participant Quasar as Quasar
+    participant NOC as NOC-N
     participant PCIe as PCIe Tile
     participant TLB as Outbound TLB
-    participant PCIe_Ctrl as PCIe Controller
-    participant Host as Host CPU/DRAM
+    participant Ctrl as PCIe Controller
+    participant Host as Host
 
-    Quasar-&gt;&gt;NOC: Write to PCIe&lt;br/&gt;(System Address)
-    NOC-&gt;&gt;PCIe: Forward via noc_n_outbound
-    PCIe-&gt;&gt;TLB: Outbound TLB Lookup&lt;br/&gt;(System Addr → Host Addr)
+    Quasar-&gt;&gt;NOC: Write
+    NOC-&gt;&gt;PCIe: Forward
+    PCIe-&gt;&gt;TLB: TLB Lookup
     TLB--&gt;&gt;PCIe: Host Address
-    PCIe-&gt;&gt;PCIe_Ctrl: Forward to PCIe Controller
-    PCIe_Ctrl-&gt;&gt;Host: PCIe Memory Write TLP&lt;br/&gt;(Host Address)
-    Host--&gt;&gt;PCIe_Ctrl: PCIe Completion
-    PCIe_Ctrl--&gt;&gt;PCIe: Response
-    PCIe--&gt;&gt;NOC: Write Response
+    PCIe-&gt;&gt;Ctrl: Forward
+    Ctrl-&gt;&gt;Host: Memory Write TLP
+    Host--&gt;&gt;Ctrl: Completion
+    Ctrl--&gt;&gt;PCIe: Response
+    PCIe--&gt;&gt;NOC: Response
     NOC--&gt;&gt;Quasar: Completion
 </pre></div>
 </div>
@@ -1357,15 +1361,15 @@ mermaid.initialize({
 <h3>4.3 Configuration Path (SMN → PCIe Tile Registers)<a class="headerlink" href="#configuration-path-smn-pcie-tile-registers" title="Permalink to this heading"></a></h3>
 <p><strong>Use Case:</strong> SMC programs PCIe Tile TLBs, enables MSI relay, or reads error status.</p>
 <div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>sequenceDiagram
-    participant SMC as SMC (RISC-V)
-    participant SMN as SMN Network
-    participant PCIe as PCIe Tile&lt;br/&gt;Config Registers
+    participant SMC as SMC
+    participant SMN as SMN
+    participant PCIe as PCIe Config
 
-    SMC-&gt;&gt;SMN: SMN Write&lt;br/&gt;(Config Addr)
-    SMN-&gt;&gt;PCIe: Forward to smn_config
-    PCIe-&gt;&gt;PCIe: Update TLB Entry&lt;br/&gt;or MSI Config
+    SMC-&gt;&gt;SMN: SMN Write
+    SMN-&gt;&gt;PCIe: Forward
+    PCIe-&gt;&gt;PCIe: Update TLB or MSI
     PCIe--&gt;&gt;SMN: Response
-    SMN--&gt;&gt;SMC: Write Complete
+    SMN--&gt;&gt;SMC: Complete
 </pre></div>
 </div>
 <p><strong>Addressable Registers (via SMN):</strong></p>
@@ -1380,18 +1384,18 @@ mermaid.initialize({
 <h3>4.4 MSI Interrupt Path (Chip → Host)<a class="headerlink" href="#msi-interrupt-path-chip-host" title="Permalink to this heading"></a></h3>
 <p><strong>Use Case:</strong> Ethernet controller or Quasar triggers interrupt to host driver.</p>
 <div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>sequenceDiagram
-    participant HSIO as HSIO Tile&lt;br/&gt;(Ethernet)
-    participant SMN as SMN Network
-    participant MSI as MSI Relay&lt;br/&gt;(PCIe Tile)
+    participant HSIO as HSIO Tile
+    participant SMN as SMN
+    participant MSI as MSI Relay
     participant PCIe as PCIe Controller
     participant Host as Host CPU
 
-    HSIO-&gt;&gt;SMN: Write to MSI Relay&lt;br/&gt;(Trigger Interrupt)
-    SMN-&gt;&gt;MSI: Forward MSI Trigger
-    MSI-&gt;&gt;MSI: Translate to&lt;br/&gt;PCIe MSI-X Format
-    MSI-&gt;&gt;PCIe: Generate MSI-X TLP
-    PCIe-&gt;&gt;Host: PCIe MSI-X Write&lt;br/&gt;(Interrupt)
-    Host-&gt;&gt;Host: Invoke ISR&lt;br/&gt;(Interrupt Handler)
+    HSIO-&gt;&gt;SMN: Trigger Interrupt
+    SMN-&gt;&gt;MSI: Forward
+    MSI-&gt;&gt;MSI: Translate to MSI-X
+    MSI-&gt;&gt;PCIe: MSI-X TLP
+    PCIe-&gt;&gt;Host: MSI-X Write
+    Host-&gt;&gt;Host: ISR
 </pre></div>
 </div>
 </section>
@@ -1403,36 +1407,36 @@ mermaid.initialize({
 <h3>5.1 End-to-End Data Flow Example: Host DMA to Quasar<a class="headerlink" href="#end-to-end-data-flow-example-host-dma-to-quasar" title="Permalink to this heading"></a></h3>
 <p><strong>Scenario:</strong> Host writes 4KB of neural network weights to Quasar L1 memory.</p>
 <div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph LR
-    subgraph &quot;Host System&quot;
-        A[Host DMA Engine]
+    subgraph host[&quot;Host System&quot;]
+        A[Host DMA]
     end
-    
-    subgraph &quot;Keraunos PCIe Tile&quot;
+
+    subgraph pcie_tile[&quot;PCIe Tile&quot;]
         B[PCIe Inbound]
-        C[Inbound TLB&lt;br/&gt;App 0]
-        D[PCIe-SMN-IO&lt;br/&gt;Switch]
-        E[NOC-N Initiator]
+        C[Inbound TLB]
+        D[Switch]
+        E[NOC Initiator]
     end
-    
-    subgraph &quot;NOC Infrastructure&quot;
+
+    subgraph noc[&quot;NOC&quot;]
         F[QNP Mesh]
         G[D2D Tile]
     end
-    
-    subgraph &quot;Quasar Chiplet&quot;
+
+    subgraph quasar[&quot;Quasar&quot;]
         H[NOC Router]
-        I[Tensix Core&lt;br/&gt;L1 Memory]
+        I[L1 Memory]
     end
-    
-    A --&gt;|PCIe Gen5&lt;br/&gt;Memory Write| B
-    B --&gt;|TLM Target| C
-    C --&gt;|Translate&lt;br/&gt;0x8000_0000 →&lt;br/&gt;0x0_4000_0000| D
-    D --&gt;|Route to NOC| E
-    E --&gt;|TLM Initiator| F
-    F --&gt;|QNP @ 1.5GHz| G
-    G --&gt;|BoW D2D| H
-    H --&gt;|Local NOC| I
-    
+
+    A --&gt;|PCIe Write| B
+    B --&gt; C
+    C --&gt;|Translate| D
+    D --&gt; E
+    E --&gt; F
+    F --&gt;|QNP| G
+    G --&gt;|BoW| H
+    H --&gt; I
+
     style B fill:#ffcccc
     style C fill:#ffe6cc
     style D fill:#d9f7d9
@@ -1454,23 +1458,23 @@ mermaid.initialize({
 <h3>5.2 Multi-Hop Data Flow: Quasar → PCIe → Host → PCIe → Quasar<a class="headerlink" href="#multi-hop-data-flow-quasar-pcie-host-pcie-quasar" title="Permalink to this heading"></a></h3>
 <p><strong>Scenario:</strong> Quasar chiplet 0 sends data to Quasar chiplet 1 in a different Grendel package via host DRAM (zero-copy).</p>
 <div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph TB
-    subgraph &quot;Package 0&quot;
+    subgraph pkg0[&quot;Package 0&quot;]
         Q0[Quasar 0]
         K0[Keraunos PCIe 0]
         Q0 --&gt;|1. NOC Write| K0
     end
-    
-    H[Host DRAM&lt;br/&gt;Shared Buffer]
+
+    H[Host DRAM]
     K0 --&gt;|2. PCIe Write| H
-    
-    subgraph &quot;Package 1&quot;
+
+    subgraph pkg1[&quot;Package 1&quot;]
         K1[Keraunos PCIe 1]
         Q1[Quasar 1]
         K1 --&gt;|4. NOC Write| Q1
     end
-    
+
     H --&gt;|3. PCIe Read| K1
-    
+
     style Q0 fill:#ffe6cc
     style K0 fill:#ffcccc
     style H fill:#fff4e1
@@ -1573,21 +1577,21 @@ mermaid.initialize({
 <section id="address-translation-stages">
 <h3>6.3 Address Translation Stages<a class="headerlink" href="#address-translation-stages" title="Permalink to this heading"></a></h3>
 <div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>graph LR
-    A[Host Address&lt;br/&gt;BAR0 + Offset]
-    B[PCIe TLP&lt;br/&gt;Address Field]
-    C[Inbound TLB&lt;br/&gt;Lookup]
-    D[System Address&lt;br/&gt;NOC/SMN]
-    E[NOC Routing&lt;br/&gt;Header]
-    F[D2D Address&lt;br/&gt;Translation]
-    G[Quasar Local&lt;br/&gt;Address]
-    
+    A[Host Addr]
+    B[PCIe TLP]
+    C[Inbound TLB]
+    D[System Addr]
+    E[NOC Routing]
+    F[D2D Translate]
+    G[Quasar Addr]
+
     A --&gt; B
     B --&gt; C
     C --&gt; D
     D --&gt; E
     E --&gt; F
     F --&gt; G
-    
+
     style C fill:#ffe6cc
     style D fill:#cce5ff
     style E fill:#e6ccff

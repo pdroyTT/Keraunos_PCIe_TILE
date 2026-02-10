@@ -48,18 +48,17 @@ Keraunos-E100 is the I/O interface chiplet family in the Grendel ecosystem, prov
 
 ```mermaid
 graph TB
-    subgraph "Grendel Package"
-        QUASAR[Quasar Chiplets<br/>AI/ML Compute]
-        MIMIR[Mimir Chiplets<br/>GDDR Memory]
-        KERAUNOS[Keraunos-E100<br/>I/O Chiplet]
-        
-        QUASAR <-->|D2D BoW| KERAUNOS
-        MIMIR <-->|D2D BoW| QUASAR
+    subgraph pkg["Grendel Package"]
+        QUASAR[Quasar]
+        MIMIR[Mimir]
+        KERAUNOS[Keraunos-E100]
+        QUASAR --- KERAUNOS
+        MIMIR --- QUASAR
     end
-    
-    HOST[Host System<br/>x86/ARM Server] <-->|PCIe Gen5 x16| KERAUNOS
-    REMOTE[Remote Grendel<br/>Package] <-->|400G/800G<br/>Ethernet| KERAUNOS
-    
+
+    HOST[Host] <-->|PCIe x16| KERAUNOS
+    REMOTE[Remote Package] <-->|Ethernet| KERAUNOS
+
     style KERAUNOS fill:#e1f5ff
     style QUASAR fill:#ffe1e1
     style MIMIR fill:#e1ffe1
@@ -73,76 +72,87 @@ graph TB
 
 ### 2.1 High-Level Block Diagram
 
-The Keraunos-E100 chiplet contains the following major subsystems:
+The Keraunos-E100 chiplet contains the following major subsystems. The diagram is split into two parts for reliable rendering.
+
+**Part A — Internal subsystems and NOC:**
 
 ```mermaid
 graph TB
-    subgraph "Keraunos-E100 Chiplet"
-        subgraph "Chiplet Harness"
-            SMC[SMC<br/>System Management<br/>Controller]
-            SEP[SEP<br/>Security Engine<br/>Processor]
-            SMU[SMU<br/>System Management<br/>Unit]
-        end
-        
-        subgraph "PCIe Subsystem"
-            PCIE_TILE[PCIe Tile<br/>PCIe Gen5 x16<br/>Controller]
-            PCIE_SERDES[PCIe SerDes<br/>PHY]
-        end
-        
-        subgraph "HSIO Tiles x2"
-            CCE0[CCE 0<br/>Keraunos Compute<br/>Engine]
-            CCE1[CCE 1<br/>Keraunos Compute<br/>Engine]
-            ETH_CTRL0[TT Ethernet<br/>Controller 0]
-            ETH_CTRL1[TT Ethernet<br/>Controller 1]
-            MAC0[MAC/PCS 0<br/>800G]
-            MAC1[MAC/PCS 1<br/>800G]
-            SRAM[HSIO SRAM<br/>8MB]
-            HSIO_FABRIC[HSIO Fabric<br/>AXI Crossbar]
-        end
-        
-        subgraph "NOC Infrastructure"
-            SMN[SMN<br/>System Management<br/>Network]
-            QNP[QNP Mesh<br/>NOC-N]
-            D2D[D2D Tiles x5<br/>Die-to-Die<br/>Interfaces]
-        end
-        
-        PCIE_TILE <--> SMN
-        PCIE_TILE <--> QNP
-        
-        CCE0 <--> HSIO_FABRIC
-        CCE1 <--> HSIO_FABRIC
-        ETH_CTRL0 <--> HSIO_FABRIC
-        ETH_CTRL1 <--> HSIO_FABRIC
-        HSIO_FABRIC <--> SRAM
-        HSIO_FABRIC <--> SMN
-        HSIO_FABRIC <--> QNP
-        
-        ETH_CTRL0 <--> MAC0
-        ETH_CTRL1 <--> MAC1
-        
-        SMN <--> SMC
-        SMN <--> SEP
-        SMN <--> D2D
-        
-        QNP <--> D2D
-        
-        MAC0 -.->|Ethernet<br/>SerDes| EXT_ETH0[External<br/>Ethernet 0]
-        MAC1 -.->|Ethernet<br/>SerDes| EXT_ETH1[External<br/>Ethernet 1]
-        
-        PCIE_SERDES -.->|PCIe<br/>Lanes| EXT_PCIE[External<br/>PCIe Host]
-        PCIE_TILE <--> PCIE_SERDES
-        
-        D2D -.->|BoW| EXT_D2D[Quasar/Mimir<br/>Chiplets]
+    subgraph harness["Chiplet Harness"]
+        SMC[SMC]
+        SEP[SEP]
+        SMU[SMU]
     end
-    
-    style PCIE_TILE fill:#ffcccc,stroke:#ff0000,stroke-width:3px
-    style SMC fill:#cce5ff
-    style SEP fill:#cce5ff
-    style CCE0 fill:#ffe6cc
-    style CCE1 fill:#ffe6cc
+
+    subgraph pcie["PCIe Subsystem"]
+        PCIE_TILE[PCIe Tile]
+        PCIE_SERDES[PCIe SerDes]
+    end
+
+    subgraph hsio["HSIO Tiles (2)"]
+        CCE0[CCE 0]
+        CCE1[CCE 1]
+        ETH0[TT Eth Ctrl 0]
+        ETH1[TT Eth Ctrl 1]
+        MAC0[MAC PCS 0]
+        MAC1[MAC PCS 1]
+        SRAM[HSIO SRAM]
+        FABRIC[HSIO Fabric]
+    end
+
+    subgraph noc["NOC Infrastructure"]
+        SMN[SMN]
+        QNP[QNP Mesh]
+        D2D[D2D Tiles]
+    end
+
+    PCIE_TILE --- SMN
+    PCIE_TILE --- QNP
+    PCIE_TILE --- PCIE_SERDES
+
+    CCE0 --- FABRIC
+    CCE1 --- FABRIC
+    ETH0 --- FABRIC
+    ETH1 --- FABRIC
+    FABRIC --- SRAM
+    FABRIC --- SMN
+    FABRIC --- QNP
+    ETH0 --- MAC0
+    ETH1 --- MAC1
+
+    SMN --- SMC
+    SMN --- SEP
+    SMN --- D2D
+    QNP --- D2D
+
+    style PCIE_TILE fill:#ffcccc,stroke:#c00
+    style FABRIC fill:#d9f7d9
     style SMN fill:#e6ccff
     style QNP fill:#e6ccff
-    style HSIO_FABRIC fill:#d9f7d9
+```
+
+**Part B — External interfaces:**
+
+```mermaid
+graph LR
+    subgraph chip["Keraunos-E100 Chiplet"]
+        PCIE[PCIe Tile]
+        MAC_A[MAC PCS 0]
+        MAC_B[MAC PCS 1]
+        D2D_T[D2D Tiles]
+    end
+
+    HOST[PCIe Host]
+    ETH_A[Ethernet 0]
+    ETH_B[Ethernet 1]
+    QUASAR[Quasar Mimir]
+
+    HOST <-->|PCIe x16| PCIE
+    MAC_A -->|800G| ETH_A
+    MAC_B -->|800G| ETH_B
+    D2D_T -->|BoW| QUASAR
+
+    style PCIE fill:#ffcccc,stroke:#c00
 ```
 
 ### 2.2 Key Subsystems
@@ -184,50 +194,46 @@ The **Keraunos PCIe Tile** developed in this project is a SystemC/TLM-2.0 model 
 ### 3.2 Architectural Position
 
 ```mermaid
-graph LR
-    subgraph "Host System"
-        CPU[Host CPU<br/>x86/ARM]
+graph TB
+    subgraph host["Host System"]
+        CPU[Host CPU]
         DRAM[Host DRAM]
     end
-    
-    subgraph "Keraunos-E100 Chiplet"
-        subgraph "PCIe Tile"
-            PCIE_CTRL[PCIe Controller]
-            TLB_IN[Inbound TLB<br/>8 Entries]
-            TLB_OUT[Outbound TLB<br/>8 Entries]
-            PCIE_SWITCH[PCIe-SMN-IO<br/>Switch]
-            MSI_RELAY[MSI Relay]
-        end
-        
-        SMN_NET[SMN Network<br/>System Management]
-        QNP_NET[QNP/NOC-N<br/>High-BW Data]
-        
-        HSIO_TILES[HSIO Tiles<br/>Ethernet CCE]
-        D2D_LINKS[D2D Links<br/>to Quasar]
+
+    subgraph tile["PCIe Tile"]
+        PCIE_CTRL[PCIe Controller]
+        TLB_IN[Inbound TLB]
+        TLB_OUT[Outbound TLB]
+        SWITCH[PCIe-SMN-IO Switch]
+        MSI_RELAY[MSI Relay]
     end
-    
-    CPU <-->|PCIe TLP| PCIE_CTRL
-    PCIE_CTRL <-->|Inbound| TLB_IN
-    PCIE_CTRL <-->|Outbound| TLB_OUT
-    TLB_IN --> PCIE_SWITCH
-    PCIE_SWITCH --> QNP_NET
-    PCIE_SWITCH --> SMN_NET
-    
-    TLB_OUT <--> QNP_NET
-    TLB_OUT <--> SMN_NET
-    
-    SMN_NET <--> PCIE_CTRL
-    SMN_NET <--> HSIO_TILES
-    QNP_NET <--> HSIO_TILES
-    QNP_NET <--> D2D_LINKS
-    
-    MSI_RELAY --> PCIE_CTRL
-    SMN_NET --> MSI_RELAY
-    
-    style PCIE_CTRL fill:#ffcccc,stroke:#ff0000,stroke-width:3px
+
+    subgraph chip["Keraunos-E100"]
+        SMN_NET[SMN]
+        QNP_NET[QNP NOC-N]
+        HSIO_TILES[HSIO Tiles]
+        D2D_LINKS[D2D Links]
+    end
+
+    CPU --- PCIE_CTRL
+    PCIE_CTRL --- TLB_IN
+    PCIE_CTRL --- TLB_OUT
+    TLB_IN --- SWITCH
+    SWITCH --- QNP_NET
+    SWITCH --- SMN_NET
+    TLB_OUT --- QNP_NET
+    TLB_OUT --- SMN_NET
+    SMN_NET --- PCIE_CTRL
+    SMN_NET --- HSIO_TILES
+    QNP_NET --- HSIO_TILES
+    QNP_NET --- D2D_LINKS
+    MSI_RELAY --- PCIE_CTRL
+    SMN_NET --- MSI_RELAY
+
+    style PCIE_CTRL fill:#ffcccc,stroke:#c00
     style TLB_IN fill:#ffe6cc
     style TLB_OUT fill:#ffe6cc
-    style PCIE_SWITCH fill:#d9f7d9
+    style SWITCH fill:#d9f7d9
     style SMN_NET fill:#e6ccff
     style QNP_NET fill:#cce5ff
 ```
@@ -257,28 +263,29 @@ sequenceDiagram
     participant Host as Host CPU
     participant PCIe as PCIe Tile
     participant TLB as Inbound TLB
-    participant Switch as PCIe-SMN-IO<br/>Switch
-    participant NOC as NOC-N (QNP)
-    participant Quasar as Quasar Chiplet
+    participant Switch as PCIe-SMN-IO Switch
+    participant NOC as NOC-N
+    participant SMN as SMN
+    participant Quasar as Quasar
 
-    Host->>PCIe: PCIe Memory Write<br/>(Host Address)
-    PCIe->>TLB: Lookup Translation<br/>(Host Addr → System Addr)
-    TLB-->>PCIe: System Address<br/>(NOC Address)
-    PCIe->>Switch: Forward to Switch
-    Switch->>Switch: Route Decision<br/>(NOC or SMN?)
-    
-    alt NOC-bound traffic
-        Switch->>NOC: Forward to NOC-N
-        NOC->>Quasar: D2D BoW to Quasar
-        Quasar-->>NOC: Write Response
+    Host->>PCIe: Memory Write
+    PCIe->>TLB: Lookup Translation
+    TLB-->>PCIe: System Address
+    PCIe->>Switch: Forward
+    Switch->>Switch: Route Decision
+
+    alt NOC-bound
+        Switch->>NOC: Forward
+        NOC->>Quasar: D2D to Quasar
+        Quasar-->>NOC: Response
         NOC-->>Switch: Response
-    else SMN-bound traffic
-        Switch->>SMN: Forward to SMN
+    else SMN-bound
+        Switch->>SMN: Forward
         SMN-->>Switch: Response
     end
-    
+
     Switch-->>PCIe: Completion
-    PCIe-->>Host: PCIe Completion TLP
+    PCIe-->>Host: Completion TLP
 ```
 
 **Key Steps:**
@@ -298,22 +305,22 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Quasar as Quasar Chiplet
-    participant NOC as NOC-N (QNP)
+    participant Quasar as Quasar
+    participant NOC as NOC-N
     participant PCIe as PCIe Tile
     participant TLB as Outbound TLB
-    participant PCIe_Ctrl as PCIe Controller
-    participant Host as Host CPU/DRAM
+    participant Ctrl as PCIe Controller
+    participant Host as Host
 
-    Quasar->>NOC: Write to PCIe<br/>(System Address)
-    NOC->>PCIe: Forward via noc_n_outbound
-    PCIe->>TLB: Outbound TLB Lookup<br/>(System Addr → Host Addr)
+    Quasar->>NOC: Write
+    NOC->>PCIe: Forward
+    PCIe->>TLB: TLB Lookup
     TLB-->>PCIe: Host Address
-    PCIe->>PCIe_Ctrl: Forward to PCIe Controller
-    PCIe_Ctrl->>Host: PCIe Memory Write TLP<br/>(Host Address)
-    Host-->>PCIe_Ctrl: PCIe Completion
-    PCIe_Ctrl-->>PCIe: Response
-    PCIe-->>NOC: Write Response
+    PCIe->>Ctrl: Forward
+    Ctrl->>Host: Memory Write TLP
+    Host-->>Ctrl: Completion
+    Ctrl-->>PCIe: Response
+    PCIe-->>NOC: Response
     NOC-->>Quasar: Completion
 ```
 
@@ -332,15 +339,15 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant SMC as SMC (RISC-V)
-    participant SMN as SMN Network
-    participant PCIe as PCIe Tile<br/>Config Registers
+    participant SMC as SMC
+    participant SMN as SMN
+    participant PCIe as PCIe Config
 
-    SMC->>SMN: SMN Write<br/>(Config Addr)
-    SMN->>PCIe: Forward to smn_config
-    PCIe->>PCIe: Update TLB Entry<br/>or MSI Config
+    SMC->>SMN: SMN Write
+    SMN->>PCIe: Forward
+    PCIe->>PCIe: Update TLB or MSI
     PCIe-->>SMN: Response
-    SMN-->>SMC: Write Complete
+    SMN-->>SMC: Complete
 ```
 
 **Addressable Registers (via SMN):**
@@ -355,18 +362,18 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant HSIO as HSIO Tile<br/>(Ethernet)
-    participant SMN as SMN Network
-    participant MSI as MSI Relay<br/>(PCIe Tile)
+    participant HSIO as HSIO Tile
+    participant SMN as SMN
+    participant MSI as MSI Relay
     participant PCIe as PCIe Controller
     participant Host as Host CPU
 
-    HSIO->>SMN: Write to MSI Relay<br/>(Trigger Interrupt)
-    SMN->>MSI: Forward MSI Trigger
-    MSI->>MSI: Translate to<br/>PCIe MSI-X Format
-    MSI->>PCIe: Generate MSI-X TLP
-    PCIe->>Host: PCIe MSI-X Write<br/>(Interrupt)
-    Host->>Host: Invoke ISR<br/>(Interrupt Handler)
+    HSIO->>SMN: Trigger Interrupt
+    SMN->>MSI: Forward
+    MSI->>MSI: Translate to MSI-X
+    MSI->>PCIe: MSI-X TLP
+    PCIe->>Host: MSI-X Write
+    Host->>Host: ISR
 ```
 
 ---
@@ -379,36 +386,36 @@ sequenceDiagram
 
 ```mermaid
 graph LR
-    subgraph "Host System"
-        A[Host DMA Engine]
+    subgraph host["Host System"]
+        A[Host DMA]
     end
-    
-    subgraph "Keraunos PCIe Tile"
+
+    subgraph pcie_tile["PCIe Tile"]
         B[PCIe Inbound]
-        C[Inbound TLB<br/>App 0]
-        D[PCIe-SMN-IO<br/>Switch]
-        E[NOC-N Initiator]
+        C[Inbound TLB]
+        D[Switch]
+        E[NOC Initiator]
     end
-    
-    subgraph "NOC Infrastructure"
+
+    subgraph noc["NOC"]
         F[QNP Mesh]
         G[D2D Tile]
     end
-    
-    subgraph "Quasar Chiplet"
+
+    subgraph quasar["Quasar"]
         H[NOC Router]
-        I[Tensix Core<br/>L1 Memory]
+        I[L1 Memory]
     end
-    
-    A -->|PCIe Gen5<br/>Memory Write| B
-    B -->|TLM Target| C
-    C -->|Translate<br/>0x8000_0000 →<br/>0x0_4000_0000| D
-    D -->|Route to NOC| E
-    E -->|TLM Initiator| F
-    F -->|QNP @ 1.5GHz| G
-    G -->|BoW D2D| H
-    H -->|Local NOC| I
-    
+
+    A -->|PCIe Write| B
+    B --> C
+    C -->|Translate| D
+    D --> E
+    E --> F
+    F -->|QNP| G
+    G -->|BoW| H
+    H --> I
+
     style B fill:#ffcccc
     style C fill:#ffe6cc
     style D fill:#d9f7d9
@@ -430,23 +437,23 @@ graph LR
 
 ```mermaid
 graph TB
-    subgraph "Package 0"
+    subgraph pkg0["Package 0"]
         Q0[Quasar 0]
         K0[Keraunos PCIe 0]
         Q0 -->|1. NOC Write| K0
     end
-    
-    H[Host DRAM<br/>Shared Buffer]
+
+    H[Host DRAM]
     K0 -->|2. PCIe Write| H
-    
-    subgraph "Package 1"
+
+    subgraph pkg1["Package 1"]
         K1[Keraunos PCIe 1]
         Q1[Quasar 1]
         K1 -->|4. NOC Write| Q1
     end
-    
+
     H -->|3. PCIe Read| K1
-    
+
     style Q0 fill:#ffe6cc
     style K0 fill:#ffcccc
     style H fill:#fff4e1
@@ -494,21 +501,21 @@ The PCIe Tile exposes multiple BARs to the host:
 
 ```mermaid
 graph LR
-    A[Host Address<br/>BAR0 + Offset]
-    B[PCIe TLP<br/>Address Field]
-    C[Inbound TLB<br/>Lookup]
-    D[System Address<br/>NOC/SMN]
-    E[NOC Routing<br/>Header]
-    F[D2D Address<br/>Translation]
-    G[Quasar Local<br/>Address]
-    
+    A[Host Addr]
+    B[PCIe TLP]
+    C[Inbound TLB]
+    D[System Addr]
+    E[NOC Routing]
+    F[D2D Translate]
+    G[Quasar Addr]
+
     A --> B
     B --> C
     C --> D
     D --> E
     E --> F
     F --> G
-    
+
     style C fill:#ffe6cc
     style D fill:#cce5ff
     style E fill:#e6ccff
