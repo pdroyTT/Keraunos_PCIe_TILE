@@ -623,7 +623,83 @@ This ensures the VDK integration of the PCIe Tile and Synopsys PCIe Controller (
 
 #### 3.5.6 DesignWare PCIe EP and RC Interfaces: Connect to Tile / System vs Stub
 
-The Ascalon chiplet vdksys **Peripherals** section instantiates the Synopsys DesignWare **PCIe_2_0** model for both **PCIe_RC** (Primary_Chiplet) and **PCIe_EP** (Secondary_Chiplet_1/2/3). The model exposes a large set of TLM, RESET, CLOCK, and Default (sideband) interfaces. This subsection lists the main interface groups and, for each, whether to **connect to the PCIe Tile**, **connect to the system** (SharedMemoryMap, SYSCLK, APLIC, etc.), or **stub** when integrating the Keraunos PCIe Tile. The vdksys already marks many of these with `stubs` (e.g. ELBIMaster, sys_int, device_type, link_up, app_ltssm_en, cc_pipe_clk); the tables below align with that and add the tile connection choices.
+The Ascalon chiplet vdksys **Peripherals** section instantiates the Synopsys DesignWare **PCIe_2_0** model for both **PCIe_RC** (Primary_Chiplet) and **PCIe_EP** (Secondary_Chiplet_1/2/3). The model exposes a large set of TLM, RESET, CLOCK, and Default (sideband) interfaces. This subsection first gives direct **signal/interface correspondence tables** (PCIe Tile ↔ EP, and Host/DRAM ↔ RC), then lists disposition (connect vs stub) for each interface group.
+
+**Table 1 — PCIe Tile ↔ DesignWare PCIe EP: signal and interface correspondence**
+
+Each row shows which PCIe Tile port connects to which DesignWare PCIe EP port. Connect the **Tile** column to the **DesignWare EP** column as indicated.
+
+| PCIe Tile (signal / interface) | DesignWare PCIe EP (signal / interface) |
+|--------------------------------|----------------------------------------|
+| **TLM** | |
+| `pcie_controller_target` (TLM target) | `PCIMem_Slave` (TLM slave) — inbound TLPs from link to tile |
+| `pcie_controller_initiator` (TLM initiator) | `BusMaster` (TLM master) — outbound TLPs from tile to EP |
+| **Clocks (tile sc_in)** | |
+| `pcie_core_clk` | `cc_core_clk` |
+| `axi_clk` | `cc_dbi_aclk` (or system SYSCLK) |
+| **Resets (tile sc_in)** | |
+| `pcie_controller_reset_n` | `pcie_axi_ares` (invert for active-low), or combined from `cc_dbi_ares`, `cc_core_ares`, `cc_pwr_ares`, `cc_phy_ares` |
+| `cold_reset_n` | From system (e.g. CustomResetController), not EP |
+| `warm_reset_n` | From system, not EP |
+| **CII — EP to tile (tile sc_in)** | |
+| `pcie_cii_hv` | `lbc_cii_hv` |
+| `pcie_cii_hdr_type` | `lbc_cii_hdr_type` |
+| `pcie_cii_hdr_addr` | `lbc_cii_hdr_addr` |
+| **FLR / hot reset — EP to tile (tile sc_in)** | |
+| `pcie_flr_request` | `cfg_flr_pf_active_x` (EP drives FLR request to tile) |
+| `pcie_hot_reset` | `link_req_rst_not` or `training_rst_n` / `smlh_req_rst_not` (link/controller hot reset) |
+| **Error / DMA / misc — EP to tile (tile sc_in)** | |
+| `pcie_ras_error` | `pcie_parc_int` or `app_err_*` / `cfg_aer_*` (RAS/error from EP) |
+| `pcie_dma_completion` | `dma_wdxfer_done_togg[]` / `dma_rdxfer_done_togg[]` or `edma_int` (DMA completion) |
+| `pcie_misc_int` | `edma_int_rd_chan[]` / `edma_int_wr_chan[]` or other controller misc interrupt |
+| **System to tile (tile sc_in)** | |
+| `isolate_req` | From system (isolation), not EP |
+| **Tile to EP (tile sc_out)** | |
+| `pcie_app_bus_num` | `app_bus_num` |
+| `pcie_app_dev_num` | `app_dev_num` |
+| `pcie_device_type` | `device_type` |
+| `pcie_sys_int` | `sys_int` |
+| `function_level_reset` | `app_flr_pf_done_x` (tile signals FLR done to EP) |
+| `hot_reset_requested` | To EP hot-reset input (e.g. app_init_rst or link side as applicable) |
+| `config_update` | To EP config-update input if present; otherwise stub |
+| `ras_error` | To EP RAS/error input (e.g. app_err_* side) |
+| `dma_completion` | To EP DMA completion input (e.g. dma_*xfer_go_togg or equivalent) |
+| `controller_misc_int` | To EP misc interrupt input |
+| `noc_timeout` | To EP or system (NOC timeout status) |
+
+*Note:* EP interfaces **AXI_Slave**, **AXI_DBI**, **PCIMem**, **ELBIMaster** are not connected to the PCIe Tile: AXI_Slave/AXI_DBI go to SharedMemoryMap; PCIMem/PCIMem_Slave go to the PCIe link (RC or PCIeSwitch). Tile ports **noc_n_target**, **noc_n_initiator**, **smn_n_target**, **smn_n_initiator** connect to NOC/SMN fabric, not to the EP.
+
+---
+
+**Table 2 — Host / DRAM ↔ DesignWare PCIe RC: signal and interface connection**
+
+Each row shows which Host- or system-side element connects to which DesignWare PCIe RC port. The RC has no PCIe Tile behind it; it connects to host resources and to the PCIe link (EP or PCIeSwitch).
+
+| Host / DRAM (or system element) | DesignWare PCIe RC (signal / interface) |
+|---------------------------------|----------------------------------------|
+| **Host config / MMIO (config space, DBI)** | |
+| SharedMemoryMap (config space region) | `AXI_Slave` |
+| SharedMemoryMap (DBI region) | `AXI_DBI` |
+| **Host memory (RC as master — downstream TLPs)** | |
+| SharedMemoryMap (memory region for host-initiated TLPs) | `BusMaster` |
+| **PCIe link (TLPs to/from EP)** | |
+| EP `PCIMem_Slave` (direct link) or PCIeSwitch USP | `PCIMem` — RC sends downstream TLPs |
+| EP `PCIMem` (direct link) or PCIeSwitch DSP | `PCIMem_Slave` — RC receives upstream TLPs from EP |
+| **Clocks** | |
+| SYSCLK (e.g. Primary_Chiplet SYSCLK) | `cc_core_clk` |
+| SYSCLK | `cc_dbi_aclk` |
+| **Resets** | |
+| Peripherals Reset / RST_GEN | `pcie_axi_ares`, `cc_dbi_ares`, `cc_core_ares`, `cc_pwr_ares`, `cc_phy_ares` |
+| **Interrupts (host side)** | |
+| TT_APLIC_TLM2 (e.g. irqS[3] in vdksys) | `msi_ctrl_int` — RC MSI to host interrupt controller |
+| **Not connected (stub)** | |
+| — | `ELBIMaster` — stub |
+| — | `cc_pipe_clk`, `cc_aux_clk`, `refclk`, `cc_aclkSlv`, `cc_aclkMstr` — stub |
+| — | All optional sideband (sys_int, device_type, link_up, app_ltssm_en, power/L1/L2, etc.) — stub |
+
+*Note:* In the vdksys, Host/DRAM is represented by **SharedMemoryMap** and **SYSCLK** on Primary_Chiplet. Host CPU traffic is modeled via the RC’s **AXI_Slave** (config), **AXI_DBI** (DBI), and **BusMaster** (memory TLPs) bound to SharedMemoryMap. The **PCIMem** / **PCIMem_Slave** connect the RC to the EP (or PCIeSwitch) for the PCIe link.
+
+---
 
 **A. PCIe Endpoint (EP) — interfaces and disposition**
 

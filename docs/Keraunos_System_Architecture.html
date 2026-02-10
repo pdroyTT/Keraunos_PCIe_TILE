@@ -1920,7 +1920,195 @@ mermaid.initialize({
 </section>
 <section id="designware-pcie-ep-and-rc-interfaces-connect-to-tile-system-vs-stub">
 <h4>3.5.6 DesignWare PCIe EP and RC Interfaces: Connect to Tile / System vs Stub<a class="headerlink" href="#designware-pcie-ep-and-rc-interfaces-connect-to-tile-system-vs-stub" title="Permalink to this heading"></a></h4>
-<p>The Ascalon chiplet vdksys <strong>Peripherals</strong> section instantiates the Synopsys DesignWare <strong>PCIe_2_0</strong> model for both <strong>PCIe_RC</strong> (Primary_Chiplet) and <strong>PCIe_EP</strong> (Secondary_Chiplet_1/2/3). The model exposes a large set of TLM, RESET, CLOCK, and Default (sideband) interfaces. This subsection lists the main interface groups and, for each, whether to <strong>connect to the PCIe Tile</strong>, <strong>connect to the system</strong> (SharedMemoryMap, SYSCLK, APLIC, etc.), or <strong>stub</strong> when integrating the Keraunos PCIe Tile. The vdksys already marks many of these with <code class="docutils literal notranslate"><span class="pre">stubs</span></code> (e.g. ELBIMaster, sys_int, device_type, link_up, app_ltssm_en, cc_pipe_clk); the tables below align with that and add the tile connection choices.</p>
+<p>The Ascalon chiplet vdksys <strong>Peripherals</strong> section instantiates the Synopsys DesignWare <strong>PCIe_2_0</strong> model for both <strong>PCIe_RC</strong> (Primary_Chiplet) and <strong>PCIe_EP</strong> (Secondary_Chiplet_1/2/3). The model exposes a large set of TLM, RESET, CLOCK, and Default (sideband) interfaces. This subsection first gives direct <strong>signal/interface correspondence tables</strong> (PCIe Tile ↔ EP, and Host/DRAM ↔ RC), then lists disposition (connect vs stub) for each interface group.</p>
+<p><strong>Table 1 — PCIe Tile ↔ DesignWare PCIe EP: signal and interface correspondence</strong></p>
+<p>Each row shows which PCIe Tile port connects to which DesignWare PCIe EP port. Connect the <strong>Tile</strong> column to the <strong>DesignWare EP</strong> column as indicated.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>PCIe Tile (signal / interface)</p></th>
+<th class="head"><p>DesignWare PCIe EP (signal / interface)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>TLM</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_target</span></code> (TLM target)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIMem_Slave</span></code> (TLM slave) — inbound TLPs from link to tile</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_initiator</span></code> (TLM initiator)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BusMaster</span></code> (TLM master) — outbound TLPs from tile to EP</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Clocks (tile sc_in)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_core_clk</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cc_core_clk</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">axi_clk</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cc_dbi_aclk</span></code> (or system SYSCLK)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Resets (tile sc_in)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_reset_n</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pcie_axi_ares</span></code> (invert for active-low), or combined from <code class="docutils literal notranslate"><span class="pre">cc_dbi_ares</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_core_ares</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_pwr_ares</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_phy_ares</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code></p></td>
+<td><p>From system (e.g. CustomResetController), not EP</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warm_reset_n</span></code></p></td>
+<td><p>From system, not EP</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>CII — EP to tile (tile sc_in)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_cii_hv</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lbc_cii_hv</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_cii_hdr_type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lbc_cii_hdr_type</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_cii_hdr_addr</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lbc_cii_hdr_addr</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>FLR / hot reset — EP to tile (tile sc_in)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_flr_request</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cfg_flr_pf_active_x</span></code> (EP drives FLR request to tile)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_hot_reset</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">link_req_rst_not</span></code> or <code class="docutils literal notranslate"><span class="pre">training_rst_n</span></code> / <code class="docutils literal notranslate"><span class="pre">smlh_req_rst_not</span></code> (link/controller hot reset)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Error / DMA / misc — EP to tile (tile sc_in)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_ras_error</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pcie_parc_int</span></code> or <code class="docutils literal notranslate"><span class="pre">app_err_*</span></code> / <code class="docutils literal notranslate"><span class="pre">cfg_aer_*</span></code> (RAS/error from EP)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_dma_completion</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dma_wdxfer_done_togg[]</span></code> / <code class="docutils literal notranslate"><span class="pre">dma_rdxfer_done_togg[]</span></code> or <code class="docutils literal notranslate"><span class="pre">edma_int</span></code> (DMA completion)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_misc_int</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edma_int_rd_chan[]</span></code> / <code class="docutils literal notranslate"><span class="pre">edma_int_wr_chan[]</span></code> or other controller misc interrupt</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>System to tile (tile sc_in)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">isolate_req</span></code></p></td>
+<td><p>From system (isolation), not EP</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Tile to EP (tile sc_out)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_app_bus_num</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">app_bus_num</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_app_dev_num</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">app_dev_num</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_device_type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device_type</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_sys_int</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sys_int</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">function_level_reset</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">app_flr_pf_done_x</span></code> (tile signals FLR done to EP)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hot_reset_requested</span></code></p></td>
+<td><p>To EP hot-reset input (e.g. app_init_rst or link side as applicable)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">config_update</span></code></p></td>
+<td><p>To EP config-update input if present; otherwise stub</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ras_error</span></code></p></td>
+<td><p>To EP RAS/error input (e.g. app_err_* side)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dma_completion</span></code></p></td>
+<td><p>To EP DMA completion input (e.g. dma_*xfer_go_togg or equivalent)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">controller_misc_int</span></code></p></td>
+<td><p>To EP misc interrupt input</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">noc_timeout</span></code></p></td>
+<td><p>To EP or system (NOC timeout status)</p></td>
+</tr>
+</tbody>
+</table>
+<p><em>Note:</em> EP interfaces <strong>AXI_Slave</strong>, <strong>AXI_DBI</strong>, <strong>PCIMem</strong>, <strong>ELBIMaster</strong> are not connected to the PCIe Tile: AXI_Slave/AXI_DBI go to SharedMemoryMap; PCIMem/PCIMem_Slave go to the PCIe link (RC or PCIeSwitch). Tile ports <strong>noc_n_target</strong>, <strong>noc_n_initiator</strong>, <strong>smn_n_target</strong>, <strong>smn_n_initiator</strong> connect to NOC/SMN fabric, not to the EP.</p>
+<hr class="docutils" />
+<p><strong>Table 2 — Host / DRAM ↔ DesignWare PCIe RC: signal and interface connection</strong></p>
+<p>Each row shows which Host- or system-side element connects to which DesignWare PCIe RC port. The RC has no PCIe Tile behind it; it connects to host resources and to the PCIe link (EP or PCIeSwitch).</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Host / DRAM (or system element)</p></th>
+<th class="head"><p>DesignWare PCIe RC (signal / interface)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Host config / MMIO (config space, DBI)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>SharedMemoryMap (config space region)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">AXI_Slave</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>SharedMemoryMap (DBI region)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">AXI_DBI</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Host memory (RC as master — downstream TLPs)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>SharedMemoryMap (memory region for host-initiated TLPs)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BusMaster</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>PCIe link (TLPs to/from EP)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>EP <code class="docutils literal notranslate"><span class="pre">PCIMem_Slave</span></code> (direct link) or PCIeSwitch USP</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIMem</span></code> — RC sends downstream TLPs</p></td>
+</tr>
+<tr class="row-odd"><td><p>EP <code class="docutils literal notranslate"><span class="pre">PCIMem</span></code> (direct link) or PCIeSwitch DSP</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIMem_Slave</span></code> — RC receives upstream TLPs from EP</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Clocks</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>SYSCLK (e.g. Primary_Chiplet SYSCLK)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cc_core_clk</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>SYSCLK</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cc_dbi_aclk</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Resets</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Peripherals Reset / RST_GEN</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pcie_axi_ares</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_dbi_ares</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_core_ares</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_pwr_ares</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_phy_ares</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Interrupts (host side)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>TT_APLIC_TLM2 (e.g. irqS[3] in vdksys)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">msi_ctrl_int</span></code> — RC MSI to host interrupt controller</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Not connected (stub)</strong></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>—</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ELBIMaster</span></code> — stub</p></td>
+</tr>
+<tr class="row-odd"><td><p>—</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cc_pipe_clk</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_aux_clk</span></code>, <code class="docutils literal notranslate"><span class="pre">refclk</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_aclkSlv</span></code>, <code class="docutils literal notranslate"><span class="pre">cc_aclkMstr</span></code> — stub</p></td>
+</tr>
+<tr class="row-even"><td><p>—</p></td>
+<td><p>All optional sideband (sys_int, device_type, link_up, app_ltssm_en, power/L1/L2, etc.) — stub</p></td>
+</tr>
+</tbody>
+</table>
+<p><em>Note:</em> In the vdksys, Host/DRAM is represented by <strong>SharedMemoryMap</strong> and <strong>SYSCLK</strong> on Primary_Chiplet. Host CPU traffic is modeled via the RC’s <strong>AXI_Slave</strong> (config), <strong>AXI_DBI</strong> (DBI), and <strong>BusMaster</strong> (memory TLPs) bound to SharedMemoryMap. The <strong>PCIMem</strong> / <strong>PCIMem_Slave</strong> connect the RC to the EP (or PCIeSwitch) for the PCIe link.</p>
+<hr class="docutils" />
 <p><strong>A. PCIe Endpoint (EP) — interfaces and disposition</strong></p>
 <table class="docutils align-default">
 <thead>
