@@ -121,6 +121,14 @@ mermaid.initialize({
 <li class="toctree-l3"><a class="reference internal" href="#architectural-position">3.2 Architectural Position</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#key-interfaces">3.3 Key Interfaces</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#model-integration-hostrceppcie-tile-connection-diagram">3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vdk-integration-pcie-tile-and-synopsys-pcie-controller-in-the-virtualizer">3.5 VDK Integration: PCIe Tile and Synopsys PCIe Controller in the Virtualizer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#vdk-workspace-layout-vsws-tt">3.5.1 VDK Workspace Layout (vsws_TT)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#alignment-with-keraunos-where-the-pcie-tile-fits">3.5.2 Alignment with Keraunos: Where the PCIe Tile Fits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#interface-level-connection-diagram-vdk">3.5.3 Interface-Level Connection Diagram (VDK)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#signal-and-interface-level-mapping-ep-pcie-tile">3.5.4 Signal- and Interface-Level Mapping (EP ↔ PCIe Tile)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#connection-diagram-for-easy-integration">3.5.5 Connection Diagram for Easy Integration</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#connectivity-architecture">4. Connectivity Architecture</a><ul>
@@ -994,6 +1002,7 @@ mermaid.initialize({
 <li><p><a class="reference internal" href="#pcie-tile-position-in-the-system"><span class="std std-doc">PCIe Tile Position in the System</span></a></p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#model-integration-hostrceppcie-tile-connection-diagram"><span class="std std-doc">3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram</span></a></p></li>
+<li><p><a class="reference internal" href="#vdk-integration-pcie-tile-and-synopsys-pcie-controller-in-the-virtualizer"><span class="std std-doc">3.5 VDK Integration: PCIe Tile and Synopsys PCIe Controller in the Virtualizer</span></a></p></li>
 </ul>
 </li>
 <li><p><a class="reference internal" href="#connectivity-architecture"><span class="std std-doc">Connectivity Architecture</span></a></p></li>
@@ -1577,6 +1586,334 @@ mermaid.initialize({
 <li><p><strong>Inband:</strong> Connect the EP’s AXI or TLM initiator to the tile’s <code class="docutils literal notranslate"><span class="pre">pcie_controller_target</span></code>, and the EP’s AXI/TLM target to the tile’s <code class="docutils literal notranslate"><span class="pre">pcie_controller_initiator</span></code>. Traffic from the host (RC) arrives at the EP over the PCIe link; the EP presents it to the tile on the target socket. Traffic from the tile to the host is sent via the initiator socket to the EP, which sends TLPs over the link to the RC.</p></li>
 <li><p><strong>Sideband:</strong> Drive all tile <code class="docutils literal notranslate"><span class="pre">sc_in</span></code> ports from the EP model or system (clocks, resets, CII, FLR, hot_reset, ras_error, dma_completion, pcie_misc_int; plus cold_reset_n, warm_reset_n, isolate_req, axi_clk from system). Connect all tile <code class="docutils literal notranslate"><span class="pre">sc_out</span></code> ports to the EP or system as required by the EP datasheet and platform design.</p></li>
 </ul>
+</section>
+<section id="vdk-integration-pcie-tile-and-synopsys-pcie-controller-in-the-virtualizer">
+<h3>3.5 VDK Integration: PCIe Tile and Synopsys PCIe Controller in the Virtualizer<a class="headerlink" href="#vdk-integration-pcie-tile-and-synopsys-pcie-controller-in-the-virtualizer" title="Permalink to this heading"></a></h3>
+<p>This section describes how the <strong>Keraunos PCIe Tile</strong> and the <strong>Synopsys PCIe Controller</strong> (DesignWare, as RC and EP when available) are intended to be connected in the <strong>Synopsys Virtualizer VDK</strong> (vsws_TT workspace) so that the virtual platform aligns with the Keraunos system architecture. The VDK workspace under <code class="docutils literal notranslate"><span class="pre">linux_extensible/vsws_TT</span></code> contains three subsystem definitions: <strong>Ascalon_Chiplet_System</strong>, <strong>Ascalon_Cluster</strong>, and <strong>SMC_SS</strong>, which together form a multi-chiplet demo with PCIe.</p>
+<section id="vdk-workspace-layout-vsws-tt">
+<h4>3.5.1 VDK Workspace Layout (vsws_TT)<a class="headerlink" href="#vdk-workspace-layout-vsws-tt" title="Permalink to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Subsystem / File</p></th>
+<th class="head"><p>Role</p></th>
+<th class="head"><p>PCIe Relevance</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Ascalon_Chiplet_System.vdksys</strong></p></td>
+<td><p>Top-level chiplet system</p></td>
+<td><p>Instantiates PCIe RC (Primary_Chiplet), PCIe EPs (Secondary_Chiplet_1/2/3), PCIeSwitch (Misc), SharedMemoryMap, SMC_SS, reset/clock</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Ascalon_Cluster.vdksys</strong></p></td>
+<td><p>RISC-V Ascalon cluster (buildAsSubsystem)</p></td>
+<td><p>Used inside Primary/Secondary chiplets for compute; no direct PCIe ports</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>SMC_SS.vdksys</strong></p></td>
+<td><p>System Management Controller subsystem (buildAsSubsystem)</p></td>
+<td><p>SMC_SS_M on Primary, SMC_SS_S on Secondaries; I3C, mailboxes, resets; no direct PCIe</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Top-level hierarchy (Ascalon_Chiplet_System):</strong></p>
+<ul class="simple">
+<li><p><strong>Primary_Chiplet:</strong> RST_GEN, SharedMemoryMap, SMC_SS_M, <strong>Peripherals</strong> (contains <strong>PCIe_RC</strong>), Ascalon_SS (Ascalon_Cluster), SYSCLK, RAM, DRAM</p></li>
+<li><p><strong>Secondary_Chiplet_1 / 2 / 3:</strong> Each has SharedMemoryMap, SMC_SS_S, <strong>Peripherals</strong> (contains <strong>PCIe_EP_1 / 2 / 3</strong>), Ascalon_SS, SYSCLK, RAM, DRAM</p></li>
+<li><p><strong>Misc:</strong> CustomResetController, <strong>PCIeSwitch</strong> (Synopsys/PCIE_SWITCH/PCIeSwitch)</p></li>
+</ul>
+<p><strong>PCIe model in VDK:</strong> Synopsys <strong>DESIGNWARE_PCIE / PCIe_2_0</strong> is used for both Root Complex (PCIe_RC) and Endpoint (PCIe_EP_1/2/3). The PCIe link (TLP path) is realized via the <strong>PCIeSwitch</strong>: RC’s <strong>PCIMem</strong> connects to the switch <strong>USP</strong> (upstream); each EP’s <strong>PCIMem</strong> / <strong>PCIMem_Slave</strong> connects to the switch <strong>DSP</strong> (downstream) ports.</p>
+</section>
+<section id="alignment-with-keraunos-where-the-pcie-tile-fits">
+<h4>3.5.2 Alignment with Keraunos: Where the PCIe Tile Fits<a class="headerlink" href="#alignment-with-keraunos-where-the-pcie-tile-fits" title="Permalink to this heading"></a></h4>
+<p>In the <strong>Keraunos-E100</strong> architecture, the host uses a <strong>Root Complex</strong> and the Keraunos chip uses a <strong>Synopsys PCIe Controller as Endpoint</strong>. The <strong>PCIe Tile</strong> sits behind the EP and provides TLB translation and routing to NOC/SMN. In the VDK:</p>
+<ul class="simple">
+<li><p><strong>RC:</strong> Can remain as the existing <strong>PCIe_RC</strong> on Primary_Chiplet (or a dedicated “host” chiplet) when modeling the host side.</p></li>
+<li><p><strong>EP:</strong> On the chiplet that represents <strong>Keraunos</strong>, the <strong>Synopsys PCIe EP</strong> (e.g. PCIe_EP_1 in Secondary_Chiplet_1) is the PCIe controller; the <strong>Keraunos PCIe Tile</strong> is inserted <strong>between</strong> this EP and the rest of the chip (NOC/SMN).</p></li>
+</ul>
+<p>Thus: <strong>Host ↔ RC ↔ [PCIe link / PCIeSwitch] ↔ EP ↔ PCIe Tile ↔ NOC/SMN</strong>. The tile does not replace the EP; it connects to the EP’s application-side (AXI/TLM) and sideband interfaces as in Section 3.4.</p>
+</section>
+<section id="interface-level-connection-diagram-vdk">
+<h4>3.5.3 Interface-Level Connection Diagram (VDK)<a class="headerlink" href="#interface-level-connection-diagram-vdk" title="Permalink to this heading"></a></h4>
+<p>The following diagram shows the VDK topology and where the PCIe Tile and Synopsys RC/EP connect. For a Keraunos-aligned integration, one secondary chiplet (e.g. Secondary_Chiplet_1) is treated as the “Keraunos” chiplet: EP + PCIe Tile + (optional) NOC/SMN stubs.</p>
+<div class="mermaid">
+            graph TB
+    subgraph vdk_root[&quot;VDK: Ascalon_Chiplet_System&quot;]
+        subgraph primary[&quot;Primary_Chiplet&quot;]
+            RST[RST_GEN]
+            SMM_P[SharedMemoryMap]
+            SMC_M[SMC_SS_M]
+            PER_P[Peripherals]
+            RC[PCIe_RC - Synopsys RC]
+            PER_P --- RC
+        end
+
+        subgraph secondary1[&quot;Secondary_Chiplet_1 (e.g. Keraunos)&quot;]
+            SMM_S[SharedMemoryMap]
+            SMC_S[SMC_SS_S]
+            PER_S[Peripherals]
+            EP[PCIe_EP - Synopsys EP]
+            TILE[Keraunos PCIe Tile]
+            PER_S --- EP
+            EP ---|AXI/TLM + sideband| TILE
+            TILE ---|noc_n / smn_n| NOC_SMN[NOC / SMN stubs]
+        end
+
+        subgraph misc[&quot;Misc&quot;]
+            SW[PCIeSwitch]
+            RST_CTL[CustomResetController]
+        end
+    end
+
+    RC ---|PCIMem| SW
+    SW ---|DSP_PCIMem / DSP_PCIMem_Slave| EP
+    RC ---|AXI_Slave, AXI_DBI, BusMaster| SMM_P
+    EP ---|AXI_Slave, AXI_DBI, BusMaster, PCIMem, PCIMem_Slave| SMM_S
+    EP -.-&gt;|sideband| TILE
+
+    style RC fill:#e3f2fd
+    style EP fill:#fff3e0
+    style TILE fill:#c8e6c9
+    style SW fill:#f3e5f5
+        </div><p><strong>Inband (TLM) in VDK today:</strong></p>
+<ul class="simple">
+<li><p><strong>PCIe_RC:</strong> AXI_Slave, AXI_DBI, BusMaster bound to Primary_Chiplet <strong>SharedMemoryMap</strong> (config and memory space).</p></li>
+<li><p><strong>PCIe_EP_1:</strong> AXI_Slave, AXI_DBI, BusMaster bound to Secondary_Chiplet_1 <strong>SharedMemoryMap</strong>; <strong>PCIMem</strong> / <strong>PCIMem_Slave</strong> bound to <strong>PCIeSwitch</strong> DSP ports (TLP traffic to/from RC).</p></li>
+</ul>
+<p><strong>When adding the Keraunos PCIe Tile:</strong></p>
+<ul class="simple">
+<li><p>The EP’s application-facing TLM ports that today go to SharedMemoryMap (or that represent “inbound TLPs to device” and “outbound TLPs from device”) are redirected to the tile’s <strong>pcie_controller_target</strong> and <strong>pcie_controller_initiator</strong>.</p></li>
+<li><p>The tile’s <strong>noc_n_target</strong> / <strong>noc_n_initiator</strong> and <strong>smn_n_target</strong> / <strong>smn_n_initiator</strong> connect to NOC/SMN models or stubs in the VDK (e.g. simple memory or existing NoC/SMN subsystems if available).</p></li>
+</ul>
+</section>
+<section id="signal-and-interface-level-mapping-ep-pcie-tile">
+<h4>3.5.4 Signal- and Interface-Level Mapping (EP ↔ PCIe Tile)<a class="headerlink" href="#signal-and-interface-level-mapping-ep-pcie-tile" title="Permalink to this heading"></a></h4>
+<p>The Synopsys DesignWare PCIe model (PCIe_2_0) exposes the following interface groups. The mapping to the Keraunos PCIe Tile ports enables a drop-in style integration when the tile is added to the VDK.</p>
+<p><strong>TLM (inband) — DesignWare EP ↔ PCIe Tile:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>DesignWare EP interface (VDK)</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>PCIe Tile port</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>AXI_Slave</p></td>
+<td><p>Slave (in)</p></td>
+<td><p>—</p></td>
+<td><p>Config/MMIO from system; in VDK often to SharedMemoryMap. When using tile, system config can still be via SMN → tile <code class="docutils literal notranslate"><span class="pre">smn_n_target</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>AXI_DBI</p></td>
+<td><p>Slave (in)</p></td>
+<td><p>—</p></td>
+<td><p>DBI/config; may remain to SharedMemoryMap or be routed per platform.</p></td>
+</tr>
+<tr class="row-even"><td><p>BusMaster</p></td>
+<td><p>Master (out)</p></td>
+<td><p><strong>pcie_controller_initiator</strong></p></td>
+<td><p>Outbound TLPs (EP as master): tile sends Memory Read/Write/Completion to EP.</p></td>
+</tr>
+<tr class="row-odd"><td><p>PCIMem</p></td>
+<td><p>Master (out)</p></td>
+<td><p>—</p></td>
+<td><p>EP as master toward link (in VDK, to PCIeSwitch). Not connected to tile.</p></td>
+</tr>
+<tr class="row-even"><td><p>PCIMem_Slave</p></td>
+<td><p>Slave (in)</p></td>
+<td><p><strong>pcie_controller_target</strong></p></td>
+<td><p>Inbound TLPs from link: host → RC → Switch → EP; EP pushes to tile.</p></td>
+</tr>
+</tbody>
+</table>
+<p>So: <strong>PCIMem_Slave (EP)</strong> ↔ <strong>pcie_controller_target (Tile)</strong> for inbound; <strong>BusMaster (EP)</strong> ↔ <strong>pcie_controller_initiator (Tile)</strong> for outbound. AXI_Slave/AXI_DBI stay on the system/SharedMemoryMap side unless explicitly routed through the tile (e.g. via SMN).</p>
+<p><strong>Sideband — DesignWare EP ↔ PCIe Tile (sc_in / sc_out):</strong></p>
+<p>DesignWare PCIe_2_0 exposes a number of reset, clock, and sideband pins. Map them to the tile’s <code class="docutils literal notranslate"><span class="pre">sc_in</span></code> and <code class="docutils literal notranslate"><span class="pre">sc_out</span></code> as follows so that the VDK integration matches Section 3.4.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tile sc_in (receive)</p></th>
+<th class="head"><p>Source (EP or system)</p></th>
+<th class="head"><p>DesignWare EP / system signal (typical name)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pcie_core_clk</p></td>
+<td><p>EP</p></td>
+<td><p>cc_core_clk or equivalent core clock</p></td>
+</tr>
+<tr class="row-odd"><td><p>pcie_controller_reset_n</p></td>
+<td><p>EP</p></td>
+<td><p>pcie_axi_ares or combined reset_n</p></td>
+</tr>
+<tr class="row-even"><td><p>pcie_cii_hv</p></td>
+<td><p>EP</p></td>
+<td><p>CII header valid</p></td>
+</tr>
+<tr class="row-odd"><td><p>pcie_cii_hdr_type</p></td>
+<td><p>EP</p></td>
+<td><p>CII header type [4:0]</p></td>
+</tr>
+<tr class="row-even"><td><p>pcie_cii_hdr_addr</p></td>
+<td><p>EP</p></td>
+<td><p>CII header address [11:0]</p></td>
+</tr>
+<tr class="row-odd"><td><p>pcie_flr_request</p></td>
+<td><p>EP</p></td>
+<td><p>FLR request</p></td>
+</tr>
+<tr class="row-even"><td><p>pcie_hot_reset</p></td>
+<td><p>EP</p></td>
+<td><p>Hot reset</p></td>
+</tr>
+<tr class="row-odd"><td><p>pcie_ras_error</p></td>
+<td><p>EP</p></td>
+<td><p>RAS error</p></td>
+</tr>
+<tr class="row-even"><td><p>pcie_dma_completion</p></td>
+<td><p>EP</p></td>
+<td><p>DMA completion</p></td>
+</tr>
+<tr class="row-odd"><td><p>pcie_misc_int</p></td>
+<td><p>EP</p></td>
+<td><p>Miscellaneous interrupt</p></td>
+</tr>
+<tr class="row-even"><td><p>cold_reset_n</p></td>
+<td><p>System (e.g. CustomResetController)</p></td>
+<td><p>SoC cold reset</p></td>
+</tr>
+<tr class="row-odd"><td><p>warm_reset_n</p></td>
+<td><p>System</p></td>
+<td><p>SoC warm reset</p></td>
+</tr>
+<tr class="row-even"><td><p>isolate_req</p></td>
+<td><p>System</p></td>
+<td><p>Isolation request</p></td>
+</tr>
+<tr class="row-odd"><td><p>axi_clk</p></td>
+<td><p>System</p></td>
+<td><p>AXI clock</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tile sc_out (drive)</p></th>
+<th class="head"><p>Sink (EP or system)</p></th>
+<th class="head"><p>DesignWare EP / system signal (typical name)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>pcie_app_bus_num</p></td>
+<td><p>EP</p></td>
+<td><p>App bus number</p></td>
+</tr>
+<tr class="row-odd"><td><p>pcie_app_dev_num</p></td>
+<td><p>EP</p></td>
+<td><p>App device number</p></td>
+</tr>
+<tr class="row-even"><td><p>pcie_device_type</p></td>
+<td><p>EP</p></td>
+<td><p>Device type</p></td>
+</tr>
+<tr class="row-odd"><td><p>pcie_sys_int</p></td>
+<td><p>EP</p></td>
+<td><p>System interrupt to controller</p></td>
+</tr>
+<tr class="row-even"><td><p>function_level_reset</p></td>
+<td><p>EP</p></td>
+<td><p>FLR completion</p></td>
+</tr>
+<tr class="row-odd"><td><p>hot_reset_requested</p></td>
+<td><p>EP</p></td>
+<td><p>Hot reset requested</p></td>
+</tr>
+<tr class="row-even"><td><p>config_update</p></td>
+<td><p>EP</p></td>
+<td><p>Config update</p></td>
+</tr>
+<tr class="row-odd"><td><p>ras_error</p></td>
+<td><p>EP</p></td>
+<td><p>RAS error to controller</p></td>
+</tr>
+<tr class="row-even"><td><p>dma_completion</p></td>
+<td><p>EP</p></td>
+<td><p>DMA completion to controller</p></td>
+</tr>
+<tr class="row-odd"><td><p>controller_misc_int</p></td>
+<td><p>EP</p></td>
+<td><p>Controller misc interrupt</p></td>
+</tr>
+<tr class="row-even"><td><p>noc_timeout</p></td>
+<td><p>EP / system</p></td>
+<td><p>NOC timeout [2:0]</p></td>
+</tr>
+</tbody>
+</table>
+<p>(Exact DesignWare signal names may vary by IP version; use the EP model’s documentation or RTL interface list to align names.)</p>
+</section>
+<section id="connection-diagram-for-easy-integration">
+<h4>3.5.5 Connection Diagram for Easy Integration<a class="headerlink" href="#connection-diagram-for-easy-integration" title="Permalink to this heading"></a></h4>
+<p>A single diagram that ties VDK instances to tile ports and EP ports is below. Use it as a checklist when wiring the PCIe Tile into the VDK behind the Synopsys EP.</p>
+<div class="mermaid">
+            graph LR
+    subgraph host_side[&quot;Host / RC (VDK Primary_Chiplet)&quot;]
+        RC[PCIe_RC]
+    end
+
+    subgraph link_switch[&quot;PCIe Link (VDK)&quot;]
+        SW[PCIeSwitch]
+    end
+
+    subgraph keraunos_chiplet[&quot;Keraunos Chiplet (e.g. Secondary_Chiplet_1)&quot;]
+        subgraph ep_block[&quot;Synopsys EP&quot;]
+            EP[PCIe_2_0]
+            EP_PCIMem[PCIMem]
+            EP_PCIMemSlave[PCIMem_Slave]
+            EP_BusM[BusMaster]
+            EP_AXI_S[AXI_Slave]
+            EP_AXI_DBI[AXI_DBI]
+            EP_RST[resets]
+            EP_CLK[clocks]
+            EP_SB[sideband]
+        end
+
+        subgraph tile_block[&quot;Keraunos PCIe Tile&quot;]
+            T_tgt[pcie_controller_target]
+            T_init[pcie_controller_initiator]
+            T_noc_t[noc_n_target]
+            T_noc_i[noc_n_initiator]
+            T_smn_t[smn_n_target]
+            T_smn_i[smn_n_initiator]
+            T_sc_in[sc_in]
+            T_sc_out[sc_out]
+        end
+    end
+
+    RC --&gt;|PCIMem| SW
+    SW --&gt;|DSP_PCIMem_Slave| EP_PCIMemSlave
+    SW &lt;--&gt;|DSP_PCIMem| EP_PCIMem
+    EP_PCIMemSlave --&gt;|TLM inbound| T_tgt
+    EP_BusM --&gt;|TLM outbound| T_init
+    EP_RST --&gt; T_sc_in
+    EP_CLK --&gt; T_sc_in
+    EP_SB --&gt; T_sc_in
+    T_sc_out --&gt; EP_SB
+    T_noc_i --&gt; NOC[NOC]
+    T_smn_i --&gt; SMN[SMN]
+    NOC --&gt; T_noc_t
+    SMN --&gt; T_smn_t
+
+    style T_tgt fill:#c8e6c9
+    style T_init fill:#c8e6c9
+    style T_sc_in fill:#f8bbd0
+    style T_sc_out fill:#f8bbd0
+        </div><p><strong>Integration checklist:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Inband:</strong> Bind EP <strong>PCIMem_Slave</strong> (inbound TLPs) to the tile’s <strong>pcie_controller_target</strong>. Bind EP <strong>BusMaster</strong> (outbound TLPs) to the tile’s <strong>pcie_controller_initiator</strong>. Keep EP <strong>PCIMem</strong> / <strong>PCIMem_Slave</strong> connection to PCIeSwitch for link traffic.</p></li>
+<li><p><strong>Sideband:</strong> Connect all EP and system reset/clock/sideband outputs to the tile’s <strong>sc_in</strong>; connect all tile <strong>sc_out</strong> to the EP (and system) inputs as in the table above.</p></li>
+<li><p><strong>NOC/SMN:</strong> Connect tile <strong>noc_n_target</strong> / <strong>noc_n_initiator</strong> and <strong>smn_n_target</strong> / <strong>smn_n_initiator</strong> to the VDK’s NOC and SMN models (or stubs) for the Keraunos chiplet.</p></li>
+<li><p><strong>RC:</strong> When modeling host side, keep <strong>PCIe_RC</strong> on Primary_Chiplet (or equivalent) connected to PCIeSwitch USP; no change required for the tile, which only attaches to the EP.</p></li>
+</ol>
+<p>This ensures the VDK integration of the PCIe Tile and Synopsys PCIe Controller (RC and EP) matches the Keraunos system architecture and Section 3.4, and can be integrated with minimal rework.</p>
+</section>
 </section>
 </section>
 <hr class="docutils" />
