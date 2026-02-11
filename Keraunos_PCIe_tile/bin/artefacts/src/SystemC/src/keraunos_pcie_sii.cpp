@@ -35,6 +35,10 @@ void SiiBlock::update() {
         cfg_modified_ = 0;
         cii_clear_    = 0;
         config_int_   = false;
+        device_type_  = false;   // EP mode is the reset default (Table 6)
+        sys_int_      = false;
+        app_bus_num_  = 0;
+        app_dev_num_  = 0;
         return;
     }
 
@@ -122,9 +126,13 @@ void SiiBlock::process_apb_access(tlm::tlm_generic_payload& trans,
 
                 if (offset == CORE_CONTROL_OFFSET) {
                     // Core Control: extract device type [2:0]
-                    device_type_ =
+                    bool new_type =
                         ((wdata & CORE_CONTROL_DEVICE_TYPE_MASK)
                          == CORE_CONTROL_DEVICE_TYPE_RP);
+                    device_type_ = new_type;
+                    // Notify tile immediately so NocPcieSwitch controller_is_ep_
+                    // is updated without waiting for signal_update_process.
+                    if (device_type_cb_) device_type_cb_(new_type);
                 }
                 else if (offset == CFG_MODIFIED_OFFSET) {
                     // RW1C: bits written as 1 schedule a clear of the

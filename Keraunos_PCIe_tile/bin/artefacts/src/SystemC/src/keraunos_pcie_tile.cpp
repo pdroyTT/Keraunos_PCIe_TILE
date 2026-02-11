@@ -90,9 +90,18 @@ void KeraunosPcieTile::wire_components() {
         if (msi_relay_) msi_relay_->process_msi_input(t, d);
         else t.set_response_status(tlm::TLM_OK_RESPONSE);
     });
+    // Spec Outbound_TLBApp_lookup: pa >= (1<<48) → TLBAppOut0, else → TLBAppOut1 (DBI)
     noc_io_switch_->set_tlb_app_output([this](auto& t, auto& d) {
-        if (tlb_app_out0_) tlb_app_out0_->process_outbound_traffic(t, d);
-        else t.set_response_status(tlm::TLM_OK_RESPONSE);
+        uint64_t addr = t.get_address();
+        if ((addr >> 48) & 0xFFFF) {
+            // High address → TLBAppOut0 (16TB pages for regular memory access)
+            if (tlb_app_out0_) tlb_app_out0_->process_outbound_traffic(t, d);
+            else t.set_response_status(tlm::TLM_OK_RESPONSE);
+        } else {
+            // Low address → TLBAppOut1 (64KB pages for DBI access)
+            if (tlb_app_out1_) tlb_app_out1_->process_outbound_traffic(t, d);
+            else t.set_response_status(tlm::TLM_OK_RESPONSE);
+        }
     });
     
     // Wire SMN-IO Switch
@@ -154,9 +163,18 @@ void KeraunosPcieTile::wire_components() {
     });
     
     // Wire NOC-PCIE Switch (with null safety checks)
+    // Spec: TLBAppIn0 has 256 entries across 4 instances (64 each).
+    // Dispatch to the correct instance using upper 2 bits of the 8-bit index.
+    // index = (addr >> 24) & 0xFF; instance = index >> 6; local = index & 0x3F
     noc_pcie_switch_->set_tlb_app_inbound0_output([this](auto& t, auto& d) {
-        if (tlb_app_in0_[0]) tlb_app_in0_[0]->process_inbound_traffic(t, d);
-        else t.set_response_status(tlm::TLM_OK_RESPONSE);
+        uint64_t addr = t.get_address();
+        uint8_t full_index = (addr >> 24) & 0xFF;
+        uint8_t instance = (full_index >> 6) & 0x3;
+        if (instance < tlb_app_in0_.size() && tlb_app_in0_[instance]) {
+            tlb_app_in0_[instance]->process_inbound_traffic(t, d);
+        } else {
+            t.set_response_status(tlm::TLM_OK_RESPONSE);
+        }
     });
     noc_pcie_switch_->set_tlb_app_inbound1_output([this](auto& t, auto& d) {
         if (tlb_app_in1_) tlb_app_in1_->process_inbound_traffic(t, d);
@@ -200,9 +218,10 @@ void KeraunosPcieTile::wire_components() {
     });
     
     // Wire TLB outputs (with null safety checks)
+    // TLB Sys In0: translated traffic goes to SMN port (smn_n_initiator), not NOC
     if (tlb_sys_in0_) {
         tlb_sys_in0_->set_translated_output([this](auto& t, auto& d) {
-            if (noc_io_switch_) noc_io_switch_->route_from_tlb(t, d);
+            if (smn_io_switch_) smn_io_switch_->route_from_smn(t, d);
             else t.set_response_status(tlm::TLM_OK_RESPONSE);
         });
     }
@@ -220,25 +239,62 @@ void KeraunosPcieTile::wire_components() {
             else t.set_response_status(tlm::TLM_OK_RESPONSE);
         });
     }
+    // Outbound TLB translated outputs: pass AxUSER (TLB ATTR) to NOC-PCIE
+    // for BME qualification per Table 33, Section 2.5.8.1
     if (tlb_sys_out0_) {
-        tlb_sys_out0_->set_translated_output([this](auto& t, auto& d) {
-            if (noc_pcie_switch_) noc_pcie_switch_->route_to_pcie(t, d);
+        tlb_sys_out0_->set_translated_output([this](auto& t, auto& d, const auto& attr) {
+            if (noc_pcie_switch_) noc_pcie_switch_->route_to_pcie(t, d, attr);
             else t.set_response_status(tlm::TLM_OK_RESPONSE);
         });
     }
     if (tlb_app_out0_) {
-        tlb_app_out0_->set_translated_output([this](auto& t, auto& d) {
-            if (noc_pcie_switch_) noc_pcie_switch_->route_to_pcie(t, d);
+        tlb_app_out0_->set_translated_output([this](auto& t, auto& d, const auto& attr) {
+            if (noc_pcie_switch_) {
+                // #region agent log
+                {
+                    std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
+                    char buf[512];
+                    uint32_t tlp_type = 0;
+                    for (int i = 0; i < 5; i++) { if (attr[i].to_bool()) tlp_type |= (1u << i); }
+                    bool dbi = attr[21].to_bool();
+                    snprintf(buf, sizeof(buf),
+                        "TLBAppOut0→route_to_pcie: addr=0x%lx bme=%d ep=%d tlp=%u dbi=%d cmd=%d\n",
+                        (unsigned long)t.get_address(),
+                        (int)noc_pcie_switch_->get_bus_master_enable(),
+                        (int)noc_pcie_switch_->get_controller_is_ep(),
+                        tlp_type, (int)dbi, (int)t.get_command());
+                    f << buf;
+                }
+                // #endregion
+                noc_pcie_switch_->route_to_pcie(t, d, attr);
+                // #region agent log
+                {
+                    std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
+                    char buf[128];
+                    snprintf(buf, sizeof(buf), "  → resp after route_to_pcie: %d\n",
+                        (int)t.get_response_status());
+                    f << buf;
+                }
+                // #endregion
+            }
             else t.set_response_status(tlm::TLM_OK_RESPONSE);
         });
     }
     if (tlb_app_out1_) {
-        tlb_app_out1_->set_translated_output([this](auto& t, auto& d) {
-            if (noc_pcie_switch_) noc_pcie_switch_->route_to_pcie(t, d);
+        tlb_app_out1_->set_translated_output([this](auto& t, auto& d, const auto& attr) {
+            if (noc_pcie_switch_) noc_pcie_switch_->route_to_pcie(t, d, attr);
             else t.set_response_status(tlm::TLM_OK_RESPONSE);
         });
     }
     
+    // Wire SII device_type callback so APB writes to CORE_CONTROL
+    // immediately propagate controller_is_ep_ to NocPcieSwitch (BME logic).
+    if (sii_block_) {
+        sii_block_->set_device_type_callback([this](bool is_rp) {
+            if (noc_pcie_switch_) noc_pcie_switch_->set_controller_is_ep(!is_rp);
+        });
+    }
+
     // Wire MSI Relay output (with null safety)
     if (msi_relay_) {
         msi_relay_->set_msi_output_callback([this](auto& t, auto& d) {
@@ -252,6 +308,16 @@ void KeraunosPcieTile::wire_components() {
 void KeraunosPcieTile::noc_n_target_b_transport(tlm::tlm_generic_payload& trans, sc_core::sc_time& delay) {
     if (noc_io_switch_) {
         noc_io_switch_->route_from_noc(trans, delay);
+        // #region agent log
+        {
+            std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
+            char buf[256];
+            snprintf(buf, sizeof(buf),
+                "noc_n_b_transport AFTER route_from_noc: addr=0x%lx resp=%d\n",
+                (unsigned long)trans.get_address(), (int)trans.get_response_status());
+            f << buf;
+        }
+        // #endregion
         if (trans.get_response_status() == tlm::TLM_INCOMPLETE_RESPONSE) {
             trans.set_response_status(tlm::TLM_OK_RESPONSE);
         }
@@ -338,7 +404,16 @@ void KeraunosPcieTile::signal_update_process() {
         // Config-dependent updates now happen via callback
     }
     
-    if (noc_pcie_switch_) noc_pcie_switch_->set_isolate_req(isolate_req.read());
+    if (noc_pcie_switch_) {
+        noc_pcie_switch_->set_isolate_req(isolate_req.read());
+        // Cold reset restores bus_master_enable_ to default (enabled).
+        // In real HW, BME comes from controller's Command Register, which
+        // resets to 0 on cold reset.  For our model, default is enabled=true
+        // so that existing non-BME tests work without explicitly setting it.
+        if (!cold_reset_n.read()) {
+            noc_pcie_switch_->set_bus_master_enable(true);
+        }
+    }
     if (noc_io_switch_) noc_io_switch_->set_isolate_req(isolate_req.read());
     if (smn_io_switch_) smn_io_switch_->set_isolate_req(isolate_req.read());
     
@@ -355,9 +430,15 @@ void KeraunosPcieTile::signal_update_process() {
         // Drive outputs from SII
         pcie_app_bus_num.write(sii_block_->get_app_bus_num());
         pcie_app_dev_num.write(sii_block_->get_app_dev_num());
-        pcie_device_type.write(sii_block_->get_device_type());
+        bool is_rp = sii_block_->get_device_type();
+        pcie_device_type.write(is_rp);
         pcie_sys_int.write(sii_block_->get_sys_int());
         config_update.write(sii_block_->get_config_int());
+        // Feed controller mode to NOC-PCIE for BME qualification (Table 33)
+        // SII device_type: true = RP, false = EP.  NocPcieSwitch: controller_is_ep_
+        if (noc_pcie_switch_) {
+            noc_pcie_switch_->set_controller_is_ep(!is_rp);
+        }
     }
     
     if (pll_cgm_ && clock_reset_ctrl_) {

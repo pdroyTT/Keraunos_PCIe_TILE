@@ -315,7 +315,7 @@
      <illegal>0</illegal>
      <type>array</type>
      <size>1</size>
-     <count>1</count>
+     <count>2</count>
     </bin>
    </bins>
   </coverpoint>
@@ -335,7 +335,7 @@
      <illegal>0</illegal>
      <type>array</type>
      <size>1</size>
-     <count>2</count>
+     <count>3</count>
     </bin>
    </bins>
   </coverpoint>

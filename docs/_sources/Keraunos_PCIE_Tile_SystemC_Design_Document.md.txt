@@ -1,10 +1,10 @@
 # Keraunos PCIE Tile SystemC/TLM2.0 Design Document
 
-**Version:** 2.1 (Initiator Socket Architecture + Cross-Socket Verification)  
+**Version:** 2.0 (Refactored Architecture)  
 **Date:** February 10, 2026  
 **Author:** SystemC Modeling Team  
 **Based on:** Keraunos PCIE Tile Specification v0.7.023  
-**Implementation:** Refactored C++ class architecture with function callbacks, `simple_initiator_socket` output ports, and `sparse_backing_memory` testbench
+**Implementation:** Refactored C++ class architecture with function callbacks
 
 ---
 
@@ -90,12 +90,13 @@ make html
 ## ⭐ Key Implementation Features
 
 - ✅ **E126 Error Eliminated** - FastBuild compatible architecture
-- ✅ **100% Test Pass Rate** - 33/33 E2E tests passing
+- ✅ **100% Test Pass Rate** - 81/81 tests passing (0 failures)
 - ✅ **Zero Memory Leaks** - Smart pointer (RAII) based design
 - ✅ **Modern C++17** - Best practices throughout
 - ✅ **SCML2 Memory** - Proper persistent storage
 - ✅ **Temporal Decoupling** - Full TLM-2.0 LT support
 - ✅ **100% Spec Compliant** - All requirements met
+- ✅ **BME Logic** - Bus Master Enable qualification in NOC-PCIE switch (Table 33); SII device_type callback; cold reset restores BME and EP mode
 
 **Major Update (Feb 2026):** Complete architectural refactoring from hierarchical sc_modules with internal socket bindings to function callback-based C++ class architecture. This eliminates the E126 socket binding error while maintaining full functional equivalence and specification compliance.
 
@@ -201,7 +202,7 @@ This design document covers:
 - Eliminated internal TLM socket bindings (30+) → Function callbacks
 - Applied modern C++17 best practices (smart pointers, RAII)
 - Integrated SCML2 memory for configuration persistence
-- Achieved 100% test pass rate (33/33 E2E tests)
+- Achieved 100% test pass rate (81/81 tests, 0 failures)
 - **Result:** E126 socket binding error eliminated, FastBuild compatible
 
 ---
@@ -584,9 +585,7 @@ public:
     tlm_utils::simple_target_socket<KeraunosPcieTile, 64> noc_n_target;
     tlm_utils::simple_target_socket<KeraunosPcieTile, 64> smn_n_target;
     tlm_utils::simple_target_socket<KeraunosPcieTile, 64> pcie_controller_target;
-    tlm_utils::simple_initiator_socket<KeraunosPcieTile, 64> noc_n_initiator;
-    tlm_utils::simple_initiator_socket<KeraunosPcieTile, 64> smn_n_initiator;
-    tlm_utils::simple_initiator_socket<KeraunosPcieTile, 64> pcie_controller_initiator;
+    // ... 3 more external sockets
     
     // Socket callback methods route to internal C++ classes
     void noc_n_target_b_transport(tlm::tlm_generic_payload& trans, 
@@ -1026,7 +1025,7 @@ When `AxADDR[63:60] = 8 or 9` after iATU translation:
 
 #### 4.2.2 TLBSysIn0 - System Management Inbound TLB
 
-**Purpose:** Translate system management inbound traffic (config, MSI-X) from PCIe Controller to SMN.
+**Purpose:** Translate system management inbound traffic (config, MSI-X) from PCIe Controller to SMN. Per specification, TLB Sys In0 can also be used for addresses bound for NoC; in this implementation it is wired to SMN-IO (system path). **Lookup is not gated by system_ready**—only bypass paths (route 0x8, 0x9) are gated by system_ready.
 
 **Specifications:**
 - **Entries:** 64
@@ -1035,8 +1034,9 @@ When `AxADDR[63:60] = 8 or 9` after iATU translation:
 - **Index Calculation:** `index = (addr >> 14) & 0x3F`
   - Uses address bits [51:14] to determine which 16KB page
   - Bits [13:0] are the page offset (preserved in translation)
-- **Address Translation:** `{TLBSysIn0[index].ADDR[51:14], pa[13:0]}`
-  - Upper 38 bits from TLB entry, lower 14 bits from input address
+- **Address Translation (page-mask formula):** `page_mask = (1ULL << 14) - 1`;  
+  `translated_addr = ((entry.addr << 12) & ~page_mask) | (iatu_addr & page_mask)`.  
+  Base from TLB entry (entry.addr << 12) is page-aligned; offset [13:0] from input.
 - **AxUSER Format:** `{ATTR[11:4], 2'b0, ATTR[1:0]}` (12 bits)
   - Note: ATTR[3:2] is always 00
 
@@ -1064,10 +1064,10 @@ bool TLBSysIn0::lookup(uint64_t iatu_addr, uint64_t& translated_addr,
         return false;  // Return DECERR on miss
     }
     
-    // 3. Perform address translation
+    // 3. Perform address translation (page-mask correction)
     const TlbEntry& entry = entries_[index];
-    // Combine: TLB entry upper bits [51:14] + input address lower bits [13:0]
-    translated_addr = (entry.addr & 0xFFFFFFFFFC000ULL) | (iatu_addr & 0x3FFF);
+    constexpr uint64_t page_mask = (1ULL << 14) - 1;
+    translated_addr = ((entry.addr << 12) & ~page_mask) | (iatu_addr & page_mask);
     
     // 4. Generate AxUSER: {ATTR[11:4], 2'b0, ATTR[1:0]}
     axuser = (entry.attr.range(11, 4).to_uint() << 4) | 
@@ -1958,8 +1958,9 @@ PCIe Link
 - **Index Calculation:** `index = (addr >> 16) & 0xF`
   - Uses address bits [63:16] to determine which 64KB page
   - Bits [15:0] are the page offset (preserved in translation)
-- **Address Translation:** `{TLBSysOut0[index].ADDR[63:16], pa[15:0]}`
-  - Upper 48 bits from TLB entry, lower 16 bits from input address
+- **Address Translation (page-mask formula):** `page_mask = (1ULL << 16) - 1`;  
+  `translated_addr = ((entry.addr << 12) & ~page_mask) | (pa & page_mask)`.  
+  Base from TLB entry (entry.addr << 12) is page-aligned; offset [15:0] from input.
 - **Attributes:** Full 256-bit ATTR field passed through
 
 **Implementation Details:**
@@ -1986,10 +1987,10 @@ bool TLBSysOut0::lookup(uint64_t pa, uint64_t& translated_addr,
         return false;  // Return DECERR on miss
     }
     
-    // 3. Perform address translation
+    // 3. Perform address translation (page-mask correction)
     const TlbEntry& entry = entries_[index];
-    // Combine: TLB entry upper bits [63:16] + input address lower bits [15:0]
-    translated_addr = (entry.addr & 0xFFFFFFFFFFFF0000ULL) | (pa & 0xFFFF);
+    constexpr uint64_t page_mask = (1ULL << 16) - 1;
+    translated_addr = ((entry.addr << 12) & ~page_mask) | (pa & page_mask);
     
     // 4. Extract attributes
     attr = entry.attr;
@@ -2049,8 +2050,9 @@ SMC firmware needs to access PCIe Controller's DBI register at internal address 
 - **Index Calculation:** `index = (addr >> 44) & 0xF`
   - Uses address bits [63:44] to determine which 16TB page
   - Bits [43:0] are the page offset (preserved in translation)
-- **Address Translation:** `{TLBAppOut0[index].ADDR[63:44], pa[43:0]}`
-  - Upper 20 bits from TLB entry, lower 44 bits from input address
+- **Address Translation (page-mask formula):** `page_mask = (1ULL << 44) - 1`;  
+  `translated_addr = ((entry.addr << 12) & ~page_mask) | (pa & page_mask)`.  
+  Base from TLB entry (entry.addr << 12) is page-aligned; offset [43:0] from input.
 - **Attributes:** Full 256-bit ATTR field passed through
 
 **Implementation Details:**
@@ -2074,8 +2076,9 @@ bool TLBAppOut0::lookup(uint64_t pa, uint64_t& translated_addr,
 
 **Translation Process:**
 ```cpp
-// Translate address: {TLBAppOut0[index].ADDR[63:44], pa[43:0]}
-translated_addr = (entry.addr & 0xFFFFF00000000000ULL) | (pa & 0xFFFFFFFFFFFULL);
+// Page-mask translation (page_shift = 44)
+constexpr uint64_t page_mask = (1ULL << 44) - 1;
+translated_addr = ((entry.addr << 12) & ~page_mask) | (pa & page_mask);
 ```
 
 **Use Case Example:**
@@ -2127,8 +2130,9 @@ Tensix core needs to access host memory at address `0x1000_0000_0000_0000` (256T
 - **Index Calculation:** `index = (addr >> 16) & 0xF`
   - Uses address bits [63:16] to determine which 64KB page
   - Bits [15:0] are the page offset (preserved in translation)
-- **Address Translation:** `{TLBAppOut1[index].ADDR[63:16], pa[15:0]}`
-  - Upper 48 bits from TLB entry, lower 16 bits from input address
+- **Address Translation (page-mask formula):** `page_mask = (1ULL << 16) - 1`;  
+  `translated_addr = ((entry.addr << 12) & ~page_mask) | (pa & page_mask)`.  
+  Base from TLB entry (entry.addr << 12) is page-aligned; offset [15:0] from input.
 - **Attributes:** Full 256-bit ATTR field passed through
 
 **Implementation Details:**
@@ -2229,7 +2233,7 @@ Application processor (Tensix) needs to access PCIe Controller's DMA register at
 
        subgraph Translation["5. Address Translation"]
            Trans0["TLBSysOut0:<br/>{entry.addr[63:16], pa[15:0]}"]
-           Trans1["TLBAppOut0:<br/>{entry.addr[63:44], pa[43:0]}"]
+           Trans1["TLBAppOut0:<br/>((entry.addr<<12)&~page_mask)|(pa&page_mask)"]
            Trans2["TLBAppOut1:<br/>{entry.addr[63:16], pa[15:0]}"]
        end
 
@@ -2815,8 +2819,9 @@ void cfg_modified_update_process() {
 
 **Core Control Register (0x0000):**
 - `[2:0]` Device Type: 0=EP (End Point), 4=RP (Root Port)
-- Default: 0x0 (EP mode for Keraunos)
-- Drives `device_type` output signal to PCIe Controller
+- Default: 0x0 (EP mode for Keraunos). **Cold reset** (SiiBlock::update when reset_n is low) clears device_type to EP and other outputs.
+- Drives `device_type` output signal to PCIe Controller.
+- **Device type callback:** When CORE_CONTROL is written via APB, the SII block invokes `device_type_cb_(is_rp)` so the tile can call `noc_pcie_switch_->set_controller_is_ep(!is_rp)` immediately. This ensures BME logic in NOC-PCIE switch sees the correct EP/RP mode without waiting for the next `signal_update_process` delta (which is only sensitive to signals, not register writes).
 
 **Bus/Device Number Register (0x0008):**
 - `[7:0]` Device Number
@@ -3667,10 +3672,15 @@ The use of `tlm::tlm_target_socket` for TLB translation logic is **appropriate**
        class NocPcieSwitch {
            <<C++ class>>
            +route_from_pcie()
-           +route_from_noc()
+           +route_to_pcie(trans, delay)
+           +route_to_pcie(trans, delay, axuser)
+           +set_bus_master_enable()
+           +set_controller_is_ep()
            +set_tlb_app_inbound0_output()
            -TransportCallback tlb_app_inbound0_
            -bool isolate_req_
+           -bool bus_master_enable_
+           -bool controller_is_ep_
        }
 
        class NocIoSwitch {
@@ -3716,8 +3726,10 @@ The use of `tlm::tlm_target_socket` for TLB translation logic is **appropriate**
        class SiiBlock {
            <<C++ class>>
            +process_apb_access()
+           +set_device_type_callback()
            -scml2_memory sii_memory_
            -uint32_t cfg_modified_
+           -DeviceTypeCallback device_type_cb_
        }
 
        KeraunosPcieTile *-- NocPcieSwitch : owns via unique_ptr
@@ -3741,12 +3753,12 @@ The use of `tlm::tlm_target_socket` for TLB translation logic is **appropriate**
 ```cpp
 class KeraunosPcieTile : public sc_core::sc_module {
     // External TLM Sockets (6 total)
-    tlm_utils::simple_target_socket<...> noc_n_target;           // Input
-    tlm_utils::simple_target_socket<...> smn_n_target;           // Input
-    tlm_utils::simple_target_socket<...> pcie_controller_target; // Input
-    tlm_utils::simple_initiator_socket<...> noc_n_initiator;             // Output
-    tlm_utils::simple_initiator_socket<...> smn_n_initiator;             // Output
-    tlm_utils::simple_initiator_socket<...> pcie_controller_initiator;   // Output
+    tlm_utils::simple_target_socket<...> noc_n_target;
+    tlm_utils::simple_initiator_socket<KeraunosPcieTile, 64> noc_n_initiator;
+    tlm_utils::simple_target_socket<...> smn_n_target;
+    tlm_utils::simple_initiator_socket<KeraunosPcieTile, 64> smn_n_initiator;
+    tlm_utils::simple_target_socket<...> pcie_controller_target;
+    tlm_utils::simple_initiator_socket<KeraunosPcieTile, 64> pcie_controller_initiator;
     
     // Control Signal Ports
     sc_in<bool> cold_reset_n, warm_reset_n, isolate_req;
@@ -4039,7 +4051,7 @@ uint32_t data = pcie_controller_target.read32(0x0000000001234567, &ok);
    │  uint8_t index = calculate_index(addr);
    │  TlbEntry& entry = entries_[index];
    │  if (entry.valid) {
-   │      translated_addr = (entry.addr << 12) | (addr & page_mask);
+   │      translated_addr = ((entry.addr << 12) & ~page_mask) | (addr & page_mask);
    │      trans.set_address(translated_addr);
    │      if (translated_output_) translated_output_(trans, delay);
    │  }
@@ -4120,11 +4132,31 @@ void NocPcieSwitch::route_from_pcie(tlm::tlm_generic_payload& trans,
 - Null-safe callback invocation
 - Default response handling
 
+#### Outbound Path and BME (Bus Master Enable):
+
+Outbound traffic (NOC→PCIe) goes through `route_to_pcie()`. Two overloads exist:
+- **Two-argument:** `route_to_pcie(trans, delay)` — no AxUSER; used when caller has no attributes (e.g. TLBSysOut0). Treated as memory TLP for BME.
+- **Three-argument:** `route_to_pcie(trans, delay, axuser)` — outbound TLBs (TLBAppOut0, TLBAppOut1) pass the **AxUSER** (attr) so the switch can decode TLP type and DBI for BME exemption.
+
+**BME logic (spec Table 33):**
+- **controller_is_ep_** (from SII device_type: true=EP, false=RP). Updated by (1) tile `signal_update_process()` reading SII after reset, and (2) **SII device_type callback** when CORE_CONTROL is written via SMN (APB), so RP/EP mode takes effect immediately without waiting for a signal delta.
+- **bus_master_enable_** set by `set_bus_master_enable(bool)` (testbench or integration). When `cold_reset_n` is low, `signal_update_process()` restores it to `true`.
+- **EP mode and BME=0:** Memory TLPs blocked (DECERR). Config, DBI, and Message TLPs exempt (derived from AxUSER bits: TLP type [4:0], DBI bit [21]). Non-exempt TLPs get `TLM_ADDRESS_ERROR_RESPONSE`.
+- **EP mode and BME=1:** All TLPs allowed.
+- **RP mode:** BME not checked; all TLPs allowed.
+
+**AxUSER usage:** TLP type in AxUSER[4:0], DBI in AxUSER[21]. Outbound TLBs pass `attr` (from TLB entry or default) into the translated_output_ callback; the tile wires that to `route_to_pcie(trans, delay, attr)`.
+
 ---
 
 ### 9.9 TLB Translation Implementation
 
-#### Translation Algorithm:
+#### Translation Algorithm (page-mask correction):
+
+All TLBs use the same formula so the base is page-aligned and the offset comes from the input address:
+
+- `page_mask = (1ULL << page_shift) - 1`
+- `translated_addr = ((entry.addr << 12) & ~page_mask) | (input_addr & page_mask)`
 
 ```cpp
 bool TLBAppIn0::lookup(uint64_t iatu_addr, uint64_t& translated_addr, 
@@ -4142,11 +4174,9 @@ bool TLBAppIn0::lookup(uint64_t iatu_addr, uint64_t& translated_addr,
     // 4. Check valid bit
     if (!entry.valid) return false;
     
-    // 5. Translate address
-    //    Physical address = entry.addr (52 bits) + page offset
-    translated_addr = (entry.addr << 12) | (iatu_addr & ((1ULL << 24) - 1));
-    //                 ^^^^^^^^^^^^^^^^      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    //                 Base address          Page offset (bits [23:0])
+    // 5. Translate address (page-mask formula: base page-aligned, offset from input)
+    constexpr uint64_t page_mask = (1ULL << 24) - 1;  // 16MB pages
+    translated_addr = ((entry.addr << 12) & ~page_mask) | (iatu_addr & page_mask);
     
     // 6. Extract AxUSER attributes
     axuser = entry.attr.to_uint();
@@ -4307,7 +4337,7 @@ make -f Makefile.Keranous_pcie_tile.linux
 make -f Makefile.Keranous_pcie_tile.linux check
 
 # Expected output:
-# 33 tests, 33 passing, 0 failing
+# 81 tests, 81 passing, 0 failing
 # NO E126 errors!
 ```
 
@@ -4740,12 +4770,12 @@ Copyright (c) 1996-2022 by all Contributors
 Test Suite: Keranous_pcie_tileTest
 ==================================
 
-✅ 33 tests executed
-✅ 33 tests PASSING
+✅ 81 tests executed
+✅ 81 tests PASSING
 ✅ 0 tests failing
 ✅ 0 not run
 ✅ 0 not finished
-✅ 34 checks performed
+✅ 251 checks performed
 
 Critical Validation:
 ✅ testE2E_Refactor_NoInternalSockets_E126Check PASSED

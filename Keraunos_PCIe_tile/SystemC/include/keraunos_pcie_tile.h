@@ -24,6 +24,8 @@
 #include <sc_dt.h>
 #include <memory>
 #include <array>
+#include <fstream>
+#include <cstdio>
 
 namespace keraunos {
 namespace pcie {
@@ -85,6 +87,25 @@ public:
     ~KeraunosPcieTile() override;  // override keyword for clarity
     
     void end_of_elaboration() override;  // override keyword
+    
+    // BME control — models PCIe controller's Bus Master Enable output (Table 33)
+    // In real HW, BME comes from controller's Command Register bit 2.
+    // Call this from testbench or parent module to set the BME state.
+    // Inline to avoid hidden-visibility link issues with the shared library.
+    void set_bus_master_enable(bool val) {
+        if (noc_pcie_switch_) {
+            noc_pcie_switch_->set_bus_master_enable(val);
+            // #region agent log
+            {
+                std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
+                char buf[128];
+                snprintf(buf, sizeof(buf), "set_bus_master_enable(%d) called, get=%d\n",
+                    (int)val, (int)noc_pcie_switch_->get_bus_master_enable());
+                f << buf;
+            }
+            // #endregion
+        }
+    }
     
 protected:
     // Top-level socket transport methods (target sockets only - initiator sockets forward outward)

@@ -66,7 +66,7 @@ void TLBSysOut0::process_outbound_traffic(tlm::tlm_generic_payload& trans, sc_co
     if (lookup(pa, translated_addr, attr)) {
         trans.set_address(translated_addr);
         if (translated_output_) {
-            translated_output_(trans, delay);
+            translated_output_(trans, delay, attr);  // Pass AxUSER for BME qualification
         } else {
             trans.set_response_status(tlm::TLM_OK_RESPONSE);
         }
@@ -80,7 +80,9 @@ bool TLBSysOut0::lookup(uint64_t pa, uint64_t& translated_addr, sc_dt::sc_bv<256
     if (index >= entries_.size()) return false;
     const TlbEntry& entry = entries_[index];
     if (!entry.valid) return false;
-    translated_addr = (entry.addr << 12) | (pa & ((1ULL << 16) - 1));
+    // Spec: translated = {ADDR[63:16], pa[15:0]}  (16-bit page size / 64KB)
+    constexpr uint64_t page_mask = (1ULL << 16) - 1;
+    translated_addr = ((entry.addr << 12) & ~page_mask) | (pa & page_mask);
     attr = entry.attr;
     return true;
 }
@@ -100,8 +102,9 @@ uint8_t TLBSysOut0::calculate_index(uint64_t addr) const {
 // TLBAppOut0
 TLBAppOut0::TLBAppOut0() : entries_(16), tlb_memory_("tlb_app_out0_memory", 4096) {
     // Initialize entry 0 as valid
+    // Base must be 16TB-aligned (bits[63:44] populated) for 44-bit page TLB
     entries_[0].valid = true;
-    entries_[0].addr = 0xA000000000 >> 12;
+    entries_[0].addr = 0xA00000000000ULL >> 12;
     entries_[0].attr = 0;
 }
 
@@ -157,7 +160,7 @@ void TLBAppOut0::process_outbound_traffic(tlm::tlm_generic_payload& trans, sc_co
     if (lookup(pa, translated_addr, attr)) {
         trans.set_address(translated_addr);
         if (translated_output_) {
-            translated_output_(trans, delay);
+            translated_output_(trans, delay, attr);  // Pass AxUSER for BME qualification
         } else {
             trans.set_response_status(tlm::TLM_OK_RESPONSE);
         }
@@ -171,7 +174,9 @@ bool TLBAppOut0::lookup(uint64_t pa, uint64_t& translated_addr, sc_dt::sc_bv<256
     if (index >= entries_.size()) return false;
     const TlbEntry& entry = entries_[index];
     if (!entry.valid) return false;
-    translated_addr = (entry.addr << 12) | (pa & ((1ULL << 44) - 1));
+    // Spec: translated = {ADDR[63:44], pa[43:0]}  (44-bit page size / 16TB)
+    constexpr uint64_t page_mask = (1ULL << 44) - 1;
+    translated_addr = ((entry.addr << 12) & ~page_mask) | (pa & page_mask);
     attr = entry.attr;
     return true;
 }
@@ -248,7 +253,7 @@ void TLBAppOut1::process_outbound_traffic(tlm::tlm_generic_payload& trans, sc_co
     if (lookup(pa, translated_addr, attr)) {
         trans.set_address(translated_addr);
         if (translated_output_) {
-            translated_output_(trans, delay);
+            translated_output_(trans, delay, attr);  // Pass AxUSER for BME qualification
         } else {
             trans.set_response_status(tlm::TLM_OK_RESPONSE);
         }
@@ -262,7 +267,9 @@ bool TLBAppOut1::lookup(uint64_t pa, uint64_t& translated_addr, sc_dt::sc_bv<256
     if (index >= entries_.size()) return false;
     const TlbEntry& entry = entries_[index];
     if (!entry.valid) return false;
-    translated_addr = (entry.addr << 12) | (pa & ((1ULL << 16) - 1));
+    // Spec: translated = {ADDR[63:16], pa[15:0]}  (16-bit page size / 64KB)
+    constexpr uint64_t page_mask = (1ULL << 16) - 1;
+    translated_addr = ((entry.addr << 12) & ~page_mask) | (pa & page_mask);
     attr = entry.attr;
     return true;
 }

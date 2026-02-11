@@ -78,13 +78,18 @@ void TLBSysIn0::process_inbound_traffic(tlm::tlm_generic_payload& trans, sc_core
 }
 
 bool TLBSysIn0::lookup(uint64_t iatu_addr, uint64_t& translated_addr, uint32_t& axuser) {
-    if (!system_ready_) return false;
+    // Note: system_ready does NOT gate TLB lookup (Section 2.3.1 spec).
+    // Only bypass paths (route 8,9) are gated by system_ready.
     uint8_t index = calculate_index(iatu_addr);
     if (index >= entries_.size()) return false;
     const TlbEntry& entry = entries_[index];
     if (!entry.valid) return false;
-    translated_addr = (entry.addr << 12) | (iatu_addr & ((1ULL << 14) - 1));
-    axuser = entry.attr.to_uint();
+    // Spec: translated = {ADDR[51:14], pa[13:0]}  (14-bit page size)
+    constexpr uint64_t page_mask = (1ULL << 14) - 1;
+    translated_addr = ((entry.addr << 12) & ~page_mask) | (iatu_addr & page_mask);
+    // Spec DV note: 12-bit axuser = {ATTR[11:4], 2'b0, ATTR[1:0]}
+    uint32_t raw_attr = entry.attr.to_uint();
+    axuser = ((raw_attr >> 4) & 0xFF) << 4 | (raw_attr & 0x3);
     return true;
 }
 
@@ -185,17 +190,15 @@ void TLBAppIn0::process_inbound_traffic(tlm::tlm_generic_payload& trans, sc_core
 
 bool TLBAppIn0::lookup(uint64_t iatu_addr, uint64_t& translated_addr, uint32_t& axuser) {
     uint8_t index = calculate_index(iatu_addr);
-    // #region agent log
-    {std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug.log",std::ios::app);f<<"{\"location\":\"keraunos_pcie_inbound_tlb.cpp:140\",\"message\":\"TLB App In0 lookup\",\"data\":{\"iatu_addr\":\"0x"<<std::hex<<iatu_addr<<std::dec<<"\",\"index\":"<<(int)index<<",\"valid\":"<<(index<entries_.size()&&entries_[index].valid?"true":"false")<<",\"entry_addr\":\"0x"<<std::hex<<(index<entries_.size()?entries_[index].addr:0)<<std::dec<<"\"},\"timestamp\":"<<sc_core::sc_time_stamp().value()<<",\"hypothesisId\":\"A\"}\n";}
-    // #endregion
     if (index >= entries_.size()) return false;
     const TlbEntry& entry = entries_[index];
     if (!entry.valid) return false;
-    translated_addr = (entry.addr << 12) | (iatu_addr & ((1ULL << 24) - 1));
-    axuser = entry.attr.to_uint();
-    // #region agent log
-    {std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug.log",std::ios::app);f<<"{\"location\":\"keraunos_pcie_inbound_tlb.cpp:145\",\"message\":\"TLB translation successful\",\"data\":{\"translated\":\"0x"<<std::hex<<translated_addr<<std::dec<<"\"},\"timestamp\":"<<sc_core::sc_time_stamp().value()<<",\"hypothesisId\":\"A\"}\n";}
-    // #endregion
+    // Spec: translated = {ADDR[51:24], pa[23:0]}  (24-bit page size / 16MB)
+    constexpr uint64_t page_mask = (1ULL << 24) - 1;
+    translated_addr = ((entry.addr << 12) & ~page_mask) | (iatu_addr & page_mask);
+    // Spec DV note: 12-bit axuser = {3'b0, ATTR[4:0], 4'b0}
+    uint32_t raw_attr = entry.attr.to_uint();
+    axuser = (raw_attr & 0x1F) << 4;
     return true;
 }
 
@@ -219,8 +222,9 @@ uint8_t TLBAppIn0::calculate_index(uint64_t addr) const {
 // TLBAppIn1
 TLBAppIn1::TLBAppIn1() : entries_(64), tlb_memory_("tlb_app_in1_memory", 4096) {
     // Initialize entry 0 as valid
+    // Base must be 8GB-aligned (bits[63:33] populated) for 33-bit page TLB
     entries_[0].valid = true;
-    entries_[0].addr = 0x100000000 >> 12;
+    entries_[0].addr = 0x200000000ULL >> 12;
     entries_[0].attr = 0x200;
 }
 
@@ -294,8 +298,12 @@ bool TLBAppIn1::lookup(uint64_t iatu_addr, uint64_t& translated_addr, uint32_t& 
     if (index >= entries_.size()) return false;
     const TlbEntry& entry = entries_[index];
     if (!entry.valid) return false;
-    translated_addr = (entry.addr << 12) | (iatu_addr & ((1ULL << 33) - 1));
-    axuser = entry.attr.to_uint();
+    // Spec: translated = {ADDR[51:33], pa[32:0]}  (33-bit page size / 8GB)
+    constexpr uint64_t page_mask = (1ULL << 33) - 1;
+    translated_addr = ((entry.addr << 12) & ~page_mask) | (iatu_addr & page_mask);
+    // Spec DV note: 12-bit axuser = {3'b0, ATTR[4:0], 4'b0} (same as AppIn0)
+    uint32_t raw_attr = entry.attr.to_uint();
+    axuser = (raw_attr & 0x1F) << 4;
     return true;
 }
 

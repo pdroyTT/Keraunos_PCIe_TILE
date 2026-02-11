@@ -69,7 +69,7 @@ mermaid.initialize({
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Keraunos PCIE Tile SystemC/TLM2.0 Testplan" href="Keraunos_PCIE_Tile_Testplan.html" />
-    <link rel="prev" title="Keraunos PCIe Tile - High-Level Design Document" href="Keraunos_PCIe_Tile_HLD.html" /> 
+    <link rel="prev" title="Keraunos PCIe Tile - High-Level Design" href="Keraunos_PCIe_Tile_HLD.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -120,6 +120,16 @@ mermaid.initialize({
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#pcie-tile-overview">3.1 PCIe Tile Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#architectural-position">3.2 Architectural Position</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#key-interfaces">3.3 Key Interfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#model-integration-hostrceppcie-tile-connection-diagram">3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#vdk-integration-pcie-tile-and-synopsys-pcie-controller-in-the-virtualizer">3.5 VDK Integration: PCIe Tile and Synopsys PCIe Controller in the Virtualizer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#vdk-workspace-layout-vsws-tt">3.5.1 VDK Workspace Layout (vsws_TT)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#alignment-with-keraunos-where-the-pcie-tile-fits">3.5.2 Alignment with Keraunos: Where the PCIe Tile Fits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#interface-level-connection-diagram-vdk">3.5.3 Interface-Level Connection Diagram (VDK)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#signal-and-interface-level-mapping-ep-pcie-tile">3.5.4 Signal- and Interface-Level Mapping (EP ↔ PCIe Tile)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#connection-diagram-for-easy-integration">3.5.5 Connection Diagram for Easy Integration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#designware-pcie-ep-and-rc-interfaces-connect-to-tile-system-vs-stub">3.5.6 DesignWare PCIe EP and RC Interfaces: Connect to Tile / System vs Stub</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#connectivity-architecture">4. Connectivity Architecture</a><ul>
@@ -155,90 +165,104 @@ mermaid.initialize({
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html">Keraunos PCIe Tile - High-Level Design Document</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html">Keraunos PCIe Tile - High-Level Design</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#introduction">1. Introduction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#purpose">1.1 Purpose</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#scope">1.2 Scope</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#definitions-and-acronyms">1.3 Definitions and Acronyms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#key-terms">1.3 Key Terms</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#architecture-overview">2. Architecture Overview</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#top-level-architecture">2.1 Top-Level Architecture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#design-principles">2.2 Design Principles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#system-connection-diagrams">2.3 System Connection Diagrams</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#smn-subsystem-connection">2.3.1 SMN Subsystem Connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-subsystem-connection">2.3.2 NOC Subsystem Connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#designware-pcie-controller-connection">2.3.3 Designware PCIe Controller Connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#system-control-connection">2.3.4 System Control Connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#tlm-socket-connections-64-bit-blocking-transport">TLM Socket Connections (64-bit, blocking transport)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-connections">Clock Connections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-connections">Reset Connections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-interface-connections-configuration-intercept">CII Interface Connections (Configuration Intercept)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#interrupt-forwarding-pcie-controller-tile-system">Interrupt Forwarding (PCIe Controller → Tile → System)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-interrupt-output">CII Interrupt Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#status-outputs">Status Outputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#isolation-control">Isolation Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-input-special-case">MSI Input (Special Case)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#integration-checklist">Integration Checklist</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#block-diagram">3. Block Diagram</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#tile-level-block-diagram">3.1 Tile-Level Block Diagram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#data-flow-paths">3.2 Data Flow Paths</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#module-descriptions">4. Module Descriptions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-pcie-switch">4.1 NOC-PCIE Switch</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-io-switch">4.2 NOC-IO Switch</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#smn-io-switch">4.3 SMN-IO Switch</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#translation-lookaside-buffers-tlbs">4.4 Translation Lookaside Buffers (TLBs)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-relay-unit">4.5 MSI Relay Unit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#system-information-interface-sii-block">4.6 System Information Interface (SII) Block</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-register-block">4.7 Configuration Register Block</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-and-reset-control">4.8 Clock and Reset Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#pcie-phy-model">4.9 PCIe PHY Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#pll-cgm-clock-generation-module">4.10 PLL/CGM (Clock Generation Module)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#theory-of-operation">3. Theory of Operation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#operational-modes">3.1 Operational Modes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#normal-operation-mode">Normal Operation Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#isolation-mode">Isolation Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#bypass-mode">Bypass Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-modes">Reset Modes</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#interface-specifications">5. Interface Specifications</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#external-tlm-sockets">5.1 External TLM Sockets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#control-input-signals">5.2 Control Input Signals</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#output-signals">5.3 Output Signals</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#internal-signals">5.4 Internal Signals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#initialization-and-boot-sequence">3.2 Initialization and Boot Sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-data-flow-pcie-to-noc">3.3 Inbound Data Flow (PCIe to NOC)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#outbound-data-flow-noc-to-pcie">3.4 Outbound Data Flow (NOC to PCIe)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-access-flow">3.5 Configuration Access Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-interrupt-generation-flow">3.6 MSI Interrupt Generation Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-tracking-and-configuration-update">3.7 CII Tracking and Configuration Update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#isolation-and-recovery">3.8 Isolation and Recovery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#error-handling">3.9 Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#operating-mode-summary">3.10 Operating Mode Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#address-map">6. Address Map</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-address-map-pcie-noc-smn">6.1 Inbound Address Map (PCIe → NOC/SMN)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-address-map-smn">6.2 Configuration Address Map (SMN)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-relay-address-map-0x18800000">6.3 MSI Relay Address Map (0x18800000)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#detailed-block-diagram">4. Detailed Block Diagram</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#complete-system-architecture">3.1 Complete System Architecture</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#data-flow">7. Data Flow</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-data-flow-pcie-noc">7.1 Inbound Data Flow (PCIe → NOC)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#outbound-data-flow-noc-pcie">7.2 Outbound Data Flow (NOC → PCIe)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-access-flow-smn-config-registers">7.3 Configuration Access Flow (SMN → Config Registers)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-generation-flow-noc-pcie-via-msi-relay">7.4 MSI Generation Flow (NOC → PCIe via MSI Relay)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-interrupt-flow-pcie-config-write-config-update">7.5 CII Interrupt Flow (PCIe Config Write → config_update)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#data-flow-paths">5. Data Flow Paths</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-data-flow-pcie-noc">4.1 Inbound Data Flow (PCIe → NOC)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#outbound-data-flow-noc-pcie">4.2 Outbound Data Flow (NOC → PCIe)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-access-flow-smn-config">4.3 Configuration Access Flow (SMN → Config)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-generation-flow">4.4 MSI Generation Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-interrupt-flow">4.5 CII Interrupt Flow</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#module-descriptions">6. Module Descriptions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-pcie-switch">5.1 NOC-PCIE Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#translation-lookaside-buffers">5.2 Translation Lookaside Buffers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-relay-unit">5.3 MSI Relay Unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#system-information-interface-sii">5.4 System Information Interface (SII)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#address-map">7. Address Map</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-address-routing">6.1 Inbound Address Routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-address-map">6.2 Configuration Address Map</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-and-reset-strategy">8. Clock and Reset Strategy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-domains">8.1 Clock Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-strategy">8.2 Reset Strategy</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#power-on-initialization">8.3 Power-On Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-hierarchy">7.1 Reset Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-effects">7.2 Reset Effects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#isolation-sequence">7.3 Isolation Sequence</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-and-control">9. Configuration and Control</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#tile-initialization-sequence">9.1 Tile Initialization Sequence</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#runtime-control">9.2 Runtime Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#status-monitoring">9.3 Status Monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#interface-specifications">9. Interface Specifications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#external-tlm-sockets">8.1 External TLM Sockets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#control-and-status-signals">8.2 Control and Status Signals</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#references">10. References</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#related-documents">10.1 Related Documents</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#source-code-organization">10.2 Source Code Organization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#key-design-decisions">10.3 Key Design Decisions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#known-limitations-and-findings">10.4 Known Limitations and Findings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#known-limitations-and-findings">10. Known Limitations and Findings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#architecture-limitations">9.1 Architecture Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#documented-findings">9.2 Documented Findings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#appendix-a-signal-timing-diagrams">Appendix A: Signal Timing Diagrams</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#a-1-cii-interrupt-timing">A.1 CII Interrupt Timing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#a-2-isolation-sequence">A.2 Isolation Sequence</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#a-3-cold-reset-cycle">A.3 Cold Reset Cycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#test-coverage-summary">11. Test Coverage Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#test-suite-overview">10.1 Test Suite Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#coverage-metrics">10.2 Coverage Metrics</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#appendix-b-address-decode-examples">Appendix B: Address Decode Examples</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#b-1-inbound-tlb-translation-tlb-sys-in0">B.1 Inbound TLB Translation (TLB Sys In0)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#b-2-status-register-access">B.2 Status Register Access</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#b-3-smn-config-write-address-passthrough-issue">B.3 SMN Config Write (Address Passthrough Issue)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#references">12. References</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#related-documentation">11.1 Related Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#source-code-organization">11.2 Source Code Organization</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#appendix-c-test-coverage-summary">Appendix C: Test Coverage Summary</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Keraunos PCIE Tile SystemC/TLM2.0 Design Document</a><ul>
@@ -482,10 +506,11 @@ mermaid.initialize({
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#routing-decision-implementation">9.8 Routing Decision Implementation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#noc-pcie-switch-routing-logic">NOC-PCIE Switch Routing Logic:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outbound-path-and-bme-bus-master-enable">Outbound Path and BME (Bus Master Enable):</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#tlb-translation-implementation">9.9 TLB Translation Implementation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#translation-algorithm">Translation Algorithm:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#translation-algorithm-page-mask-correction">Translation Algorithm (page-mask correction):</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#error-handling-strategy">9.10 Error Handling Strategy</a><ul>
@@ -596,7 +621,8 @@ mermaid.initialize({
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#purpose">1.1 Purpose</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#scope">1.2 Scope</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-objectives">1.3 Test Objectives</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#references">1.4 References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tlb-translation-and-sys-in-out-reference">1.4 TLB Translation and Sys In/Out (Reference)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#references">1.5 References</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#test-traceability-matrix">1.5 Test Traceability Matrix</a></li>
@@ -696,16 +722,6 @@ mermaid.initialize({
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-002-status-register-special-routing">TC_SWITCH_NOC_PCIE_002: Status Register Special Routing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-003-isolation-support">TC_SWITCH_NOC_PCIE_003: Isolation Support</a></li>
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-004-inbound-enable-control">TC_SWITCH_NOC_PCIE_004: Inbound Enable Control</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#enable-gating-test-cases-new-feb-2026">8.4 Enable Gating Test Cases (NEW - Feb 2026)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-negative-enable-001-inbound-enable-blocks-pcienoc-traffic">TC_NEGATIVE_ENABLE_001: Inbound Enable Blocks PCIe→NOC Traffic</a></li>
-<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-negative-enable-002-outbound-enable-blocks-nocpcie-traffic">TC_NEGATIVE_ENABLE_002: Outbound Enable Blocks NOC→PCIe Traffic</a></li>
-<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-negative-enable-003-both-enables-disabled-complete-isolation">TC_NEGATIVE_ENABLE_003: Both Enables Disabled - Complete Isolation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-negative-enable-004-both-enables-active-positive-control">TC_NEGATIVE_ENABLE_004: Both Enables Active - Positive Control</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#enable-gating-implementation-architecture">8.5 Enable Gating Implementation Architecture</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-005-bypass-path-routing">TC_SWITCH_NOC_PCIE_005: Bypass Path Routing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-pcie-006-address-conversion-64-bit-to-52-bit">TC_SWITCH_NOC_PCIE_006: Address Conversion (64-bit to 52-bit)</a></li>
 </ul>
@@ -717,7 +733,15 @@ mermaid.initialize({
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-noc-io-004-timeout-detection">TC_SWITCH_NOC_IO_004: Timeout Detection</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#smn-io-switch-test-cases">8.3 SMN-IO Switch Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#bus-master-enable-bme-test-cases">8.3 Bus Master Enable (BME) Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-bme-001-ep-mode-bme-0-memory-tlp-blocked">TC_BME_001: EP Mode, BME=0 — Memory TLP Blocked</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-bme-002-ep-mode-bme-0-dbi-tlp-allowed">TC_BME_002: EP Mode, BME=0 — DBI TLP Allowed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-bme-003-ep-mode-bme-0-config-tlp-allowed">TC_BME_003: EP Mode, BME=0 — Config TLP Allowed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-bme-004-ep-mode-bme-1-all-traffic-allowed">TC_BME_004: EP Mode, BME=1 — All Traffic Allowed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-bme-005-rp-mode-all-traffic-allowed-regardless-of-bme">TC_BME_005: RP Mode — All Traffic Allowed Regardless of BME</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#smn-io-switch-test-cases">8.4 SMN-IO Switch Test Cases</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-smn-io-001-address-based-routing">TC_SWITCH_SMN_IO_001: Address-Based Routing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-smn-io-002-serdes-routing">TC_SWITCH_SMN_IO_002: SerDes Routing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#tc-switch-smn-io-003-external-smn-routing">TC_SWITCH_SMN_IO_003: External SMN Routing</a></li>
@@ -973,11 +997,11 @@ mermaid.initialize({
              
   <section class="tex2jax_ignore mathjax_ignore" id="keraunos-pcie-tile-systemc-tlm2-0-design-document">
 <h1>Keraunos PCIE Tile SystemC/TLM2.0 Design Document<a class="headerlink" href="#keraunos-pcie-tile-systemc-tlm2-0-design-document" title="Permalink to this heading"></a></h1>
-<p><strong>Version:</strong> 2.1 (Initiator Socket Architecture + Cross-Socket Verification)<br />
+<p><strong>Version:</strong> 2.0 (Refactored Architecture)<br />
 <strong>Date:</strong> February 10, 2026<br />
 <strong>Author:</strong> SystemC Modeling Team<br />
 <strong>Based on:</strong> Keraunos PCIE Tile Specification v0.7.023<br />
-<strong>Implementation:</strong> Refactored C++ class architecture with function callbacks, <code class="docutils literal notranslate"><span class="pre">simple_initiator_socket</span></code> output ports, and <code class="docutils literal notranslate"><span class="pre">sparse_backing_memory</span></code> testbench</p>
+<strong>Implementation:</strong> Refactored C++ class architecture with function callbacks</p>
 <hr class="docutils" />
 <section id="sphinx-setup-instructions">
 <h2>Sphinx Setup Instructions<a class="headerlink" href="#sphinx-setup-instructions" title="Permalink to this heading"></a></h2>
@@ -1060,12 +1084,13 @@ make<span class="w"> </span>html
 <h2>⭐ Key Implementation Features<a class="headerlink" href="#key-implementation-features" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>✅ <strong>E126 Error Eliminated</strong> - FastBuild compatible architecture</p></li>
-<li><p>✅ <strong>100% Test Pass Rate</strong> - 33/33 E2E tests passing</p></li>
+<li><p>✅ <strong>100% Test Pass Rate</strong> - 81/81 tests passing (0 failures)</p></li>
 <li><p>✅ <strong>Zero Memory Leaks</strong> - Smart pointer (RAII) based design</p></li>
 <li><p>✅ <strong>Modern C++17</strong> - Best practices throughout</p></li>
 <li><p>✅ <strong>SCML2 Memory</strong> - Proper persistent storage</p></li>
 <li><p>✅ <strong>Temporal Decoupling</strong> - Full TLM-2.0 LT support</p></li>
 <li><p>✅ <strong>100% Spec Compliant</strong> - All requirements met</p></li>
+<li><p>✅ <strong>BME Logic</strong> - Bus Master Enable qualification in NOC-PCIE switch (Table 33); SII device_type callback; cold reset restores BME and EP mode</p></li>
 </ul>
 <p><strong>Major Update (Feb 2026):</strong> Complete architectural refactoring from hierarchical sc_modules with internal socket bindings to function callback-based C++ class architecture. This eliminates the E126 socket binding error while maintaining full functional equivalence and specification compliance.</p>
 </section>
@@ -1188,7 +1213,7 @@ make<span class="w"> </span>html
 <li><p>Eliminated internal TLM socket bindings (30+) → Function callbacks</p></li>
 <li><p>Applied modern C++17 best practices (smart pointers, RAII)</p></li>
 <li><p>Integrated SCML2 memory for configuration persistence</p></li>
-<li><p>Achieved 100% test pass rate (33/33 E2E tests)</p></li>
+<li><p>Achieved 100% test pass rate (81/81 tests, 0 failures)</p></li>
 <li><p><strong>Result:</strong> E126 socket binding error eliminated, FastBuild compatible</p></li>
 </ul>
 </section>
@@ -1572,9 +1597,7 @@ Complete architectural refactoring to eliminate all internal socket bindings whi
 <span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_target_socket</span><span class="o">&lt;</span><span class="n">KeraunosPcieTile</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">noc_n_target</span><span class="p">;</span>
 <span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_target_socket</span><span class="o">&lt;</span><span class="n">KeraunosPcieTile</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">smn_n_target</span><span class="p">;</span>
 <span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_target_socket</span><span class="o">&lt;</span><span class="n">KeraunosPcieTile</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pcie_controller_target</span><span class="p">;</span>
-<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_initiator_socket</span><span class="o">&lt;</span><span class="n">KeraunosPcieTile</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">noc_n_initiator</span><span class="p">;</span>
-<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_initiator_socket</span><span class="o">&lt;</span><span class="n">KeraunosPcieTile</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">smn_n_initiator</span><span class="p">;</span>
-<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_initiator_socket</span><span class="o">&lt;</span><span class="n">KeraunosPcieTile</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pcie_controller_initiator</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// ... 3 more external sockets</span>
 <span class="w">    </span>
 <span class="w">    </span><span class="c1">// Socket callback methods route to internal C++ classes</span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">noc_n_target_b_transport</span><span class="p">(</span><span class="n">tlm</span><span class="o">::</span><span class="n">tlm_generic_payload</span><span class="o">&amp;</span><span class="w"> </span><span class="n">trans</span><span class="p">,</span><span class="w"> </span>
@@ -2036,7 +2059,7 @@ Internal System (NOC/SMN)
 </section>
 <section id="tlbsysin0-system-management-inbound-tlb">
 <h4>4.2.2 TLBSysIn0 - System Management Inbound TLB<a class="headerlink" href="#tlbsysin0-system-management-inbound-tlb" title="Permalink to this heading"></a></h4>
-<p><strong>Purpose:</strong> Translate system management inbound traffic (config, MSI-X) from PCIe Controller to SMN.</p>
+<p><strong>Purpose:</strong> Translate system management inbound traffic (config, MSI-X) from PCIe Controller to SMN. Per specification, TLB Sys In0 can also be used for addresses bound for NoC; in this implementation it is wired to SMN-IO (system path). <strong>Lookup is not gated by system_ready</strong>—only bypass paths (route 0x8, 0x9) are gated by system_ready.</p>
 <p><strong>Specifications:</strong></p>
 <ul class="simple">
 <li><p><strong>Entries:</strong> 64</p></li>
@@ -2048,11 +2071,9 @@ Internal System (NOC/SMN)
 <li><p>Bits [13:0] are the page offset (preserved in translation)</p></li>
 </ul>
 </li>
-<li><p><strong>Address Translation:</strong> <code class="docutils literal notranslate"><span class="pre">{TLBSysIn0[index].ADDR[51:14],</span> <span class="pre">pa[13:0]}</span></code></p>
-<ul>
-<li><p>Upper 38 bits from TLB entry, lower 14 bits from input address</p></li>
-</ul>
-</li>
+<li><p><strong>Address Translation (page-mask formula):</strong> <code class="docutils literal notranslate"><span class="pre">page_mask</span> <span class="pre">=</span> <span class="pre">(1ULL</span> <span class="pre">&lt;&lt;</span> <span class="pre">14)</span> <span class="pre">-</span> <span class="pre">1</span></code>;<br />
+<code class="docutils literal notranslate"><span class="pre">translated_addr</span> <span class="pre">=</span> <span class="pre">((entry.addr</span> <span class="pre">&lt;&lt;</span> <span class="pre">12)</span> <span class="pre">&amp;</span> <span class="pre">~page_mask)</span> <span class="pre">|</span> <span class="pre">(iatu_addr</span> <span class="pre">&amp;</span> <span class="pre">page_mask)</span></code>.<br />
+Base from TLB entry (entry.addr &lt;&lt; 12) is page-aligned; offset [13:0] from input.</p></li>
 <li><p><strong>AxUSER Format:</strong> <code class="docutils literal notranslate"><span class="pre">{ATTR[11:4],</span> <span class="pre">2'b0,</span> <span class="pre">ATTR[1:0]}</span></code> (12 bits)</p>
 <ul>
 <li><p>Note: ATTR[3:2] is always 00</p></li>
@@ -2080,10 +2101,10 @@ Internal System (NOC/SMN)
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w">  </span><span class="c1">// Return DECERR on miss</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span>
-<span class="w">    </span><span class="c1">// 3. Perform address translation</span>
+<span class="w">    </span><span class="c1">// 3. Perform address translation (page-mask correction)</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">TlbEntry</span><span class="o">&amp;</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">entries_</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
-<span class="w">    </span><span class="c1">// Combine: TLB entry upper bits [51:14] + input address lower bits [13:0]</span>
-<span class="w">    </span><span class="n">translated_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFFFFFFFFFC000ULL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">iatu_addr</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0x3FFF</span><span class="p">);</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">page_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">1ULL</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">14</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">translated_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">entry</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">page_mask</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">iatu_addr</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">page_mask</span><span class="p">);</span>
 <span class="w">    </span>
 <span class="w">    </span><span class="c1">// 4. Generate AxUSER: {ATTR[11:4], 2&#39;b0, ATTR[1:0]}</span>
 <span class="w">    </span><span class="n">axuser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="n">attr</span><span class="p">.</span><span class="n">range</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">).</span><span class="n">to_uint</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span>
@@ -3141,11 +3162,9 @@ PCIe Link
 <li><p>Bits [15:0] are the page offset (preserved in translation)</p></li>
 </ul>
 </li>
-<li><p><strong>Address Translation:</strong> <code class="docutils literal notranslate"><span class="pre">{TLBSysOut0[index].ADDR[63:16],</span> <span class="pre">pa[15:0]}</span></code></p>
-<ul>
-<li><p>Upper 48 bits from TLB entry, lower 16 bits from input address</p></li>
-</ul>
-</li>
+<li><p><strong>Address Translation (page-mask formula):</strong> <code class="docutils literal notranslate"><span class="pre">page_mask</span> <span class="pre">=</span> <span class="pre">(1ULL</span> <span class="pre">&lt;&lt;</span> <span class="pre">16)</span> <span class="pre">-</span> <span class="pre">1</span></code>;<br />
+<code class="docutils literal notranslate"><span class="pre">translated_addr</span> <span class="pre">=</span> <span class="pre">((entry.addr</span> <span class="pre">&lt;&lt;</span> <span class="pre">12)</span> <span class="pre">&amp;</span> <span class="pre">~page_mask)</span> <span class="pre">|</span> <span class="pre">(pa</span> <span class="pre">&amp;</span> <span class="pre">page_mask)</span></code>.<br />
+Base from TLB entry (entry.addr &lt;&lt; 12) is page-aligned; offset [15:0] from input.</p></li>
 <li><p><strong>Attributes:</strong> Full 256-bit ATTR field passed through</p></li>
 </ul>
 <p><strong>Implementation Details:</strong></p>
@@ -3169,10 +3188,10 @@ PCIe Link
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w">  </span><span class="c1">// Return DECERR on miss</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span>
-<span class="w">    </span><span class="c1">// 3. Perform address translation</span>
+<span class="w">    </span><span class="c1">// 3. Perform address translation (page-mask correction)</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">TlbEntry</span><span class="o">&amp;</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">entries_</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
-<span class="w">    </span><span class="c1">// Combine: TLB entry upper bits [63:16] + input address lower bits [15:0]</span>
-<span class="w">    </span><span class="n">translated_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFFFFFFFFFFFF0000ULL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">pa</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFFFF</span><span class="p">);</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">page_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">1ULL</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">16</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="n">translated_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">entry</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">page_mask</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">pa</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">page_mask</span><span class="p">);</span>
 <span class="w">    </span>
 <span class="w">    </span><span class="c1">// 4. Extract attributes</span>
 <span class="w">    </span><span class="n">attr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">entry</span><span class="p">.</span><span class="n">attr</span><span class="p">;</span>
@@ -3263,11 +3282,9 @@ PCIe Link
 <li><p>Bits [43:0] are the page offset (preserved in translation)</p></li>
 </ul>
 </li>
-<li><p><strong>Address Translation:</strong> <code class="docutils literal notranslate"><span class="pre">{TLBAppOut0[index].ADDR[63:44],</span> <span class="pre">pa[43:0]}</span></code></p>
-<ul>
-<li><p>Upper 20 bits from TLB entry, lower 44 bits from input address</p></li>
-</ul>
-</li>
+<li><p><strong>Address Translation (page-mask formula):</strong> <code class="docutils literal notranslate"><span class="pre">page_mask</span> <span class="pre">=</span> <span class="pre">(1ULL</span> <span class="pre">&lt;&lt;</span> <span class="pre">44)</span> <span class="pre">-</span> <span class="pre">1</span></code>;<br />
+<code class="docutils literal notranslate"><span class="pre">translated_addr</span> <span class="pre">=</span> <span class="pre">((entry.addr</span> <span class="pre">&lt;&lt;</span> <span class="pre">12)</span> <span class="pre">&amp;</span> <span class="pre">~page_mask)</span> <span class="pre">|</span> <span class="pre">(pa</span> <span class="pre">&amp;</span> <span class="pre">page_mask)</span></code>.<br />
+Base from TLB entry (entry.addr &lt;&lt; 12) is page-aligned; offset [43:0] from input.</p></li>
 <li><p><strong>Attributes:</strong> Full 256-bit ATTR field passed through</p></li>
 </ul>
 <p><strong>Implementation Details:</strong></p>
@@ -3288,8 +3305,9 @@ PCIe Link
 </pre></div>
 </div>
 <p><strong>Translation Process:</strong></p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Translate address: {TLBAppOut0[index].ADDR[63:44], pa[43:0]}</span>
-<span class="n">translated_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFFFFF00000000000ULL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">pa</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFFFFFFFFFFFULL</span><span class="p">);</span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Page-mask translation (page_shift = 44)</span>
+<span class="k">constexpr</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">page_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">1ULL</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">44</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="n">translated_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">entry</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">page_mask</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">pa</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">page_mask</span><span class="p">);</span>
 </pre></div>
 </div>
 <p><strong>Use Case Example:</strong></p>
@@ -3350,11 +3368,9 @@ PCIe Link
 <li><p>Bits [15:0] are the page offset (preserved in translation)</p></li>
 </ul>
 </li>
-<li><p><strong>Address Translation:</strong> <code class="docutils literal notranslate"><span class="pre">{TLBAppOut1[index].ADDR[63:16],</span> <span class="pre">pa[15:0]}</span></code></p>
-<ul>
-<li><p>Upper 48 bits from TLB entry, lower 16 bits from input address</p></li>
-</ul>
-</li>
+<li><p><strong>Address Translation (page-mask formula):</strong> <code class="docutils literal notranslate"><span class="pre">page_mask</span> <span class="pre">=</span> <span class="pre">(1ULL</span> <span class="pre">&lt;&lt;</span> <span class="pre">16)</span> <span class="pre">-</span> <span class="pre">1</span></code>;<br />
+<code class="docutils literal notranslate"><span class="pre">translated_addr</span> <span class="pre">=</span> <span class="pre">((entry.addr</span> <span class="pre">&lt;&lt;</span> <span class="pre">12)</span> <span class="pre">&amp;</span> <span class="pre">~page_mask)</span> <span class="pre">|</span> <span class="pre">(pa</span> <span class="pre">&amp;</span> <span class="pre">page_mask)</span></code>.<br />
+Base from TLB entry (entry.addr &lt;&lt; 12) is page-aligned; offset [15:0] from input.</p></li>
 <li><p><strong>Attributes:</strong> Full 256-bit ATTR field passed through</p></li>
 </ul>
 <p><strong>Implementation Details:</strong></p>
@@ -3455,7 +3471,7 @@ PCIe Link
 
     subgraph Translation[&quot;5. Address Translation&quot;]
         Trans0[&quot;TLBSysOut0:&lt;br/&gt;{entry.addr[63:16], pa[15:0]}&quot;]
-        Trans1[&quot;TLBAppOut0:&lt;br/&gt;{entry.addr[63:44], pa[43:0]}&quot;]
+        Trans1[&quot;TLBAppOut0:&lt;br/&gt;((entry.addr&lt;&lt;12)&amp;~page_mask)|(pa&amp;page_mask)&quot;]
         Trans2[&quot;TLBAppOut1:&lt;br/&gt;{entry.addr[63:16], pa[15:0]}&quot;]
     end
 
@@ -4198,8 +4214,9 @@ PCIe Controller
 <p><strong>Core Control Register (0x0000):</strong></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">[2:0]</span></code> Device Type: 0=EP (End Point), 4=RP (Root Port)</p></li>
-<li><p>Default: 0x0 (EP mode for Keraunos)</p></li>
-<li><p>Drives <code class="docutils literal notranslate"><span class="pre">device_type</span></code> output signal to PCIe Controller</p></li>
+<li><p>Default: 0x0 (EP mode for Keraunos). <strong>Cold reset</strong> (SiiBlock::update when reset_n is low) clears device_type to EP and other outputs.</p></li>
+<li><p>Drives <code class="docutils literal notranslate"><span class="pre">device_type</span></code> output signal to PCIe Controller.</p></li>
+<li><p><strong>Device type callback:</strong> When CORE_CONTROL is written via APB, the SII block invokes <code class="docutils literal notranslate"><span class="pre">device_type_cb_(is_rp)</span></code> so the tile can call <code class="docutils literal notranslate"><span class="pre">noc_pcie_switch_-&gt;set_controller_is_ep(!is_rp)</span></code> immediately. This ensures BME logic in NOC-PCIE switch sees the correct EP/RP mode without waiting for the next <code class="docutils literal notranslate"><span class="pre">signal_update_process</span></code> delta (which is only sensitive to signals, not register writes).</p></li>
 </ul>
 <p><strong>Bus/Device Number Register (0x0008):</strong></p>
 <ul class="simple">
@@ -5219,10 +5236,15 @@ SMC Firmware Interrupt Handler
     class NocPcieSwitch {
         &lt;&lt;C++ class&gt;&gt;
         +route_from_pcie()
-        +route_from_noc()
+        +route_to_pcie(trans, delay)
+        +route_to_pcie(trans, delay, axuser)
+        +set_bus_master_enable()
+        +set_controller_is_ep()
         +set_tlb_app_inbound0_output()
         -TransportCallback tlb_app_inbound0_
         -bool isolate_req_
+        -bool bus_master_enable_
+        -bool controller_is_ep_
     }
 
     class NocIoSwitch {
@@ -5268,8 +5290,10 @@ SMC Firmware Interrupt Handler
     class SiiBlock {
         &lt;&lt;C++ class&gt;&gt;
         +process_apb_access()
+        +set_device_type_callback()
         -scml2_memory sii_memory_
         -uint32_t cfg_modified_
+        -DeviceTypeCallback device_type_cb_
     }
 
     KeraunosPcieTile *-- NocPcieSwitch : owns via unique_ptr
@@ -5290,12 +5314,12 @@ SMC Firmware Interrupt Handler
     note for NocPcieSwitch &quot;C++ class (NOT sc_module)\nUses function callbacks\nNo internal sockets&quot;
         </div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">KeraunosPcieTile</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_module</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// External TLM Sockets (6 total)</span>
-<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_target_socket</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">noc_n_target</span><span class="p">;</span><span class="w">           </span><span class="c1">// Input</span>
-<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_target_socket</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">smn_n_target</span><span class="p">;</span><span class="w">           </span><span class="c1">// Input</span>
-<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_target_socket</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pcie_controller_target</span><span class="p">;</span><span class="w"> </span><span class="c1">// Input</span>
-<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_initiator_socket</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">noc_n_initiator</span><span class="p">;</span><span class="w">             </span><span class="c1">// Output</span>
-<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_initiator_socket</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">smn_n_initiator</span><span class="p">;</span><span class="w">             </span><span class="c1">// Output</span>
-<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_initiator_socket</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pcie_controller_initiator</span><span class="p">;</span><span class="w">   </span><span class="c1">// Output</span>
+<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_target_socket</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">noc_n_target</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_initiator_socket</span><span class="o">&lt;</span><span class="n">KeraunosPcieTile</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">noc_n_initiator</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_target_socket</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">smn_n_target</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_initiator_socket</span><span class="o">&lt;</span><span class="n">KeraunosPcieTile</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">smn_n_initiator</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_target_socket</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pcie_controller_target</span><span class="p">;</span>
+<span class="w">    </span><span class="n">tlm_utils</span><span class="o">::</span><span class="n">simple_initiator_socket</span><span class="o">&lt;</span><span class="n">KeraunosPcieTile</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pcie_controller_initiator</span><span class="p">;</span>
 <span class="w">    </span>
 <span class="w">    </span><span class="c1">// Control Signal Ports</span>
 <span class="w">    </span><span class="n">sc_in</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cold_reset_n</span><span class="p">,</span><span class="w"> </span><span class="n">warm_reset_n</span><span class="p">,</span><span class="w"> </span><span class="n">isolate_req</span><span class="p">;</span>
@@ -5590,7 +5614,7 @@ Exception safety: Guaranteed (unique_ptr handles partial construction)
    │  uint8_t index = calculate_index(addr);
    │  TlbEntry&amp; entry = entries_[index];
    │  if (entry.valid) {
-   │      translated_addr = (entry.addr &lt;&lt; 12) | (addr &amp; page_mask);
+   │      translated_addr = ((entry.addr &lt;&lt; 12) &amp; ~page_mask) | (addr &amp; page_mask);
    │      trans.set_address(translated_addr);
    │      if (translated_output_) translated_output_(trans, delay);
    │  }
@@ -5672,12 +5696,34 @@ Exception safety: Guaranteed (unique_ptr handles partial construction)
 <li><p>Default response handling</p></li>
 </ul>
 </section>
+<section id="outbound-path-and-bme-bus-master-enable">
+<h4>Outbound Path and BME (Bus Master Enable):<a class="headerlink" href="#outbound-path-and-bme-bus-master-enable" title="Permalink to this heading"></a></h4>
+<p>Outbound traffic (NOC→PCIe) goes through <code class="docutils literal notranslate"><span class="pre">route_to_pcie()</span></code>. Two overloads exist:</p>
+<ul class="simple">
+<li><p><strong>Two-argument:</strong> <code class="docutils literal notranslate"><span class="pre">route_to_pcie(trans,</span> <span class="pre">delay)</span></code> — no AxUSER; used when caller has no attributes (e.g. TLBSysOut0). Treated as memory TLP for BME.</p></li>
+<li><p><strong>Three-argument:</strong> <code class="docutils literal notranslate"><span class="pre">route_to_pcie(trans,</span> <span class="pre">delay,</span> <span class="pre">axuser)</span></code> — outbound TLBs (TLBAppOut0, TLBAppOut1) pass the <strong>AxUSER</strong> (attr) so the switch can decode TLP type and DBI for BME exemption.</p></li>
+</ul>
+<p><strong>BME logic (spec Table 33):</strong></p>
+<ul class="simple">
+<li><p><strong>controller_is_ep_</strong> (from SII device_type: true=EP, false=RP). Updated by (1) tile <code class="docutils literal notranslate"><span class="pre">signal_update_process()</span></code> reading SII after reset, and (2) <strong>SII device_type callback</strong> when CORE_CONTROL is written via SMN (APB), so RP/EP mode takes effect immediately without waiting for a signal delta.</p></li>
+<li><p><strong>bus_master_enable_</strong> set by <code class="docutils literal notranslate"><span class="pre">set_bus_master_enable(bool)</span></code> (testbench or integration). When <code class="docutils literal notranslate"><span class="pre">cold_reset_n</span></code> is low, <code class="docutils literal notranslate"><span class="pre">signal_update_process()</span></code> restores it to <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p></li>
+<li><p><strong>EP mode and BME=0:</strong> Memory TLPs blocked (DECERR). Config, DBI, and Message TLPs exempt (derived from AxUSER bits: TLP type [4:0], DBI bit [21]). Non-exempt TLPs get <code class="docutils literal notranslate"><span class="pre">TLM_ADDRESS_ERROR_RESPONSE</span></code>.</p></li>
+<li><p><strong>EP mode and BME=1:</strong> All TLPs allowed.</p></li>
+<li><p><strong>RP mode:</strong> BME not checked; all TLPs allowed.</p></li>
+</ul>
+<p><strong>AxUSER usage:</strong> TLP type in AxUSER[4:0], DBI in AxUSER[21]. Outbound TLBs pass <code class="docutils literal notranslate"><span class="pre">attr</span></code> (from TLB entry or default) into the translated_output_ callback; the tile wires that to <code class="docutils literal notranslate"><span class="pre">route_to_pcie(trans,</span> <span class="pre">delay,</span> <span class="pre">attr)</span></code>.</p>
+</section>
 </section>
 <hr class="docutils" />
 <section id="tlb-translation-implementation">
 <h3>9.9 TLB Translation Implementation<a class="headerlink" href="#tlb-translation-implementation" title="Permalink to this heading"></a></h3>
-<section id="translation-algorithm">
-<h4>Translation Algorithm:<a class="headerlink" href="#translation-algorithm" title="Permalink to this heading"></a></h4>
+<section id="translation-algorithm-page-mask-correction">
+<h4>Translation Algorithm (page-mask correction):<a class="headerlink" href="#translation-algorithm-page-mask-correction" title="Permalink to this heading"></a></h4>
+<p>All TLBs use the same formula so the base is page-aligned and the offset comes from the input address:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">page_mask</span> <span class="pre">=</span> <span class="pre">(1ULL</span> <span class="pre">&lt;&lt;</span> <span class="pre">page_shift)</span> <span class="pre">-</span> <span class="pre">1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">translated_addr</span> <span class="pre">=</span> <span class="pre">((entry.addr</span> <span class="pre">&lt;&lt;</span> <span class="pre">12)</span> <span class="pre">&amp;</span> <span class="pre">~page_mask)</span> <span class="pre">|</span> <span class="pre">(input_addr</span> <span class="pre">&amp;</span> <span class="pre">page_mask)</span></code></p></li>
+</ul>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="nf">TLBAppIn0::lookup</span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">iatu_addr</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">translated_addr</span><span class="p">,</span><span class="w"> </span>
 <span class="w">                       </span><span class="kt">uint32_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">axuser</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// 1. Calculate TLB index from input address</span>
@@ -5693,11 +5739,9 @@ Exception safety: Guaranteed (unique_ptr handles partial construction)
 <span class="w">    </span><span class="c1">// 4. Check valid bit</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">entry</span><span class="p">.</span><span class="n">valid</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
 <span class="w">    </span>
-<span class="w">    </span><span class="c1">// 5. Translate address</span>
-<span class="w">    </span><span class="c1">//    Physical address = entry.addr (52 bits) + page offset</span>
-<span class="w">    </span><span class="n">translated_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">iatu_addr</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">((</span><span class="mi">1ULL</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">24</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
-<span class="w">    </span><span class="c1">//                 ^^^^^^^^^^^^^^^^      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-<span class="w">    </span><span class="c1">//                 Base address          Page offset (bits [23:0])</span>
+<span class="w">    </span><span class="c1">// 5. Translate address (page-mask formula: base page-aligned, offset from input)</span>
+<span class="w">    </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">page_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">1ULL</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">24</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">  </span><span class="c1">// 16MB pages</span>
+<span class="w">    </span><span class="n">translated_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">entry</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="o">~</span><span class="n">page_mask</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="n">iatu_addr</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">page_mask</span><span class="p">);</span>
 <span class="w">    </span>
 <span class="w">    </span><span class="c1">// 6. Extract AxUSER attributes</span>
 <span class="w">    </span><span class="n">axuser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">entry</span><span class="p">.</span><span class="n">attr</span><span class="p">.</span><span class="n">to_uint</span><span class="p">();</span>
@@ -5894,7 +5938,7 @@ make<span class="w"> </span>-f<span class="w"> </span>Makefile.Keranous_pcie_til
 make<span class="w"> </span>-f<span class="w"> </span>Makefile.Keranous_pcie_tile.linux<span class="w"> </span>check
 
 <span class="c1"># Expected output:</span>
-<span class="c1"># 33 tests, 33 passing, 0 failing</span>
+<span class="c1"># 81 tests, 81 passing, 0 failing</span>
 <span class="c1"># NO E126 errors!</span>
 </pre></div>
 </div>
@@ -6341,12 +6385,12 @@ Copyright (c) 1996-2022 by all Contributors
 Test Suite: Keranous_pcie_tileTest
 ==================================
 
-✅ 33 tests executed
-✅ 33 tests PASSING
+✅ 81 tests executed
+✅ 81 tests PASSING
 ✅ 0 tests failing
 ✅ 0 not run
 ✅ 0 not finished
-✅ 34 checks performed
+✅ 251 checks performed
 
 Critical Validation:
 ✅ testE2E_Refactor_NoInternalSockets_E126Check PASSED
@@ -7012,7 +7056,7 @@ Result: 100% PASS RATE
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Keraunos_PCIe_Tile_HLD.html" class="btn btn-neutral float-left" title="Keraunos PCIe Tile - High-Level Design Document" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Keraunos_PCIe_Tile_HLD.html" class="btn btn-neutral float-left" title="Keraunos PCIe Tile - High-Level Design" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="Keraunos_PCIE_Tile_Testplan.html" class="btn btn-neutral float-right" title="Keraunos PCIE Tile SystemC/TLM2.0 Testplan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

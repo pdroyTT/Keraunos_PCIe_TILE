@@ -120,6 +120,16 @@ mermaid.initialize({
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#pcie-tile-overview">3.1 PCIe Tile Overview</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#architectural-position">3.2 Architectural Position</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#key-interfaces">3.3 Key Interfaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#model-integration-hostrceppcie-tile-connection-diagram">3.4 Model Integration: Host–RC–EP–PCIe Tile Connection Diagram</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#vdk-integration-pcie-tile-and-synopsys-pcie-controller-in-the-virtualizer">3.5 VDK Integration: PCIe Tile and Synopsys PCIe Controller in the Virtualizer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#vdk-workspace-layout-vsws-tt">3.5.1 VDK Workspace Layout (vsws_TT)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#alignment-with-keraunos-where-the-pcie-tile-fits">3.5.2 Alignment with Keraunos: Where the PCIe Tile Fits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#interface-level-connection-diagram-vdk">3.5.3 Interface-Level Connection Diagram (VDK)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#signal-and-interface-level-mapping-ep-pcie-tile">3.5.4 Signal- and Interface-Level Mapping (EP ↔ PCIe Tile)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#connection-diagram-for-easy-integration">3.5.5 Connection Diagram for Easy Integration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_System_Architecture.html#designware-pcie-ep-and-rc-interfaces-connect-to-tile-system-vs-stub">3.5.6 DesignWare PCIe EP and RC Interfaces: Connect to Tile / System vs Stub</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#connectivity-architecture">4. Connectivity Architecture</a><ul>
@@ -155,90 +165,104 @@ mermaid.initialize({
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html">Keraunos PCIe Tile - High-Level Design Document</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html">Keraunos PCIe Tile - High-Level Design</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#introduction">1. Introduction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#purpose">1.1 Purpose</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#scope">1.2 Scope</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#definitions-and-acronyms">1.3 Definitions and Acronyms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#key-terms">1.3 Key Terms</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#architecture-overview">2. Architecture Overview</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#top-level-architecture">2.1 Top-Level Architecture</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#design-principles">2.2 Design Principles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#system-connection-diagrams">2.3 System Connection Diagrams</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#smn-subsystem-connection">2.3.1 SMN Subsystem Connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-subsystem-connection">2.3.2 NOC Subsystem Connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#designware-pcie-controller-connection">2.3.3 Designware PCIe Controller Connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#system-control-connection">2.3.4 System Control Connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#tlm-socket-connections-64-bit-blocking-transport">TLM Socket Connections (64-bit, blocking transport)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-connections">Clock Connections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-connections">Reset Connections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-interface-connections-configuration-intercept">CII Interface Connections (Configuration Intercept)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#interrupt-forwarding-pcie-controller-tile-system">Interrupt Forwarding (PCIe Controller → Tile → System)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-interrupt-output">CII Interrupt Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#status-outputs">Status Outputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#isolation-control">Isolation Control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-input-special-case">MSI Input (Special Case)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#integration-checklist">Integration Checklist</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#block-diagram">3. Block Diagram</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#tile-level-block-diagram">3.1 Tile-Level Block Diagram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#data-flow-paths">3.2 Data Flow Paths</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#module-descriptions">4. Module Descriptions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-pcie-switch">4.1 NOC-PCIE Switch</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-io-switch">4.2 NOC-IO Switch</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#smn-io-switch">4.3 SMN-IO Switch</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#translation-lookaside-buffers-tlbs">4.4 Translation Lookaside Buffers (TLBs)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-relay-unit">4.5 MSI Relay Unit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#system-information-interface-sii-block">4.6 System Information Interface (SII) Block</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-register-block">4.7 Configuration Register Block</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-and-reset-control">4.8 Clock and Reset Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#pcie-phy-model">4.9 PCIe PHY Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#pll-cgm-clock-generation-module">4.10 PLL/CGM (Clock Generation Module)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#theory-of-operation">3. Theory of Operation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#operational-modes">3.1 Operational Modes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#normal-operation-mode">Normal Operation Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#isolation-mode">Isolation Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#bypass-mode">Bypass Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-modes">Reset Modes</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#interface-specifications">5. Interface Specifications</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#external-tlm-sockets">5.1 External TLM Sockets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#control-input-signals">5.2 Control Input Signals</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#output-signals">5.3 Output Signals</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#internal-signals">5.4 Internal Signals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#initialization-and-boot-sequence">3.2 Initialization and Boot Sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-data-flow-pcie-to-noc">3.3 Inbound Data Flow (PCIe to NOC)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#outbound-data-flow-noc-to-pcie">3.4 Outbound Data Flow (NOC to PCIe)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-access-flow">3.5 Configuration Access Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-interrupt-generation-flow">3.6 MSI Interrupt Generation Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-tracking-and-configuration-update">3.7 CII Tracking and Configuration Update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#isolation-and-recovery">3.8 Isolation and Recovery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#error-handling">3.9 Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#operating-mode-summary">3.10 Operating Mode Summary</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#address-map">6. Address Map</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-address-map-pcie-noc-smn">6.1 Inbound Address Map (PCIe → NOC/SMN)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-address-map-smn">6.2 Configuration Address Map (SMN)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-relay-address-map-0x18800000">6.3 MSI Relay Address Map (0x18800000)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#detailed-block-diagram">4. Detailed Block Diagram</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#complete-system-architecture">3.1 Complete System Architecture</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#data-flow">7. Data Flow</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-data-flow-pcie-noc">7.1 Inbound Data Flow (PCIe → NOC)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#outbound-data-flow-noc-pcie">7.2 Outbound Data Flow (NOC → PCIe)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-access-flow-smn-config-registers">7.3 Configuration Access Flow (SMN → Config Registers)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-generation-flow-noc-pcie-via-msi-relay">7.4 MSI Generation Flow (NOC → PCIe via MSI Relay)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-interrupt-flow-pcie-config-write-config-update">7.5 CII Interrupt Flow (PCIe Config Write → config_update)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#data-flow-paths">5. Data Flow Paths</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-data-flow-pcie-noc">4.1 Inbound Data Flow (PCIe → NOC)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#outbound-data-flow-noc-pcie">4.2 Outbound Data Flow (NOC → PCIe)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-access-flow-smn-config">4.3 Configuration Access Flow (SMN → Config)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-generation-flow">4.4 MSI Generation Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#cii-interrupt-flow">4.5 CII Interrupt Flow</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#module-descriptions">6. Module Descriptions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#noc-pcie-switch">5.1 NOC-PCIE Switch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#translation-lookaside-buffers">5.2 Translation Lookaside Buffers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#msi-relay-unit">5.3 MSI Relay Unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#system-information-interface-sii">5.4 System Information Interface (SII)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#address-map">7. Address Map</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#inbound-address-routing">6.1 Inbound Address Routing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-address-map">6.2 Configuration Address Map</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-and-reset-strategy">8. Clock and Reset Strategy</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#clock-domains">8.1 Clock Domains</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-strategy">8.2 Reset Strategy</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#power-on-initialization">8.3 Power-On Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-hierarchy">7.1 Reset Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#reset-effects">7.2 Reset Effects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#isolation-sequence">7.3 Isolation Sequence</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#configuration-and-control">9. Configuration and Control</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#tile-initialization-sequence">9.1 Tile Initialization Sequence</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#runtime-control">9.2 Runtime Control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#status-monitoring">9.3 Status Monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#interface-specifications">9. Interface Specifications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#external-tlm-sockets">8.1 External TLM Sockets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#control-and-status-signals">8.2 Control and Status Signals</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#references">10. References</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#related-documents">10.1 Related Documents</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#source-code-organization">10.2 Source Code Organization</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#key-design-decisions">10.3 Key Design Decisions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#known-limitations-and-findings">10.4 Known Limitations and Findings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#known-limitations-and-findings">10. Known Limitations and Findings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#architecture-limitations">9.1 Architecture Limitations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#documented-findings">9.2 Documented Findings</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#appendix-a-signal-timing-diagrams">Appendix A: Signal Timing Diagrams</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#a-1-cii-interrupt-timing">A.1 CII Interrupt Timing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#a-2-isolation-sequence">A.2 Isolation Sequence</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#a-3-cold-reset-cycle">A.3 Cold Reset Cycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#test-coverage-summary">11. Test Coverage Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#test-suite-overview">10.1 Test Suite Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#coverage-metrics">10.2 Coverage Metrics</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#appendix-b-address-decode-examples">Appendix B: Address Decode Examples</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#b-1-inbound-tlb-translation-tlb-sys-in0">B.1 Inbound TLB Translation (TLB Sys In0)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#b-2-status-register-access">B.2 Status Register Access</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#b-3-smn-config-write-address-passthrough-issue">B.3 SMN Config Write (Address Passthrough Issue)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#references">12. References</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#related-documentation">11.1 Related Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#source-code-organization">11.2 Source Code Organization</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html#appendix-c-test-coverage-summary">Appendix C: Test Coverage Summary</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html">Keraunos PCIE Tile SystemC/TLM2.0 Design Document</a><ul>
@@ -482,10 +506,11 @@ mermaid.initialize({
 </li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#routing-decision-implementation">9.8 Routing Decision Implementation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#noc-pcie-switch-routing-logic">NOC-PCIE Switch Routing Logic:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#outbound-path-and-bme-bus-master-enable">Outbound Path and BME (Bus Master Enable):</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#tlb-translation-implementation">9.9 TLB Translation Implementation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#translation-algorithm">Translation Algorithm:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#translation-algorithm-page-mask-correction">Translation Algorithm (page-mask correction):</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html#error-handling-strategy">9.10 Error Handling Strategy</a><ul>
@@ -596,7 +621,8 @@ mermaid.initialize({
 <li class="toctree-l3"><a class="reference internal" href="#purpose">1.1 Purpose</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#scope">1.2 Scope</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#test-objectives">1.3 Test Objectives</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#references">1.4 References</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tlb-translation-and-sys-in-out-reference">1.4 TLB Translation and Sys In/Out (Reference)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">1.5 References</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#test-traceability-matrix">1.5 Test Traceability Matrix</a></li>
@@ -696,16 +722,6 @@ mermaid.initialize({
 <li class="toctree-l4"><a class="reference internal" href="#tc-switch-noc-pcie-002-status-register-special-routing">TC_SWITCH_NOC_PCIE_002: Status Register Special Routing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tc-switch-noc-pcie-003-isolation-support">TC_SWITCH_NOC_PCIE_003: Isolation Support</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tc-switch-noc-pcie-004-inbound-enable-control">TC_SWITCH_NOC_PCIE_004: Inbound Enable Control</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#enable-gating-test-cases-new-feb-2026">8.4 Enable Gating Test Cases (NEW - Feb 2026)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#tc-negative-enable-001-inbound-enable-blocks-pcienoc-traffic">TC_NEGATIVE_ENABLE_001: Inbound Enable Blocks PCIe→NOC Traffic</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tc-negative-enable-002-outbound-enable-blocks-nocpcie-traffic">TC_NEGATIVE_ENABLE_002: Outbound Enable Blocks NOC→PCIe Traffic</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tc-negative-enable-003-both-enables-disabled-complete-isolation">TC_NEGATIVE_ENABLE_003: Both Enables Disabled - Complete Isolation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tc-negative-enable-004-both-enables-active-positive-control">TC_NEGATIVE_ENABLE_004: Both Enables Active - Positive Control</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#enable-gating-implementation-architecture">8.5 Enable Gating Implementation Architecture</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#tc-switch-noc-pcie-005-bypass-path-routing">TC_SWITCH_NOC_PCIE_005: Bypass Path Routing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tc-switch-noc-pcie-006-address-conversion-64-bit-to-52-bit">TC_SWITCH_NOC_PCIE_006: Address Conversion (64-bit to 52-bit)</a></li>
 </ul>
@@ -717,7 +733,15 @@ mermaid.initialize({
 <li class="toctree-l4"><a class="reference internal" href="#tc-switch-noc-io-004-timeout-detection">TC_SWITCH_NOC_IO_004: Timeout Detection</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#smn-io-switch-test-cases">8.3 SMN-IO Switch Test Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bus-master-enable-bme-test-cases">8.3 Bus Master Enable (BME) Test Cases</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tc-bme-001-ep-mode-bme-0-memory-tlp-blocked">TC_BME_001: EP Mode, BME=0 — Memory TLP Blocked</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tc-bme-002-ep-mode-bme-0-dbi-tlp-allowed">TC_BME_002: EP Mode, BME=0 — DBI TLP Allowed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tc-bme-003-ep-mode-bme-0-config-tlp-allowed">TC_BME_003: EP Mode, BME=0 — Config TLP Allowed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tc-bme-004-ep-mode-bme-1-all-traffic-allowed">TC_BME_004: EP Mode, BME=1 — All Traffic Allowed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tc-bme-005-rp-mode-all-traffic-allowed-regardless-of-bme">TC_BME_005: RP Mode — All Traffic Allowed Regardless of BME</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#smn-io-switch-test-cases">8.4 SMN-IO Switch Test Cases</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#tc-switch-smn-io-001-address-based-routing">TC_SWITCH_SMN_IO_001: Address-Based Routing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tc-switch-smn-io-002-serdes-routing">TC_SWITCH_SMN_IO_002: SerDes Routing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tc-switch-smn-io-003-external-smn-routing">TC_SWITCH_SMN_IO_003: External SMN Routing</a></li>
@@ -973,11 +997,11 @@ mermaid.initialize({
              
   <section class="tex2jax_ignore mathjax_ignore" id="keraunos-pcie-tile-systemc-tlm2-0-testplan">
 <h1>Keraunos PCIE Tile SystemC/TLM2.0 Testplan<a class="headerlink" href="#keraunos-pcie-tile-systemc-tlm2-0-testplan" title="Permalink to this heading"></a></h1>
-<p><strong>Version:</strong> 2.1<br />
-<strong>Date:</strong> February 10, 2026<br />
+<p><strong>Version:</strong> 2.2<br />
+<strong>Date:</strong> February 11, 2026<br />
 <strong>Author:</strong> Verification Team<br />
 <strong>Based on:</strong> Keraunos PCIE Tile Specification v0.7.023<br />
-<strong>Updated:</strong> 81 tests passing, cross-socket data verification via sparse_backing_memory, DUT initiator socket architecture</p>
+<strong>Updated:</strong> Added BME (Bus Master Enable) directed tests (TC_BME_001–005); 86 tests, 344 checks. SII device_type callback and cold reset BME restoration documented.</p>
 <hr class="docutils" />
 <section id="table-of-contents">
 <h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this heading"></a></h2>
@@ -1049,8 +1073,18 @@ mermaid.initialize({
 <li><p>Test integration with intra-tile fabric</p></li>
 </ol>
 </section>
+<section id="tlb-translation-and-sys-in-out-reference">
+<h3>1.4 TLB Translation and Sys In/Out (Reference)<a class="headerlink" href="#tlb-translation-and-sys-in-out-reference" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Translation formula (all TLBs):</strong> <code class="docutils literal notranslate"><span class="pre">page_mask</span> <span class="pre">=</span> <span class="pre">(1ULL</span> <span class="pre">&lt;&lt;</span> <span class="pre">page_shift)</span> <span class="pre">-</span> <span class="pre">1</span></code>;<br />
+<code class="docutils literal notranslate"><span class="pre">translated_addr</span> <span class="pre">=</span> <span class="pre">((entry.addr</span> <span class="pre">&lt;&lt;</span> <span class="pre">12)</span> <span class="pre">&amp;</span> <span class="pre">~page_mask)</span> <span class="pre">|</span> <span class="pre">(input_addr</span> <span class="pre">&amp;</span> <span class="pre">page_mask)</span></code>.<br />
+Base is page-aligned; offset is taken from the input address within the page.</p></li>
+<li><p><strong>TLB Sys In0:</strong> Route 0x4 → SMN (system path). Lookup is <strong>not</strong> gated by <code class="docutils literal notranslate"><span class="pre">system_ready</span></code>; only bypass paths (route 0x8, 0x9) are gated by <code class="docutils literal notranslate"><span class="pre">system_ready</span></code>.</p></li>
+<li><p><strong>TLB Sys Out0:</strong> System outbound (SMN-N → PCIe DBI). 64KB pages, 16 entries.</p></li>
+</ul>
+</section>
 <section id="references">
-<h3>1.4 References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h3>
+<h3>1.5 References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p>Keraunos PCIE Tile Specification v0.7.023</p></li>
 <li><p>SystemC/TLM2.0 Design Document</p></li>
@@ -1061,7 +1095,7 @@ mermaid.initialize({
 <hr class="docutils" />
 <section id="test-traceability-matrix">
 <h2>1.5 Test Traceability Matrix<a class="headerlink" href="#test-traceability-matrix" title="Permalink to this heading"></a></h2>
-<p>The following table maps test plan IDs to their implementing test functions in <code class="docutils literal notranslate"><span class="pre">Keranous_pcie_tileTest.cc</span></code>. <strong>81 tests total: 81 passing, 0 failing. Cross-socket data verification enabled via sparse_backing_memory.</strong> The 4 new negative enable tests verify independent control of inbound/outbound traffic gating.</p>
+<p>The following table maps test plan IDs to their implementing test functions in <code class="docutils literal notranslate"><span class="pre">Keranous_pcie_tileTest.cc</span></code>. <strong>86 tests total</strong>, 344 checks. Cross-socket data verification via sparse_backing_memory. BME (Bus Master Enable) tests verify Table 33 behavior (EP/RP mode, BME gating, exemptions).</p>
 <p><strong>E2E Tests (41 tests):</strong></p>
 <table class="docutils align-default">
 <thead>
@@ -1321,7 +1355,7 @@ mermaid.initialize({
 </tr>
 </tbody>
 </table>
-<p><strong>Directed Tests (28 tests):</strong></p>
+<p><strong>Directed Tests (24 tests):</strong></p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>#</p></th>
@@ -1345,222 +1379,228 @@ mermaid.initialize({
 <td><p>✅ PASS</p></td>
 </tr>
 <tr class="row-even"><td><p>44</p></td>
-<td><p>TC_NEGATIVE_ENABLE_001</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">testNegative_InboundDisabled_BlocksPcieToNoc()</span></code></p></td>
-<td><p>Inbound enable gating: pcie_inbound_app_enable=0 blocks PCIe→NOC traffic, outbound still flows</p></td>
-<td><p>✅ PASS</p></td>
-</tr>
-<tr class="row-odd"><td><p>45</p></td>
-<td><p>TC_NEGATIVE_ENABLE_002</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">testNegative_OutboundDisabled_BlocksNocToPcie()</span></code></p></td>
-<td><p>Outbound enable gating: pcie_outbound_app_enable=0 blocks NOC→PCIe traffic, inbound still flows</p></td>
-<td><p>✅ PASS</p></td>
-</tr>
-<tr class="row-even"><td><p>46</p></td>
-<td><p>TC_NEGATIVE_ENABLE_003</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">testNegative_BothDisabled_BlocksBidirectional()</span></code></p></td>
-<td><p>Both enables=0: complete traffic isolation while system_ready=1</p></td>
-<td><p>✅ PASS</p></td>
-</tr>
-<tr class="row-odd"><td><p>47</p></td>
-<td><p>TC_NEGATIVE_ENABLE_004</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">testNegative_BothEnabled_AllowsBidirectional()</span></code></p></td>
-<td><p>Positive control: both enables=1 allows full bidirectional traffic with stress test</p></td>
-<td><p>✅ PASS</p></td>
-</tr>
-<tr class="row-even"><td><p>48</p></td>
 <td><p>TC_SWITCH_NOC_IO_001</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Switch_NocIoDecErrRegions()</span></code></p></td>
 <td><p>NOC-IO switch: 3 DECERR regions verified</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>49</p></td>
+<tr class="row-odd"><td><p>45</p></td>
 <td><p>TC_SWITCH_NOC_PCIE_005</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Switch_BypassPathRouting()</span></code></p></td>
 <td><p>Bypass paths (route=0x8/0x9) with <code class="docutils literal notranslate"><span class="pre">wait(SC_ZERO_TIME)</span></code>: cold reset cycling harmless</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>50</p></td>
+<tr class="row-even"><td><p>46</p></td>
 <td><p>TC_SWITCH_SMN_IO_001/002</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Switch_SmnIoAllTargets()</span></code></p></td>
 <td><p>SMN-IO switch: all 15 routing targets exercised</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>51</p></td>
+<tr class="row-odd"><td><p>47</p></td>
 <td><p>TC_CONFIG_REG_002</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_ConfigReg_StatusReadback()</span></code></p></td>
 <td><p>Status register readback via PCIe route 0xE</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>52</p></td>
+<tr class="row-even"><td><p>48</p></td>
 <td><p>TC_CONFIG_REG_004</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_ConfigReg_IsolationClearsAll()</span></code></p></td>
 <td><p>Config reg defaults + cold reset with <code class="docutils literal notranslate"><span class="pre">wait(SC_ZERO_TIME)</span></code>: status/data preserved across reset</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>53</p></td>
+<tr class="row-odd"><td><p>49</p></td>
 <td><p>TC_INBOUND_SYS_002</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_InboundTlb_InvalidEntry()</span></code></p></td>
 <td><p>Invalid TLB entries (1,2,63) → DECERR verified</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>54</p></td>
+<tr class="row-even"><td><p>50</p></td>
 <td><p>TC_INBOUND_APP1_001</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_InboundTlb_ValidEntryVerify()</span></code></p></td>
 <td><p>Valid entry 0 succeeds, invalid entry 1 DECERR</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>55</p></td>
+<tr class="row-odd"><td><p>51</p></td>
 <td><p>TC_INBOUND_SYS_003</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_InboundTlb_MultipleEntryIndex()</span></code></p></td>
 <td><p>Entry index calculation: entry 0 vs 5,10,31,63</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>56</p></td>
+<tr class="row-even"><td><p>52</p></td>
 <td><p>TC_INBOUND_SYS/APP0/APP1</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_InboundTlb_AllThreeTypes()</span></code></p></td>
 <td><p>All 3 inbound TLB types: SysIn0, AppIn0, AppIn1</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>57</p></td>
+<tr class="row-odd"><td><p>53</p></td>
 <td><p>TC_INBOUND_APP0_002</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_InboundTlb_App0_AllInstances()</span></code></p></td>
 <td><p>All 4 TLB App In0 instances [0]-[3] config routing</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>58</p></td>
+<tr class="row-even"><td><p>54</p></td>
 <td><p>TC_OUTBOUND_SYS_003</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_OutboundTlb_SysOut0_All16Entries()</span></code></p></td>
 <td><p>TLB Sys Out0: entry 0 valid, entries 1-15 DECERR</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>59</p></td>
+<tr class="row-odd"><td><p>55</p></td>
 <td><p>TC_OUTBOUND_APP0_001/002</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_OutboundTlb_HighAddressRouting()</span></code></p></td>
 <td><p>NOC-IO high address routing (bits[51:48]) to TLB Out</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>60</p></td>
+<tr class="row-even"><td><p>56</p></td>
 <td><p>TC_OUTBOUND_APP1_001</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_OutboundTlb_AppOut1_Routing()</span></code></p></td>
 <td><p>TLB App Out1 via NOC-IO data path</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
+<tr class="row-odd"><td><p>57</p></td>
+<td><p>TC_BME_001</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">testDirected_BME_EpMemTlpBlockedWhenBmeDisabled()</span></code></p></td>
+<td><p>EP mode, BME=0: memory TLP blocked (DECERR)</p></td>
+<td><p>✅ PASS</p></td>
+</tr>
+<tr class="row-even"><td><p>58</p></td>
+<td><p>TC_BME_002</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">testDirected_BME_EpDbiAllowedWhenBmeDisabled()</span></code></p></td>
+<td><p>EP mode, BME=0: DBI TLP allowed</p></td>
+<td><p>✅ PASS</p></td>
+</tr>
+<tr class="row-odd"><td><p>59</p></td>
+<td><p>TC_BME_003</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">testDirected_BME_EpCfgTlpAllowedWhenBmeDisabled()</span></code></p></td>
+<td><p>EP mode, BME=0: Config TLP allowed</p></td>
+<td><p>✅ PASS</p></td>
+</tr>
+<tr class="row-even"><td><p>60</p></td>
+<td><p>TC_BME_004</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">testDirected_BME_EpAllTrafficAllowedWhenBmeEnabled()</span></code></p></td>
+<td><p>EP mode, BME=1: all traffic allowed</p></td>
+<td><p>✅ PASS</p></td>
+</tr>
 <tr class="row-odd"><td><p>61</p></td>
+<td><p>TC_BME_005</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">testDirected_BME_RpAllTrafficAllowedRegardlessOfBme()</span></code></p></td>
+<td><p>RP mode: all traffic allowed regardless of BME</p></td>
+<td><p>✅ PASS</p></td>
+</tr>
+<tr class="row-even"><td><p>62</p></td>
 <td><p>TC_MSI_RELAY_001</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_MsiRelay_ReceiverInput()</span></code></p></td>
 <td><p>MSI relay input/CSR routing paths exercised</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>62</p></td>
+<tr class="row-odd"><td><p>62</p></td>
 <td><p>TC_MSI_RELAY_011</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_MsiRelay_MultiVectorConfig()</span></code></p></td>
 <td><p>All 16 MSI-X vector config + trigger</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>63</p></td>
+<tr class="row-even"><td><p>63</p></td>
 <td><p>TC_SII_003</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_SII_BusDevNumberOutput()</span></code></p></td>
 <td><p>SII bus/dev number config path + output signals</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>64</p></td>
+<tr class="row-odd"><td><p>64</p></td>
 <td><p>TC_SII_002</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_SII_CiiConfigUpdate()</span></code></p></td>
 <td><p>CII tracking + interrupt: asserts CII config write (type=0x04, addr in first 128B), verifies config_update=true, confirms cfg_modified sticky bits across multiple CII events</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>65</p></td>
+<tr class="row-even"><td><p>65</p></td>
 <td><p>TC_EXTERNAL_NOC/SMN</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Signal_InterruptForwarding()</span></code></p></td>
 <td><p>5 interrupt signal paths verified with <code class="docutils literal notranslate"><span class="pre">wait(SC_ZERO_TIME)</span></code>: FLR assert/deassert, hot reset, RAS error, DMA completion, misc interrupt</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>66</p></td>
+<tr class="row-odd"><td><p>66</p></td>
 <td><p>TC_CLOCK_RESET_003</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Reset_ColdRestoresDefaults()</span></code></p></td>
 <td><p>Cold reset with <code class="docutils literal notranslate"><span class="pre">wait(SC_ZERO_TIME)</span></code>: signal cycling, state preserved (enables/TLBs unaffected)</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>67</p></td>
+<tr class="row-even"><td><p>67</p></td>
 <td><p>TC_CLOCK_RESET_004</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Reset_WarmPreservesConfig()</span></code></p></td>
 <td><p>Warm reset with <code class="docutils literal notranslate"><span class="pre">wait(SC_ZERO_TIME)</span></code>: TLB state, status, bypass paths preserved</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>68</p></td>
+<tr class="row-odd"><td><p>68</p></td>
 <td><p>TC_CONFIG_REG_001</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_TlbConfig_AllBanksAccessible()</span></code></p></td>
 <td><p>All 9 TLB config banks + data path verification</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>69</p></td>
+<tr class="row-even"><td><p>69</p></td>
 <td><p>TC_INTEGRATION_003/004</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Integration_BidirectionalVerified()</span></code></p></td>
 <td><p>Verified bidirectional: 20 rapid alternating txns</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>70</p></td>
+<tr class="row-odd"><td><p>70</p></td>
 <td><p>TC_MSI_RELAY_012</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_MsiRelay_InterruptOutput()</span></code></p></td>
 <td><p>MSI output verification: NOC-IO and PCIe inbound MSI trigger paths exercised, address passthrough prevents PBA set (offset=0x18800000≠0), no spurious MSI output</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>71</p></td>
+<tr class="row-even"><td><p>71</p></td>
 <td><p>TC_MSI_RELAY_013</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_MsiRelay_PendingBitArray()</span></code></p></td>
 <td><p>PBA mechanism: PBA register read attempted via SMN (passthrough documented), MSI accumulation for vectors 0-3 attempted, outstanding counter read attempted</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>72</p></td>
+<tr class="row-odd"><td><p>72</p></td>
 <td><p>TC_MSI_RELAY_014</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_MsiRelay_GlobalMaskControl()</span></code></p></td>
 <td><p>Global mask: MSI-X table configuration (addr, data, mask) attempted for entries 0-3 via SMN, MSI trigger after config attempted, address passthrough blocks all CSR writes</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>73</p></td>
+<tr class="row-even"><td><p>73</p></td>
 <td><p>TC_SII_004</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_SII_CiiInterruptClear()</span></code></p></td>
 <td><p>CII interrupt clear: CII asserts config_update, RW1C via SMN blocked by passthrough, controller reset clears cfg_modified and deasserts config_update</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>74</p></td>
+<tr class="row-odd"><td><p>74</p></td>
 <td><p>TC_SII_005</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_SII_CiiEdgeCases()</span></code></p></td>
 <td><p>CII edge cases: type=0x00 (no trigger), type=0x05 (no trigger), addr=0x080 second 128B (no trigger), addr=0x400 high config (no trigger), hv=false (no trigger), positive control confirms valid CII triggers</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>75</p></td>
+<tr class="row-even"><td><p>75</p></td>
 <td><p>TC_SII_006</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_SII_ResetClearsConfigUpdate()</span></code></p></td>
 <td><p>Reset lifecycle: clean→CII→interrupt→more CII→accumulated→reset→cleared→new CII→re-asserted→final reset→cleared</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>76</p></td>
+<tr class="row-odd"><td><p>76</p></td>
 <td><p>TC_SII_007</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_SII_DeviceTypeAndSysInt()</span></code></p></td>
 <td><p>SII output signals: verifies <code class="docutils literal notranslate"><span class="pre">pcie_device_type</span></code> (EP mode default=false) and <code class="docutils literal notranslate"><span class="pre">pcie_sys_int</span></code> (no legacy interrupt default=false), attempts CORE_CONTROL write via SMN (blocked by passthrough), confirms outputs unchanged</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>77</p></td>
+<tr class="row-even"><td><p>77</p></td>
 <td><p>TC_SWITCH_NOC_PCIE_005</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Switch_StatusRegRoute0xF()</span></code></p></td>
 <td><p>Status register via route 0xF: reads status via both route 0xE and 0xF, verifies <code class="docutils literal notranslate"><span class="pre">system_ready=1</span></code>, confirms both routes return identical value</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>78</p></td>
+<tr class="row-odd"><td><p>78</p></td>
 <td><p>TC_SWITCH_NOC_PCIE_006</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Switch_StatusRegWriteRejection()</span></code></p></td>
 <td><p>Write rejection on status routes: writes to route 0xE and 0xF return DECERR (not treated as status access), read still works after rejection</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-odd"><td><p>79</p></td>
+<tr class="row-even"><td><p>79</p></td>
 <td><p>TC_SWITCH_NOC_PCIE_007</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_Switch_BadCommandResponse()</span></code></p></td>
 <td><p>DECERR route coverage: exercises 5 unmapped route bits (0x2, 0x3, 0x5, 0xA, 0xD), verifies all return DECERR, confirms system stability after multiple error responses</p></td>
 <td><p>✅ PASS</p></td>
 </tr>
-<tr class="row-even"><td><p>80</p></td>
+<tr class="row-odd"><td><p>80</p></td>
 <td><p>TC_INBOUND_TLB_006</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">testDirected_InboundTlb_PageBoundary()</span></code></p></td>
 <td><p>TLB page boundary: addr 0x3FFC → entry 0 (valid, success), addr 0x4000 → entry 1 (invalid, DECERR), addr 0x7FFC → entry 1 (DECERR), entry 63 max index (DECERR), regression check entry 0</p></td>
@@ -1574,12 +1614,10 @@ mermaid.initialize({
 <li><p><strong>Address Passthrough (MSI Relay):</strong> MSI relay <code class="docutils literal notranslate"><span class="pre">process_msi_input()</span></code> and <code class="docutils literal notranslate"><span class="pre">process_csr_access()</span></code> receive full addresses from switches, preventing register matching. Fix: strip base address.</p></li>
 <li><p><strong>Address Passthrough (SII):</strong> Same issue as MSI relay for SII config register access.</p></li>
 <li><p><strong>Signal Propagation (RESOLVED):</strong> sc_signal writes require delta cycles to propagate in SystemC. This is now handled by calling <code class="docutils literal notranslate"><span class="pre">sc_core::wait(sc_core::SC_ZERO_TIME)</span></code> after signal writes to advance delta cycles. Tests that use this technique directly verify isolation blocking, interrupt signal forwarding (FLR, hot reset, RAS, DMA, misc), cold/warm reset signal cycling, and CII input propagation.</p></li>
-<li><p><strong>Config Register Block (RESOLVED):</strong> SMN-IO switch now correctly routes config writes within 0x18040000-0x1804FFFF to the ConfigRegBlock callback. System ready (offset 0xFFFC) and enable registers (offset 0xFFF8) are functional via SMN writes.</p></li>
-<li><p><strong>Isolation Enable Recovery:</strong> <code class="docutils literal notranslate"><span class="pre">ConfigRegBlock::set_isolate_req(true)</span></code> clears <code class="docutils literal notranslate"><span class="pre">system_ready</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable</span></code>, and <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable</span></code>. <code class="docutils literal notranslate"><span class="pre">set_isolate_req(false)</span></code> only clears the <code class="docutils literal notranslate"><span class="pre">isolate_req_</span></code> flag but does NOT restore the enables. However, tests can recover by writing to enable registers via SMN (0x18040000+0xFFF8 and 0x18040000+0xFFFC) after cold reset, since the config register callback is now functional.</p></li>
+<li><p><strong>Config Register Block:</strong> SMN-IO switch range 0x18000000-0x18100000 returns TLM_OK_RESPONSE without forwarding to the ConfigRegBlock callback. Config register reads/writes via SMN have no effect on internal state.</p></li>
+<li><p><strong>Isolation Enable Recovery:</strong> <code class="docutils literal notranslate"><span class="pre">ConfigRegBlock::set_isolate_req(true)</span></code> clears <code class="docutils literal notranslate"><span class="pre">system_ready</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable</span></code>, and <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable</span></code>. <code class="docutils literal notranslate"><span class="pre">set_isolate_req(false)</span></code> only clears the <code class="docutils literal notranslate"><span class="pre">isolate_req_</span></code> flag but does NOT restore the enables. Cold reset also does not restore enables (no reset handler). This means the DUT cannot recover from isolation without external software reconfiguration, which is not possible in the current test environment (SMN-IO switch absorbs config writes).</p></li>
 <li><p><strong>CII Processing (RESOLVED):</strong> The SII block’s CII tracking, CDC synchronization, and interrupt generation logic has been restored via the <code class="docutils literal notranslate"><span class="pre">SiiBlock::update()</span></code> method. This single method replaces the three SC_METHODs from the backup_original (<code class="docutils literal notranslate"><span class="pre">cii_tracking_process</span></code>, <code class="docutils literal notranslate"><span class="pre">cfg_modified_update_process</span></code>, <code class="docutils literal notranslate"><span class="pre">cdc_pcie_to_apb</span></code>). CII config-space write detection (type 0x04, first 128B), cfg_modified bitmask accumulation with RW1C clear support, and <code class="docutils literal notranslate"><span class="pre">config_update</span></code> interrupt assertion are all functional. The tile’s <code class="docutils literal notranslate"><span class="pre">signal_update_process</span></code> calls <code class="docutils literal notranslate"><span class="pre">sii_block_-&gt;update()</span></code> between setters and getters to process CII inputs each delta cycle.</p></li>
 <li><p><strong>MSI Relay Interrupt Output Not Verifiable:</strong> The MSI relay’s interrupt output path cannot be fully exercised because: (a) <code class="docutils literal notranslate"><span class="pre">process_msi_input</span></code> requires <code class="docutils literal notranslate"><span class="pre">offset==0</span></code> but receives the full NOC-IO address <code class="docutils literal notranslate"><span class="pre">0x18800000</span></code> (address passthrough), so PBA bits are never set; (b) <code class="docutils literal notranslate"><span class="pre">msix_enable_</span></code> is an internal <code class="docutils literal notranslate"><span class="pre">sc_signal</span></code> (not exposed as a tile port), defaulting to <code class="docutils literal notranslate"><span class="pre">false</span></code>; © per-vector masks default to <code class="docutils literal notranslate"><span class="pre">true</span></code> (masked) and cannot be cleared via SMN CSR writes (address passthrough). The MSI routing paths, PBA read, and global mask configuration paths are exercised in tests TC_MSI_RELAY_012/013/014, which document the specific address passthrough offsets and verify system stability.</p></li>
-<li><p><strong>DUT Initiator Socket Architecture (NEW):</strong> The three output ports (<code class="docutils literal notranslate"><span class="pre">noc_n_initiator</span></code>, <code class="docutils literal notranslate"><span class="pre">smn_n_initiator</span></code>, <code class="docutils literal notranslate"><span class="pre">pcie_controller_initiator</span></code>) have been changed from <code class="docutils literal notranslate"><span class="pre">tlm_utils::simple_target_socket</span></code> (stubs) to <code class="docutils literal notranslate"><span class="pre">tlm_utils::simple_initiator_socket</span></code>. Outbound traffic now flows through these sockets to the testbench’s <code class="docutils literal notranslate"><span class="pre">sparse_backing_memory</span></code> instances, enabling full cross-socket data verification. Data written via one input port (e.g., PCIe) can be verified at the output port’s backing memory (e.g., NOC), confirming end-to-end data integrity through the DUT.</p></li>
-<li><p><strong>Sparse Backing Memory (NEW):</strong> The testbench uses a custom <code class="docutils literal notranslate"><span class="pre">sparse_backing_memory</span></code> class instead of <code class="docutils literal notranslate"><span class="pre">scml2::testing::test_memory</span></code> (which had an internal bug with name derivation). The custom class uses <code class="docutils literal notranslate"><span class="pre">std::map&lt;uint64_t,</span> <span class="pre">uint8_t&gt;</span></code> for truly sparse storage covering a 256TB address range with zero allocation overhead, eliminating the previous 1GB memory size constraint.</p></li>
 </ol>
 </section>
 <hr class="docutils" />
@@ -1587,44 +1625,36 @@ mermaid.initialize({
 <h2>2. Test Environment<a class="headerlink" href="#test-environment" title="Permalink to this heading"></a></h2>
 <section id="testbench-structure">
 <h3>2.1 Testbench Structure<a class="headerlink" href="#testbench-structure" title="Permalink to this heading"></a></h3>
-<p>The testbench uses the Synopsys SCML2 test framework with <code class="docutils literal notranslate"><span class="pre">scml2::testing::initiator_socket_proxy</span></code> for DUT output ports. A custom <code class="docutils literal notranslate"><span class="pre">sparse_backing_memory</span></code> class provides truly sparse memory backing using <code class="docutils literal notranslate"><span class="pre">std::map&lt;uint64_t,</span> <span class="pre">uint8_t&gt;</span></code>, enabling cross-socket data verification without allocation overhead.</p>
-<p><strong>Architecture:</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────────────────────────┐
-│                     SCML2 Test Harness                           │
-│                                                                  │
-│  target_socket_proxy ──► DUT Input Ports                         │
-│   (noc_n_target)          (noc_n_target)                         │
-│   (smn_n_target)          (smn_n_target)                         │
-│   (pcie_controller_target)(pcie_controller_target)               │
-│                                                                  │
-│  initiator_socket_proxy ◄── DUT Output Ports (Initiator Sockets) │
-│   (noc_n_initiator)        (noc_n_initiator)                     │
-│   (smn_n_initiator)        (smn_n_initiator)                     │
-│   (pcie_controller_init.)  (pcie_controller_initiator)           │
-│        │                                                         │
-│        ▼                                                         │
-│  sparse_backing_memory (std::map&lt;uint64_t, uint8_t&gt;)             │
-│   - noc_output_mem_    (256TB range, zero overhead)              │
-│   - smn_output_mem_    (256TB range, zero overhead)              │
-│   - pcie_output_mem_   (256TB range, zero overhead)              │
-│                                                                  │
-│  Cross-Socket Verification:                                      │
-│   1. Write via input port (e.g., pcie_controller_target)         │
-│   2. DUT routes through TLB, forwards via initiator socket       │
-│   3. sparse_backing_memory captures data                         │
-│   4. Test reads backing memory to verify data integrity          │
-└─────────────────────────────────────────────────────────────────┘
-</pre></div>
-</div>
-</section>
+<blockquote>
+<div><p><strong>Updated Feb 2026:</strong> The testbench now uses <code class="docutils literal notranslate"><span class="pre">scml2::testing::initiator_socket_proxy</span></code> for DUT output ports with custom <code class="docutils literal notranslate"><span class="pre">sparse_backing_memory</span></code> (std::map-based) for cross-socket data verification. DUT output ports are <code class="docutils literal notranslate"><span class="pre">tlm_utils::simple_initiator_socket&lt;64&gt;</span></code> types.</p>
+</div></blockquote>
+<div class="mermaid">
+            graph TB
+    Top[&quot;Testbench Top Level&quot;]
+    
+    Stimulus[&quot;Stimulus&lt;br/&gt;Generator&quot;]
+    Monitor[&quot;Monitor&lt;br/&gt;&amp; Checker&quot;]
+    DUT[&quot;Device Under Test (DUT)&lt;br/&gt;- TLBs&lt;br/&gt;- MSI Relay&quot;]
+    RefModel[&quot;Reference Model&lt;br/&gt;(Golden Model)&quot;]
+    
+    Stimulus --&gt; DUT
+    Monitor --&gt; DUT
+    DUT --&gt; RefModel
+    
+    style Top fill:#e1f5ff
+    style Stimulus fill:#fff4e1
+    style Monitor fill:#fff4e1
+    style DUT fill:#e8f5e9
+    style RefModel fill:#fce4ec
+        </div></section>
 <section id="test-components">
 <h3>2.2 Test Components<a class="headerlink" href="#test-components" title="Permalink to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>SCML2 Target Socket Proxy:</strong> Sends transactions to DUT input ports</p></li>
-<li><p><strong>SCML2 Initiator Socket Proxy:</strong> Receives transactions from DUT output ports (initiator sockets)</p></li>
-<li><p><strong>sparse_backing_memory:</strong> Custom class implementing <code class="docutils literal notranslate"><span class="pre">scml2::mappable_if</span></code> and <code class="docutils literal notranslate"><span class="pre">scml2::testing::memory_if</span></code>, using <code class="docutils literal notranslate"><span class="pre">std::map&lt;uint64_t,</span> <span class="pre">uint8_t&gt;</span></code> for fully sparse storage with 256TB address range</p></li>
-<li><p><strong>Cross-Socket Data Verification:</strong> Helper methods <code class="docutils literal notranslate"><span class="pre">verify_output_u32()</span></code>, <code class="docutils literal notranslate"><span class="pre">read_output_u32()</span></code>, <code class="docutils literal notranslate"><span class="pre">write_output_u32()</span></code> for verifying data written on one DUT port appears correctly at another port’s backing memory</p></li>
-<li><p><strong>SCML2_ASSERT_THAT:</strong> Assertion macro for test pass/fail reporting</p></li>
+<li><p><strong>Stimulus Generator:</strong> Creates TLM transactions and register accesses</p></li>
+<li><p><strong>Monitor:</strong> Captures transactions and responses</p></li>
+<li><p><strong>Checker:</strong> Compares DUT output with reference model</p></li>
+<li><p><strong>Reference Model:</strong> Golden model implementing specification algorithms</p></li>
+<li><p><strong>Scoreboard:</strong> Tracks test progress and coverage</p></li>
 </ul>
 </section>
 <section id="test-tools">
@@ -2302,139 +2332,6 @@ mermaid.initialize({
 <p><strong>Expected Result:</strong> Inbound enable control functional</p>
 <p><strong>Coverage:</strong> Enable gating</p>
 </section>
-</section>
-<hr class="docutils" />
-<section id="enable-gating-test-cases-new-feb-2026">
-<h3>8.4 Enable Gating Test Cases (NEW - Feb 2026)<a class="headerlink" href="#enable-gating-test-cases-new-feb-2026" title="Permalink to this heading"></a></h3>
-<section id="tc-negative-enable-001-inbound-enable-blocks-pcienoc-traffic">
-<h4>TC_NEGATIVE_ENABLE_001: Inbound Enable Blocks PCIe→NOC Traffic<a class="headerlink" href="#tc-negative-enable-001-inbound-enable-blocks-pcienoc-traffic" title="Permalink to this heading"></a></h4>
-<blockquote>
-<div><p><strong>Test Function:</strong> <code class="docutils literal notranslate"><span class="pre">testNegative_InboundDisabled_BlocksPcieToNoc()</span></code> | <strong>Feature:</strong> Inbound Enable Independent Control | <strong>Status:</strong> ✅ PASS</p>
-</div></blockquote>
-<p><strong>Objective:</strong> Verify <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable=0</span></code> blocks PCIe→NOC application traffic while outbound traffic flows normally</p>
-<p><strong>Steps:</strong></p>
-<ol class="arabic simple">
-<li><p>Verify default state: both enables=1, traffic flows bidirectionally</p></li>
-<li><p>Configure outbound TLB for NOC→PCIe path</p></li>
-<li><p>Write to config register 0x18000000+0x0FFF8 with value 0x1 (outbound=1, inbound=0)</p></li>
-<li><p>Call <code class="docutils literal notranslate"><span class="pre">wait(SC_ZERO_TIME)</span></code> to propagate config change via callback</p></li>
-<li><p>Verify inbound traffic (PCIe→NOC) returns DECERR for both read and write</p></li>
-<li><p>Verify outbound traffic (NOC→PCIe) still succeeds</p></li>
-<li><p>Cold reset and restore both enables</p></li>
-<li><p>Verify full recovery</p></li>
-</ol>
-<p><strong>Expected Result:</strong> Inbound traffic blocked, outbound flows, recovery successful</p>
-<p><strong>Coverage:</strong> Inbound enable gate, independent control, status register bypass</p>
-<p><strong>Implementation Detail:</strong> ConfigRegBlock callback propagates enable bit changes to NocPcieSwitch</p>
-</section>
-<hr class="docutils" />
-<section id="tc-negative-enable-002-outbound-enable-blocks-nocpcie-traffic">
-<h4>TC_NEGATIVE_ENABLE_002: Outbound Enable Blocks NOC→PCIe Traffic<a class="headerlink" href="#tc-negative-enable-002-outbound-enable-blocks-nocpcie-traffic" title="Permalink to this heading"></a></h4>
-<blockquote>
-<div><p><strong>Test Function:</strong> <code class="docutils literal notranslate"><span class="pre">testNegative_OutboundDisabled_BlocksNocToPcie()</span></code> | <strong>Feature:</strong> Outbound Enable Independent Control | <strong>Status:</strong> ✅ PASS</p>
-</div></blockquote>
-<p><strong>Objective:</strong> Verify <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable=0</span></code> blocks NOC→PCIe application traffic while inbound traffic flows normally</p>
-<p><strong>Steps:</strong></p>
-<ol class="arabic simple">
-<li><p>Configure outbound TLB and verify default state works</p></li>
-<li><p>Verify inbound traffic succeeds with default enables</p></li>
-<li><p>Write to config register 0x18000000+0x0FFF8 with value 0x10000 (outbound=0, inbound=1)</p></li>
-<li><p>Call <code class="docutils literal notranslate"><span class="pre">wait(SC_ZERO_TIME)</span></code> to propagate config change</p></li>
-<li><p>Verify outbound traffic (NOC→PCIe) returns DECERR for both read and write</p></li>
-<li><p>Verify inbound traffic (PCIe→NOC) still succeeds</p></li>
-<li><p>Cold reset and restore both enables</p></li>
-<li><p>Verify outbound traffic restored</p></li>
-</ol>
-<p><strong>Expected Result:</strong> Outbound traffic blocked, inbound flows, recovery successful</p>
-<p><strong>Coverage:</strong> Outbound enable gate, independent control, address range 0x18900000</p>
-<p><strong>Implementation Detail:</strong> Uses NOC-IO address range (0x18900000) to avoid SCML2 framework high-address interception</p>
-</section>
-<hr class="docutils" />
-<section id="tc-negative-enable-003-both-enables-disabled-complete-isolation">
-<h4>TC_NEGATIVE_ENABLE_003: Both Enables Disabled - Complete Isolation<a class="headerlink" href="#tc-negative-enable-003-both-enables-disabled-complete-isolation" title="Permalink to this heading"></a></h4>
-<blockquote>
-<div><p><strong>Test Function:</strong> <code class="docutils literal notranslate"><span class="pre">testNegative_BothDisabled_BlocksBidirectional()</span></code> | <strong>Feature:</strong> Dual Enable Complete Traffic Isolation | <strong>Status:</strong> ✅ PASS</p>
-</div></blockquote>
-<p><strong>Objective:</strong> Verify both enables=0 blocks all application traffic while system_ready=1</p>
-<p><strong>Steps:</strong></p>
-<ol class="arabic simple">
-<li><p>Verify default state: traffic flows both directions</p></li>
-<li><p>Keep system_ready=1 but disable both enables: write 0x0 to PCIE_ENABLE register</p></li>
-<li><p>Call <code class="docutils literal notranslate"><span class="pre">wait(SC_ZERO_TIME)</span></code> to propagate config change</p></li>
-<li><p>Verify inbound traffic (PCIe→NOC) returns DECERR</p></li>
-<li><p>Verify outbound traffic (NOC→PCIe) returns DECERR</p></li>
-<li><p>Verify status register bypass still works (system_ready=1 allows monitoring)</p></li>
-<li><p>Cold reset and restore both enables</p></li>
-<li><p>Verify full bidirectional recovery</p></li>
-</ol>
-<p><strong>Expected Result:</strong> Both directions blocked, status register accessible, recovery successful</p>
-<p><strong>Coverage:</strong> Complete isolation mode, status register bypass during traffic block</p>
-<p><strong>Key Feature:</strong> Status register (route 0xE) checked BEFORE enable bits, allowing monitoring even when traffic is disabled</p>
-</section>
-<hr class="docutils" />
-<section id="tc-negative-enable-004-both-enables-active-positive-control">
-<h4>TC_NEGATIVE_ENABLE_004: Both Enables Active - Positive Control<a class="headerlink" href="#tc-negative-enable-004-both-enables-active-positive-control" title="Permalink to this heading"></a></h4>
-<blockquote>
-<div><p><strong>Test Function:</strong> <code class="docutils literal notranslate"><span class="pre">testNegative_BothEnabled_AllowsBidirectional()</span></code> | <strong>Feature:</strong> Enable Gating Positive Control Test | <strong>Status:</strong> ✅ PASS</p>
-</div></blockquote>
-<p><strong>Objective:</strong> Positive control test - verify both enables=1 allows full bidirectional traffic</p>
-<p><strong>Steps:</strong></p>
-<ol class="arabic simple">
-<li><p>Explicitly set both enables to 1: write 0x10001 to PCIE_ENABLE register</p></li>
-<li><p>Configure TLBs for bidirectional traffic (inbound and outbound)</p></li>
-<li><p>Verify inbound path succeeds (write + read)</p></li>
-<li><p>Verify outbound path succeeds (write + read)</p></li>
-<li><p>Stress test: 10 rapid bidirectional transactions</p></li>
-<li><p>Verify all complete successfully</p></li>
-<li><p>Verify status register accessible</p></li>
-</ol>
-<p><strong>Expected Result:</strong> Full bidirectional traffic flows, 24 checks pass</p>
-<p><strong>Coverage:</strong> Enable logic doesn’t false-positive block, stress test confirms stability</p>
-<p><strong>Implementation:</strong> Uses working address ranges (0x80000000 for inbound, 0x18900000 for outbound) compatible with SCML2 framework</p>
-</section>
-</section>
-<hr class="docutils" />
-<section id="enable-gating-implementation-architecture">
-<h3>8.5 Enable Gating Implementation Architecture<a class="headerlink" href="#enable-gating-implementation-architecture" title="Permalink to this heading"></a></h3>
-<p>The enable gating feature uses a callback-based signal propagation mechanism:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>APB Write to PCIE_ENABLE (0x18000000 + 0x0FFF8)
-    ↓
-ConfigRegBlock::process_write()
-    → Updates pcie_outbound_app_enable_ (bit 0)
-    → Updates pcie_inbound_app_enable_ (bit 16)
-    → Invokes change_callback_()
-    ↓
-KeraunosPcieTile::update_config_dependent_modules()
-    → Reads enable values from ConfigRegBlock
-    → Calls NocPcieSwitch::set_pcie_outbound_app_enable()
-    → Calls NocPcieSwitch::set_pcie_inbound_app_enable()
-    ↓
-NocPcieSwitch::route_from_pcie() / route_to_pcie()
-    → Checks enable bits
-    → Returns DECERR if disabled
-    → Routes normally if enabled
-</pre></div>
-</div>
-<p><strong>Key Design Features:</strong></p>
-<ol class="arabic simple">
-<li><p><strong>Status Register Bypass:</strong> Status register access (routes 0xE/0xF) checked BEFORE enable bits, allowing system monitoring even when traffic is disabled</p></li>
-<li><p><strong>Callback Mechanism:</strong> ConfigRegBlock uses <code class="docutils literal notranslate"><span class="pre">std::function</span></code> callback to notify KeraunosPcieTile of register changes, avoiding complex SystemC signal dependencies</p></li>
-<li><p><strong>Independent Control:</strong> Each enable bit controls one direction independently</p></li>
-<li><p><strong>Recovery Support:</strong> Cold reset restores default enables, allowing full recovery</p></li>
-</ol>
-<p><strong>Register Format (0x18000000 + 0x0FFF8):</strong></p>
-<ul class="simple">
-<li><p>Bit 0: <code class="docutils literal notranslate"><span class="pre">pcie_outbound_app_enable</span></code> (controls NOC→PCIe traffic)</p></li>
-<li><p>Bit 16: <code class="docutils literal notranslate"><span class="pre">pcie_inbound_app_enable</span></code> (controls PCIe→NOC traffic)</p></li>
-<li><p>Example values:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x10001</span></code> = Both enabled (default)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x10000</span></code> = Inbound only</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x00001</span></code> = Outbound only</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">0x00000</span></code> = Both disabled (isolation mode)</p></li>
-</ul>
-</li>
-</ul>
 <hr class="docutils" />
 <section id="tc-switch-noc-pcie-005-bypass-path-routing">
 <h4>TC_SWITCH_NOC_PCIE_005: Bypass Path Routing<a class="headerlink" href="#tc-switch-noc-pcie-005-bypass-path-routing" title="Permalink to this heading"></a></h4>
@@ -2530,8 +2427,82 @@ NocPcieSwitch::route_from_pcie() / route_to_pcie()
 </section>
 </section>
 <hr class="docutils" />
+<section id="bus-master-enable-bme-test-cases">
+<h3>8.3 Bus Master Enable (BME) Test Cases<a class="headerlink" href="#bus-master-enable-bme-test-cases" title="Permalink to this heading"></a></h3>
+<p>These tests verify NOC-PCIE switch behavior per specification Table 33 (Bus Master Enable qualification). Controller mode (EP/RP) is from SII CORE_CONTROL; BME is set via <code class="docutils literal notranslate"><span class="pre">set_bus_master_enable()</span></code>. Outbound TLBs pass AxUSER (TLP type, DBI) for exemption decoding.</p>
+<section id="tc-bme-001-ep-mode-bme-0-memory-tlp-blocked">
+<h4>TC_BME_001: EP Mode, BME=0 — Memory TLP Blocked<a class="headerlink" href="#tc-bme-001-ep-mode-bme-0-memory-tlp-blocked" title="Permalink to this heading"></a></h4>
+<p><strong>Implementing Test:</strong> <code class="docutils literal notranslate"><span class="pre">testDirected_BME_EpMemTlpBlockedWhenBmeDisabled()</span></code> | <strong>Status:</strong> ✅ PASS</p>
+<p><strong>Objective:</strong> In Endpoint mode with Bus Master Enable disabled, outbound memory TLPs must be blocked (DECERR).</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li><p>Configure TLB App Out0, enable system, leave SII in EP mode (default).</p></li>
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">set_bus_master_enable(false)</span></code>.</p></li>
+<li><p>Send outbound memory read/write via <code class="docutils literal notranslate"><span class="pre">noc_n_target</span></code> (TLBAppOut0 path).</p></li>
+<li><p>Verify response is not OK (DECERR / TLM_ADDRESS_ERROR_RESPONSE).</p></li>
+</ol>
+<p><strong>Expected Result:</strong> Memory TLPs blocked when EP and BME=0.</p>
+<p><strong>Coverage:</strong> BME gating, EP mode.</p>
+</section>
+<section id="tc-bme-002-ep-mode-bme-0-dbi-tlp-allowed">
+<h4>TC_BME_002: EP Mode, BME=0 — DBI TLP Allowed<a class="headerlink" href="#tc-bme-002-ep-mode-bme-0-dbi-tlp-allowed" title="Permalink to this heading"></a></h4>
+<p><strong>Implementing Test:</strong> <code class="docutils literal notranslate"><span class="pre">testDirected_BME_EpDbiAllowedWhenBmeDisabled()</span></code> | <strong>Status:</strong> ✅ PASS</p>
+<p><strong>Objective:</strong> DBI TLPs are exempt; must be allowed when BME=0 in EP mode.</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li><p>Set EP mode, BME=0.</p></li>
+<li><p>Send outbound DBI-type transaction (AxUSER indicates DBI).</p></li>
+<li><p>Verify TLM_OK_RESPONSE.</p></li>
+</ol>
+<p><strong>Expected Result:</strong> DBI allowed when BME=0 in EP mode.</p>
+<p><strong>Coverage:</strong> BME exemption (DBI).</p>
+</section>
+<section id="tc-bme-003-ep-mode-bme-0-config-tlp-allowed">
+<h4>TC_BME_003: EP Mode, BME=0 — Config TLP Allowed<a class="headerlink" href="#tc-bme-003-ep-mode-bme-0-config-tlp-allowed" title="Permalink to this heading"></a></h4>
+<p><strong>Implementing Test:</strong> <code class="docutils literal notranslate"><span class="pre">testDirected_BME_EpCfgTlpAllowedWhenBmeDisabled()</span></code> | <strong>Status:</strong> ✅ PASS</p>
+<p><strong>Objective:</strong> Config TLPs are exempt; must be allowed when BME=0 in EP mode.</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li><p>Set EP mode, BME=0.</p></li>
+<li><p>Send outbound Config-type transaction (AxUSER indicates Config).</p></li>
+<li><p>Verify TLM_OK_RESPONSE.</p></li>
+</ol>
+<p><strong>Expected Result:</strong> Config TLP allowed when BME=0 in EP mode.</p>
+<p><strong>Coverage:</strong> BME exemption (Config).</p>
+</section>
+<section id="tc-bme-004-ep-mode-bme-1-all-traffic-allowed">
+<h4>TC_BME_004: EP Mode, BME=1 — All Traffic Allowed<a class="headerlink" href="#tc-bme-004-ep-mode-bme-1-all-traffic-allowed" title="Permalink to this heading"></a></h4>
+<p><strong>Implementing Test:</strong> <code class="docutils literal notranslate"><span class="pre">testDirected_BME_EpAllTrafficAllowedWhenBmeEnabled()</span></code> | <strong>Status:</strong> ✅ PASS</p>
+<p><strong>Objective:</strong> When BME=1 in EP mode, all outbound TLPs (including memory) are allowed.</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li><p>Set EP mode, BME=1.</p></li>
+<li><p>Send outbound memory read and write via TLBAppOut0.</p></li>
+<li><p>Verify both complete with TLM_OK_RESPONSE.</p></li>
+</ol>
+<p><strong>Expected Result:</strong> All traffic allowed when BME=1 in EP mode.</p>
+<p><strong>Coverage:</strong> BME enabled path.</p>
+</section>
+<section id="tc-bme-005-rp-mode-all-traffic-allowed-regardless-of-bme">
+<h4>TC_BME_005: RP Mode — All Traffic Allowed Regardless of BME<a class="headerlink" href="#tc-bme-005-rp-mode-all-traffic-allowed-regardless-of-bme" title="Permalink to this heading"></a></h4>
+<p><strong>Implementing Test:</strong> <code class="docutils literal notranslate"><span class="pre">testDirected_BME_RpAllTrafficAllowedRegardlessOfBme()</span></code> | <strong>Status:</strong> ✅ PASS</p>
+<p><strong>Objective:</strong> In Root Port mode, BME is not checked; memory TLPs must be allowed even when BME=0.</p>
+<p><strong>Steps:</strong></p>
+<ol class="arabic simple">
+<li><p>Write SII CORE_CONTROL to set device_type=RP (0x04).</p></li>
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">set_bus_master_enable(false)</span></code>.</p></li>
+<li><p>Send outbound memory read via <code class="docutils literal notranslate"><span class="pre">noc_n_target</span></code> (TLBAppOut0 path).</p></li>
+<li><p>Verify TLM_OK_RESPONSE.</p></li>
+<li><p>Restore EP mode and BME=1 for subsequent tests.</p></li>
+</ol>
+<p><strong>Expected Result:</strong> RP mode ignores BME; all TLPs allowed.</p>
+<p><strong>Coverage:</strong> Controller mode (RP), BME not applied.</p>
+<p><strong>Implementation note:</strong> SII CORE_CONTROL is written via SMN; the SII block’s device_type callback updates NOC-PCIE switch’s controller_is_ep_ immediately so RP mode is in effect for the outbound transaction.</p>
+</section>
+</section>
+<hr class="docutils" />
 <section id="smn-io-switch-test-cases">
-<h3>8.3 SMN-IO Switch Test Cases<a class="headerlink" href="#smn-io-switch-test-cases" title="Permalink to this heading"></a></h3>
+<h3>8.4 SMN-IO Switch Test Cases<a class="headerlink" href="#smn-io-switch-test-cases" title="Permalink to this heading"></a></h3>
 <section id="tc-switch-smn-io-001-address-based-routing">
 <h4>TC_SWITCH_SMN_IO_001: Address-Based Routing<a class="headerlink" href="#tc-switch-smn-io-001-address-based-routing" title="Permalink to this heading"></a></h4>
 <p><strong>Objective:</strong> Verify routing based on address map</p>
@@ -4698,7 +4669,7 @@ NocPcieSwitch::route_from_pcie() / route_to_pcie()
 </tr>
 </tbody>
 </table>
-<p><strong>All E2E test cases are now implemented. No remaining gaps.</strong></p>
+<p><strong>All E2E test cases are implemented. Directed tests include 5 BME tests (TC_BME_001–005). Total 86 tests, 344 checks.</strong></p>
 </section>
 <hr class="docutils" />
 <section id="appendix-b-test-execution-plan">

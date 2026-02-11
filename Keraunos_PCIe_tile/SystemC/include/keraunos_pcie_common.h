@@ -74,6 +74,23 @@ struct OutstandingRequest {
     OutstandingRequest() : id(0), addr(0), is_read(false), timestamp(sc_core::SC_ZERO_TIME) {}
 };
 
+// AxUSER TLM extension — carries sideband (AxUSER) info through TLM transactions.
+// Used by outbound TLBs to pass TLB ATTR to NOC-PCIE for BME qualification.
+struct AxUserExtension : public tlm::tlm_extension<AxUserExtension> {
+    sc_dt::sc_bv<256> axuser;
+
+    AxUserExtension() : axuser(0) {}
+
+    tlm::tlm_extension_base* clone() const override {
+        auto* e = new AxUserExtension;
+        e->axuser = axuser;
+        return e;
+    }
+    void copy_from(const tlm::tlm_extension_base& other) override {
+        axuser = static_cast<const AxUserExtension&>(other).axuser;
+    }
+};
+
 // Address masking helpers for 52-bit addresses
 // constexpr and noexcept for optimization
 constexpr uint64_t ADDR_52BIT_MASK = 0x000FFFFFFFFFFFFFULL;  // 52-bit mask

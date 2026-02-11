@@ -240,6 +240,13 @@ private:
   SCML2_TEST(testDirected_OutboundTlb_HighAddressRouting);
   SCML2_TEST(testDirected_OutboundTlb_AppOut1_Routing);
 
+  // --- Directed Tests: Bus Master Enable (Section 2.5.8.1, Table 33) ---
+  SCML2_TEST(testDirected_BME_EpMemTlpBlockedWhenBmeDisabled);
+  SCML2_TEST(testDirected_BME_EpDbiAllowedWhenBmeDisabled);
+  SCML2_TEST(testDirected_BME_EpCfgTlpAllowedWhenBmeDisabled);
+  SCML2_TEST(testDirected_BME_EpAllTrafficAllowedWhenBmeEnabled);
+  SCML2_TEST(testDirected_BME_RpAllTrafficAllowedRegardlessOfBme);
+
   // --- Directed Tests: MSI Relay (Section 6) ---
   SCML2_TEST(testDirected_MsiRelay_ReceiverInput);
   SCML2_TEST(testDirected_MsiRelay_MultiVectorConfig);
@@ -332,6 +339,8 @@ private:
   static constexpr uint32_t SMN_MSI_BASE = 0x18000000;       // MSI Relay Config: 0x18000000-0x1803FFFF (256KB)
   static constexpr uint32_t SMN_CONFIG_BASE = 0x18040000;     // Config Reg Block: 0x18040000-0x1804FFFF (64KB)
   static constexpr uint32_t SMN_SII_BASE = 0x18100000;        // SII Config: 0x18100000-0x181FFFFF (1MB)
+  // SmnIoSwitch forwards to smn_n_initiator only for "default" range: addr >= 0x18800000 (or < 0x18000000)
+  static constexpr uint32_t SMN_EXTERNAL_BASE = 0x18800000;   // First address that reaches smn_n_initiator
   // TLB config offsets within Config Reg Block (Appendix B.1)
   static constexpr uint32_t SMN_TLB_SYS_OUT0 = 0x18040000;   // offset 0x0000
   static constexpr uint32_t SMN_TLB_APP_OUT0 = 0x18041000;    // offset 0x1000
@@ -467,13 +476,13 @@ private:
     bool ok = false;
     
     // STEP 1: Configure TLB App In1 entry 0
-    uint64_t noc_base = 0x30000000;  // TLB physical address
+    uint64_t noc_base = 0x200000000ULL;  // TLB physical address (8GB-aligned for 33-bit page)
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN1, 0, noc_base, 0x456);
     enable_system();
     
     // STEP 2: Write via PCIe → should appear in noc_output_mem_ at translated address
     // PCIe addr: route=1 (bits[63:60]), offset=0 → stripped addr=0
-    // TLB translation: noc_base | (stripped_addr & 0xFFFFFF) = 0x30000000
+    // TLB translation: noc_base | (stripped_addr & page_mask) = 0x200000000
     uint32_t test_data = 0xDEADBEEF;
     uint64_t pcie_write_addr = 0x1000000000000000;  // Route=1
     
@@ -481,7 +490,7 @@ private:
     SCML2_ASSERT_THAT(ok, "PCIe→NOC write routing succeeded");
     
     // STEP 3: CROSS-SOCKET VERIFICATION - read data from NOC output backing memory
-    uint64_t translated_addr = noc_base;  // 0x30000000 | (0 & 0xFFFFFF)
+    uint64_t translated_addr = noc_base;  // 0x200000000 | (0 & page_mask)
     verify_output_u32(*noc_output_mem_, translated_addr, test_data,
                       "PCIe→NOC cross-socket: first write");
     
@@ -504,23 +513,42 @@ private:
   }
   
   void testE2E_Inbound_Pcie_TlbSys_SmnN() {
-    // TC_E2E_INBOUND_003: System management path
+    // TC_E2E_INBOUND_003: PCIe route=4 (TLB Sys In0) → SMN port with CROSS-SOCKET DATA VERIFICATION
+    // Design: PCIe → NocPcieSwitch(route 4) → TLB Sys In0 → SmnIoSwitch::route_from_smn
+    //   → smn_n_initiator → smn_output_mem_. Use SMN_EXTERNAL_BASE so SmnIoSwitch forwards to SMN.
     bool ok = false;
     
-    // Configure TLB Sys In0
-    configure_tlb_entry_via_smn(SMN_TLB_SYS_IN0, 0, SMN_CONFIG_BASE, 0x789);
-    
-    // Enable system
+    // STEP 1: Configure TLB Sys In0 entry 0 with physical in external SMN range
+    uint64_t smn_physical = SMN_EXTERNAL_BASE;  // 0x18800000 → SmnIoSwitch default → smn_n_initiator
+    configure_tlb_entry_via_smn(SMN_TLB_SYS_IN0, 0, smn_physical, 0x789);
     enable_system();
     
-    // Send transaction with route=4 (system)
-    uint64_t pcie_addr = 0x4000000000000000;  // Route=4, TLB Sys
-    uint32_t data = 0x12345678;
+    // STEP 2: Write via PCIe route=4 → lands in smn_output_mem_
+    uint32_t test_data = 0x12345678;
+    uint64_t pcie_write_addr = 0x4000000000000000;  // Route=4
     
-    ok = pcie_controller_target.write32(pcie_addr, data);
-    // Removed wait() call
+    ok = pcie_controller_target.write32(pcie_write_addr, test_data);
+    SCML2_ASSERT_THAT(ok, "PCIe→SMN write routing succeeded");
     
-    SCML2_ASSERT_THAT(ok, "PCIe system path via SMN should succeed");
+    // STEP 3: CROSS-SOCKET VERIFICATION - data in SMN output backing memory
+    uint64_t translated_addr = smn_physical;
+    verify_output_u32(*smn_output_mem_, translated_addr, test_data,
+                      "PCIe→SMN cross-socket: first write");
+    
+    // STEP 4: Burst writes with cross-socket data verification
+    uint32_t patterns[] = {0xAAAAAAAA, 0x55555555, 0xDEADBEEF, 0xCAFEBABE};
+    for (size_t i = 0; i < sizeof(patterns)/sizeof(patterns[0]); i++) {
+      uint64_t pcie_addr = pcie_write_addr + (i * 4);
+      uint64_t expected_translated = smn_physical + (i * 4);
+      
+      ok = pcie_controller_target.write32(pcie_addr, patterns[i]);
+      SCML2_ASSERT_THAT(ok, "PCIe→SMN burst write routing succeeded");
+      
+      char context[128];
+      snprintf(context, sizeof(context),
+               "PCIe→SMN burst[%zu] at 0x%lx = 0x%08X", i, expected_translated, patterns[i]);
+      verify_output_u32(*smn_output_mem_, expected_translated, patterns[i], context);
+    }
   }
   
   void testE2E_Inbound_PcieBypassApp() {
@@ -550,23 +578,35 @@ private:
   void testE2E_Inbound_PcieBypassSys() {
     // TC_E2E_INBOUND_005: System bypass with CROSS-SOCKET DATA VERIFICATION
     // PCIe route=9 → NocPcieSwitch → SmnIoSwitch → smn_n_initiator → smn_output_mem_
-    // Bypass path: no TLB, address stripped and routed through SMN-IO switch
+    // SmnIoSwitch forwards to smn_n_initiator only for addr >= SMN_EXTERNAL_BASE (0x18800000).
     bool ok = false;
     
     enable_system();
     
-    // STEP 1: Write via system bypass
-    // PCIe addr 0x9000000000001000 → route=9, stripped addr = 0x1000
-    // NocPcieSwitch forwards to SmnIoSwitch.route_from_smn(0x1000)
-    // SmnIoSwitch: addr 0x1000 < 0x18000000 → DECERR (outside SMN range)
-    // Use an address in the SMN external range instead
+    // STEP 1: Write via system bypass to external SMN range (>= 0x18800000)
     uint32_t sys_data = 0x5678ABCD;
-    uint64_t pcie_bypass_addr = 0x9000000000001000;  // Route=9
+    uint64_t smn_offset = SMN_EXTERNAL_BASE + 0x1000;  // 0x18801000 → reaches smn_n_initiator
+    uint64_t pcie_bypass_addr = (9ULL << 60) | smn_offset;  // Route=9
     
     ok = pcie_controller_target.write32(pcie_bypass_addr, sys_data);
-    // Route=9 bypass sends stripped addr (0x1000) to SmnIoSwitch
-    // SmnIoSwitch routing for addr 0x1000 depends on address decode
-    SCML2_ASSERT_THAT(true, "System bypass path exercised");
+    SCML2_ASSERT_THAT(ok, "PCIe→SMN bypass write succeeded");
+    
+    // STEP 2: CROSS-SOCKET VERIFY - data in SMN output memory
+    verify_output_u32(*smn_output_mem_, smn_offset, sys_data,
+                      "Bypass Sys: PCIe→SMN cross-socket data integrity");
+    
+    // STEP 3: Burst writes with verification
+    uint32_t patterns[] = {0x11111111, 0x22222222, 0x33333333};
+    for (size_t i = 0; i < sizeof(patterns)/sizeof(patterns[0]); i++) {
+      uint64_t addr = (9ULL << 60) | (smn_offset + (i + 1) * 4);
+      ok = pcie_controller_target.write32(addr, patterns[i]);
+      SCML2_ASSERT_THAT(ok, "PCIe→SMN bypass burst write succeeded");
+      uint64_t expected_addr = smn_offset + (i + 1) * 4;
+      char context[128];
+      snprintf(context, sizeof(context),
+               "Bypass Sys burst[%zu] at 0x%lx = 0x%08X", i, expected_addr, patterns[i]);
+      verify_output_u32(*smn_output_mem_, expected_addr, patterns[i], context);
+    }
   }
   
   //===========================================================================
@@ -583,13 +623,13 @@ private:
     bool ok = false;
     
     // STEP 1: Configure TLB App Out0 entry 0
-    uint64_t pcie_iatu = 0xA000000000;
+    uint64_t pcie_iatu = 0xA00000000000ULL;
     configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, pcie_iatu, 0);
     enable_system();
     
     // STEP 2: Pre-load data in PCIe output backing memory at translated address
     // NOC addr 0x1000000003000 (bit[48]=1) → outbound TLB entry 0
-    // TLB translates: pcie_iatu | (noc_addr & page_mask) → 0xA000000000 + 0x3000 = 0xA000003000
+    // TLB translates: entry_base | (noc_addr & page_mask) → 0xA00000000000 + 0x3000 = 0xA00000003000
     uint32_t test_data = 0xBEEF1234;
     uint64_t translated_pcie_addr = pcie_iatu + 0x3000;  // 0xA000003000
     write_output_u32(*pcie_output_mem_, translated_pcie_addr, test_data);
@@ -641,31 +681,33 @@ private:
   }
   
   void testE2E_Outbound_NocN_TlbAppOut1_PcieDBI() {
-    // TC_E2E_OUTBOUND_003: TLB App Out1 with CROSS-SOCKET DATA VERIFICATION
-    // noc_n_target → NocIoSwitch → TLB App Out0 → NocPcieSwitch →
+    // TC_E2E_OUTBOUND_003: TLB App Out1 (DBI) with CROSS-SOCKET DATA VERIFICATION
+    // noc_n_target → NocIoSwitch → TLB App Out1 (64KB pages) → NocPcieSwitch →
     //   pcie_controller_initiator → pcie_output_mem_
-    // NOTE: NocIoSwitch routes bit[48]=1 to tlb_app_output which goes to TLB App Out0
+    // NOTE: NocIoSwitch routes addr in 0x18900000-0x18A00000 to tlb_app_output;
+    //   tile lambda sends low-address (bits[48+]=0) to TLB App Out1 (DBI path).
     bool ok = false;
     
-    // STEP 1: Configure TLB App Out0 (the one NocIoSwitch actually routes to)
-    uint64_t pcie_dbi = 0x9000000000;
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, pcie_dbi, 0);
+    // STEP 1: Configure TLB App Out1 entry 0 (64KB pages, DBI access)
+    uint64_t pcie_dbi = 0x9000000000ULL;
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT1, 0, pcie_dbi, 0);
     enable_system();
     
     // STEP 2: Verify TLB config was written
-    uint32_t tlb_lower = smn_n_target.read32(SMN_TLB_APP_OUT0, &ok);
-    SCML2_ASSERT_THAT(ok, "TLB App Out0 config read succeeded");
-    SCML2_ASSERT_THAT((tlb_lower & 0x1) != 0, "TLB App Out0 entry 0 valid");
+    uint32_t tlb_lower = smn_n_target.read32(SMN_TLB_APP_OUT1, &ok);
+    SCML2_ASSERT_THAT(ok, "TLB App Out1 config read succeeded");
+    SCML2_ASSERT_THAT((tlb_lower & 0x1) != 0, "TLB App Out1 entry 0 valid");
     
     // STEP 3: Write from NOC side — data should reach PCIe output memory
-    // NOC addr (1<<48)|0x8000 → NocIoSwitch: bit[48]=1 → TLB App Out0 path
+    // NOC addr in TLB outbound range (0x189xxxxx) with offset 0x8000
+    // bits[48+]=0 → tile lambda routes to TLBAppOut1
     // TLB translates: pcie_dbi | (0x8000 & page_mask) = 0x9000008000
-    uint64_t noc_addr = 0x1000000008000;
+    uint64_t noc_addr = 0x18900000 + 0x8000;  // DBI range → TLBAppOut1
     uint32_t write_data = 0xABCD5678;
     uint64_t translated_pcie = pcie_dbi + 0x8000;  // 0x9000008000
 
     ok = noc_n_target.write32(noc_addr, write_data);
-    SCML2_ASSERT_THAT(ok, "NOC outbound write via TLB App succeeded");
+    SCML2_ASSERT_THAT(ok, "NOC outbound write via TLB App Out1 succeeded");
     
     // STEP 4: CROSS-SOCKET VERIFY — data from NOC appears in PCIe output memory
     verify_output_u32(*pcie_output_mem_, translated_pcie, write_data,
@@ -675,7 +717,7 @@ private:
     uint32_t preload = 0xFEED9876;
     write_output_u32(*pcie_output_mem_, translated_pcie, preload);
     uint32_t read_data = noc_n_target.read32(noc_addr, &ok);
-    SCML2_ASSERT_THAT(ok, "NOC outbound read via TLB App succeeded");
+    SCML2_ASSERT_THAT(ok, "NOC outbound read via TLB App Out1 succeeded");
     SCML2_ASSERT_THAT(read_data == preload,
         "NOC→PCIe DBI: cross-socket read data verified");
   }
@@ -703,7 +745,7 @@ private:
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN1, 0, 0x40000000, 0x150);
     
     // Test TLB App Out0
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA000000000, 0);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, 0);
     
     // Test TLB Sys In0
     configure_tlb_entry_via_smn(SMN_TLB_SYS_IN0, 0, 0x18000000, 0x50);
@@ -862,32 +904,33 @@ private:
   //===========================================================================
   
   void testE2E_Isolation_GlobalBlock() {
-    // TC_E2E_ISOLATION_001: Isolation blocks all data traffic
+    // TC_E2E_ISOLATION_001: Isolation blocks all data traffic with CROSS-SOCKET VERIFICATION
     bool ok = false;
+    uint64_t noc_base = 0x20000000;
+    uint64_t pcie_addr = 0x0000000000001000;
+    uint64_t translated = noc_base + 0x1000;
     
-    // Enable system first
+    // Enable system and configure TLB so we can verify data path after isolation exit
     enable_system();
+    configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, noc_base, 0x100);
     
     // Assert isolation
     isolate_req_signal.write(true);
-    // Removed wait() call
     
     // Try to send data transactions - should be blocked
     bool pcie_ok = false;
-    uint32_t dummy_data = pcie_controller_target.read32(0x1000, &pcie_ok);
-    // Removed wait() call
-    
-    // Note: Transaction may complete but switches should reject internally
-    // Check timeout signals (would check noc_timeout output in real test)
+    uint32_t dummy_data = pcie_controller_target.read32(pcie_addr, &pcie_ok);
+    (void)dummy_data;
     
     // Deassert isolation
     isolate_req_signal.write(false);
-    // Removed wait() call
     
-    // Verify traffic resumes
-    ok = pcie_controller_target.write32(0x1000, 0x12345678);
-    
+    // Verify traffic resumes and data reaches NOC output memory
+    uint32_t resume_data = 0x12345678;
+    ok = pcie_controller_target.write32(pcie_addr, resume_data);
     SCML2_ASSERT_THAT(ok, "Traffic resumed after isolation exit");
+    verify_output_u32(*noc_output_mem_, translated, resume_data,
+                      "Isolation exit: PCIe→NOC data integrity");
   }
   
   void testE2E_Isolation_ConfigAccessAllowed() {
@@ -971,7 +1014,7 @@ private:
     
     // STEP 1: Configure both paths
     uint64_t noc_base = 0x20000000;
-    uint64_t pcie_target = 0xA000000000;
+    uint64_t pcie_target = 0xA00000000000ULL;
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, noc_base, 0x100);
     configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, pcie_target, 0);
     enable_system();
@@ -991,7 +1034,7 @@ private:
     // STEP 3: Outbound write — NOC → DUT → pcie_output_mem_
     uint32_t outbound_data = 0xBBBB2222;
     uint64_t noc_outbound = 0x1000000000000;  // (1<<48) → TLBAppOut0 entry 0
-    uint64_t outbound_translated = pcie_target;  // 0xA000000000
+    uint64_t outbound_translated = pcie_target;  // 0xA00000000000
     
     ok = noc_n_target.write32(noc_outbound, outbound_data);
     SCML2_ASSERT_THAT(ok, "Outbound write succeeded");
@@ -1007,7 +1050,7 @@ private:
     
     // STEP 1: Configure multiple TLB paths
     uint64_t noc_base0 = 0x20000000;
-    uint64_t noc_base1 = 0x30000000;
+    uint64_t noc_base1 = 0x200000000ULL;  // 8GB-aligned for TLBAppIn1 (33-bit page)
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, noc_base0, 0x100);
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN1, 0, noc_base1, 0x200);
     enable_system();
@@ -1026,7 +1069,7 @@ private:
     ok = pcie_controller_target.write32(0x1000000000000000, data1);
     SCML2_ASSERT_THAT(ok, "TLB1 write succeeded");
     
-    uint64_t translated1 = noc_base1;  // 0x30000000 | (0 & 0xFFFFFF)
+    uint64_t translated1 = noc_base1;  // 0x200000000 | (0 & page_mask)
     verify_output_u32(*noc_output_mem_, translated1, data1,
                       "MultipleTLB: Route 1 cross-socket data integrity");
   }
@@ -1036,8 +1079,9 @@ private:
   //===========================================================================
   
   void testE2E_Reset_ColdResetSequence() {
-    // TC_E2E_RESET_001: Cold reset sequence
+    // TC_E2E_RESET_001: Cold reset sequence with CROSS-SOCKET DATA VERIFICATION
     bool ok = false;
+    uint64_t noc_base = 0x20000000;
     
     // Cold reset handling (signals already initialized in setup())
     cold_reset_n_signal.write(false);
@@ -1045,34 +1089,49 @@ private:
     
     // Re-enable system after cold reset
     enable_system();
-    configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, 0x20000000, 0x100);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, noc_base, 0x100);
     
     // Send test transaction after reset (addr < 16MB for TLBAppIn0 entry 0)
-    ok = pcie_controller_target.write32(0x0000000000001000, 0x11223344);
-    
-    // Reset sequence functional (enables restored)
+    uint32_t test_data = 0x11223344;
+    uint64_t pcie_addr = 0x0000000000001000;
+    uint64_t translated = noc_base + 0x1000;
+    ok = pcie_controller_target.write32(pcie_addr, test_data);
     SCML2_ASSERT_THAT(ok, "Transaction succeeded after cold reset");
+    
+    // CROSS-SOCKET VERIFY: data from PCIe appears in NOC output memory
+    verify_output_u32(*noc_output_mem_, translated, test_data,
+                      "Cold reset: PCIe→NOC data integrity after reset");
   }
   
   void testE2E_Reset_WarmResetSequence() {
-    // TC_E2E_RESET_002: Warm reset preserves configuration
+    // TC_E2E_RESET_002: Warm reset preserves configuration with CROSS-SOCKET VERIFICATION
     bool ok = false;
+    uint64_t noc_base = 0x20000000;
+    uint64_t pcie_addr = 0x0000000000001000;
+    uint64_t translated = noc_base + 0x1000;
     
     // Enable system and configure TLB
     enable_system();
-    configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, 0x20000000, 0x100);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, noc_base, 0x100);
     
-    // Send transaction before warm reset (addr < 16MB for entry 0)
-    ok = pcie_controller_target.write32(0x0000000000001000, 0xAAAABBBB);
+    // Send transaction before warm reset
+    ok = pcie_controller_target.write32(pcie_addr, 0xAAAABBBB);
+    SCML2_ASSERT_THAT(ok, "Pre-reset transaction succeeded");
+    verify_output_u32(*noc_output_mem_, translated, 0xAAAABBBB,
+                      "Warm reset: pre-reset PCIe→NOC data");
     
     // Warm reset (cold_reset_n stays high)
     warm_reset_n_signal.write(false);
     warm_reset_n_signal.write(true);
     
     // Send transaction after warm reset (config preserved in SCML2 memory)
-    ok = pcie_controller_target.write32(0x0000000000001000, 0xCCCCDDDD);
-    
+    uint32_t post_data = 0xCCCCDDDD;
+    ok = pcie_controller_target.write32(pcie_addr, post_data);
     SCML2_ASSERT_THAT(ok, "Transaction succeeded after warm reset");
+    
+    // CROSS-SOCKET VERIFY: post-reset write appears in NOC output memory
+    verify_output_u32(*noc_output_mem_, translated, post_data,
+                      "Warm reset: post-reset PCIe→NOC data integrity");
   }
   
   //===========================================================================
@@ -1131,7 +1190,7 @@ private:
     bool ok = false;
     
     // STEP 1: Configure outbound TLB
-    uint64_t pcie_target = 0xA000000000;
+    uint64_t pcie_target = 0xA00000000000ULL;
     configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, pcie_target, 0);
     enable_system();
     
@@ -1427,7 +1486,7 @@ private:
     // Configure TLBs for all paths
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, 0x80000000, 0x100);  // TLB App In0
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN1, 0, 0x100000000000, 0x200);  // TLB App In1
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA000000000, 0);  // TLB App Out0
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, 0);  // TLB App Out0
     configure_tlb_entry_via_smn(SMN_TLB_SYS_OUT0, 0, 0x4000000000, 0);  // TLB Sys Out0
     
     // Enable system after TLB configuration
@@ -1737,7 +1796,7 @@ private:
     
     // Configure TLBs for all paths
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, 0x80000000, 0x100);
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA000000000, 0);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, 0);
     
     // Active traffic: PCIe inbound (addr < 16MB for entry 0)
     ok = pcie_controller_target.write32(0x0000000000001000, 0x11111111);
@@ -1801,11 +1860,16 @@ private:
     bool ok = false;
 
     // Configure valid TLB entries so valid routes succeed
-    configure_tlb_entry_via_smn(SMN_TLB_APP_IN1, 0, 0x100000000000, 0x456);  // TLB App In1
+    uint64_t noc_base = 0x100000000000ULL;
+    configure_tlb_entry_via_smn(SMN_TLB_APP_IN1, 0, noc_base, 0x456);  // TLB App In1
+    enable_system();
 
-    // Verify a valid route (route=1) succeeds
-    ok = pcie_controller_target.write32(0x1000000000000000, 0xDEADBEEF);
+    // Verify a valid route (route=1) succeeds and data reaches NOC output memory
+    uint32_t valid_data = 0xDEADBEEF;
+    ok = pcie_controller_target.write32(0x1000000000000000, valid_data);
     SCML2_ASSERT_THAT(ok, "Valid route 0x1 should succeed with configured TLB");
+    verify_output_u32(*noc_output_mem_, noc_base, valid_data,
+                      "RouteDecodeErrors: valid route 1 data in NOC memory");
 
     // Test all unmapped routes - each should return DECERR
     uint64_t decerr_routes[] = {0x2, 0x3, 0x5, 0x6, 0x7, 0xA, 0xB, 0xC, 0xD};
@@ -1843,7 +1907,7 @@ private:
     SCML2_ASSERT_THAT(ok, "Pre-test: inbound traffic succeeds with default enables");
     
     // Configure outbound TLB for NOC→PCIe path
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA000000000, 0);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, 0);
     ok = noc_n_target.write32(0x18900000 + 0x1000, 0xBBBB0002);
     SCML2_ASSERT_THAT(ok, "Pre-test: outbound traffic succeeds with default enables");
     
@@ -1890,7 +1954,7 @@ private:
     sc_core::wait(sc_core::SC_ZERO_TIME);
     
     // Step 1: Configure outbound TLB and verify default state works
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA000000000, 0);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, 0);
     ok = noc_n_target.write32(0x18900000 + 0x1000, 0xAAAA0011);
     SCML2_ASSERT_THAT(ok, "Pre-test: outbound traffic succeeds with default enables");
     
@@ -1940,7 +2004,7 @@ private:
     sc_core::wait(sc_core::SC_ZERO_TIME);
     
     // Step 1: Verify default state - traffic flows both directions
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA000000000, 0);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, 0);
     
     ok = pcie_controller_target.write32(0x1000000000000000, 0xAAAA0021);
     SCML2_ASSERT_THAT(ok, "Pre-test: inbound succeeds");
@@ -1999,20 +2063,29 @@ private:
     sc_core::wait(sc_core::SC_ZERO_TIME);
     
     // Configure TLBs for bidirectional traffic
-    configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, 0x80000000, 0x100);    // inbound TLB
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA000000000, 0);   // outbound TLB
+    uint64_t noc_base = 0x80000000;
+    uint64_t pcie_base = 0xA00000000000ULL;
+    configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, noc_base, 0x100);    // inbound TLB
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, pcie_base, 0);   // outbound TLB
     
-    // Step 2: Verify inbound path (PCIe → NOC)
-    // Use addresses within 16MB page for TLBAppIn0 entry 0
-    ok = pcie_controller_target.write32(0x0000000000001000, 0xAAAA0031);
+    // Step 2: Verify inbound path (PCIe → NOC) with CROSS-SOCKET VERIFICATION
+    uint64_t pcie_in_addr = 0x0000000000001000;
+    uint64_t inbound_translated = noc_base + 0x1000;
+    ok = pcie_controller_target.write32(pcie_in_addr, 0xAAAA0031);
     SCML2_ASSERT_THAT(ok, "Both enabled: inbound write succeeds");
+    verify_output_u32(*noc_output_mem_, inbound_translated, 0xAAAA0031,
+                      "Both enabled: inbound PCIe→NOC data integrity");
     
     uint32_t rd_val = pcie_controller_target.read32(0x0000000000001100, &ok);
     SCML2_ASSERT_THAT(ok, "Both enabled: inbound read succeeds");
     
-    // Step 3: Verify outbound path (NOC → PCIe via TLBAppOut0)
-    ok = noc_n_target.write32(0x1000000001000, 0xBBBB0032);
+    // Step 3: Verify outbound path (NOC → PCIe via TLBAppOut0) with CROSS-SOCKET VERIFICATION
+    uint64_t noc_out_addr = 0x1000000001000;
+    uint64_t outbound_translated = pcie_base + 0x1000;
+    ok = noc_n_target.write32(noc_out_addr, 0xBBBB0032);
     SCML2_ASSERT_THAT(ok, "Both enabled: outbound write succeeds");
+    verify_output_u32(*pcie_output_mem_, outbound_translated, 0xBBBB0032,
+                      "Both enabled: outbound NOC→PCIe data integrity");
     
     rd_val = noc_n_target.read32(0x1000000001100, &ok);
     SCML2_ASSERT_THAT(ok, "Both enabled: outbound read succeeds");
@@ -2143,12 +2216,21 @@ private:
     // Flush pending signals from setup()
     sc_core::wait(sc_core::SC_ZERO_TIME);
 
-    // Step 1: Bypass paths work with default enables
-    ok = pcie_controller_target.write32(0x8000000000001000, 0xABCD1234);
+    // Step 1: Bypass paths work with default enables + CROSS-SOCKET VERIFICATION
+    // Bypass app: route=8, stripped addr 0x1000 → NocIoSwitch → noc_output_mem_
+    uint64_t bypass_app_addr = 0x8000000000001000;
+    ok = pcie_controller_target.write32(bypass_app_addr, 0xABCD1234);
     SCML2_ASSERT_THAT(ok, "Bypass app (route=0x8) should succeed");
+    verify_output_u32(*noc_output_mem_, 0x1000, 0xABCD1234,
+                      "BypassPathRouting: app bypass data at 0x1000");
 
-    ok = pcie_controller_target.write32(0x9000000000001000, 0x5678ABCD);
+    // Bypass sys: route=9, use external SMN (>= 0x18800000) so data reaches smn_output_mem_
+    uint64_t smn_bypass_offset = SMN_EXTERNAL_BASE + 0x1000;  // 0x18801000
+    uint64_t bypass_sys_addr = (9ULL << 60) | smn_bypass_offset;
+    ok = pcie_controller_target.write32(bypass_sys_addr, 0x5678ABCD);
     SCML2_ASSERT_THAT(ok, "Bypass sys (route=0x9) should succeed");
+    verify_output_u32(*smn_output_mem_, smn_bypass_offset, 0x5678ABCD,
+                      "BypassPathRouting: sys bypass data in SMN memory");
 
     // Step 2: Cold reset cycling (harmless for enables/TLBs)
     cold_reset_n_signal.write(false);
@@ -2156,12 +2238,16 @@ private:
     cold_reset_n_signal.write(true);
     sc_core::wait(sc_core::SC_ZERO_TIME);
 
-    // Step 3: Bypass paths survive cold reset
-    ok = pcie_controller_target.write32(0x8000000000001000, 0x3333);
+    // Step 3: Bypass paths survive cold reset + verify data
+    ok = pcie_controller_target.write32(bypass_app_addr, 0x3333);
     SCML2_ASSERT_THAT(ok, "Bypass app path works after cold reset");
+    verify_output_u32(*noc_output_mem_, 0x1000, 0x3333,
+                      "BypassPathRouting: app bypass after reset");
 
-    ok = pcie_controller_target.write32(0x9000000000001000, 0x4444);
+    ok = pcie_controller_target.write32(bypass_sys_addr, 0x4444);
     SCML2_ASSERT_THAT(ok, "Bypass sys path works after cold reset");
+    verify_output_u32(*smn_output_mem_, smn_bypass_offset, 0x4444,
+                      "BypassPathRouting: sys bypass after reset");
   }
 
   void testDirected_Switch_SmnIoAllTargets() {
@@ -2183,7 +2269,9 @@ private:
     SCML2_ASSERT_THAT(ok, "SMN-IO config reg block mid-range returns OK");
 
     // SII Config: 0x18100000-0x181FFFFF (1MB)
-    smn_n_target.write32(SMN_SII_BASE, 0x9ABC);
+    // Note: CORE_CONTROL[2:0]=4 means RP mode. Use 0x9AB0 to avoid
+    // accidentally setting device_type to RP (which would break BME tests).
+    smn_n_target.write32(SMN_SII_BASE, 0x9AB0);
     SCML2_ASSERT_THAT(true, "SMN-IO SII config route exercised");
 
     // SerDes APB: 0x180C0000-0x180FFFFF (256KB)
@@ -2458,26 +2546,35 @@ private:
 
   void testDirected_InboundTlb_AllThreeTypes() {
     // TC_INBOUND_SYS_001 / TC_INBOUND_APP0_003 / TC_INBOUND_APP1_002:
-    // Verify all three inbound TLB types with their different page sizes
+    // Verify all three inbound TLB types with their different page sizes.
+    // TLB Sys In0 (route=4) → SmnIoSwitch → smn_n_initiator → smn_output_mem_;
+    // use SMN_EXTERNAL_BASE so translated traffic reaches backing memory.
     bool ok = false;
+    enable_system();
 
-    // Type 1: TLB Sys In0 - 16KB pages, route=4
-    configure_tlb_entry_via_smn(SMN_TLB_SYS_IN0, 0, SMN_CONFIG_BASE, 0x789);
+    // Type 1: TLB Sys In0 - 16KB pages, route=4 → SMN port (not NOC)
+    configure_tlb_entry_via_smn(SMN_TLB_SYS_IN0, 0, SMN_EXTERNAL_BASE, 0x789);
     ok = pcie_controller_target.write32(0x4000000000000000, 0x11111111);
     SCML2_ASSERT_THAT(ok,
         "TLB Sys In0 (16KB pages, route=4) should succeed");
+    verify_output_u32(*smn_output_mem_, SMN_EXTERNAL_BASE, 0x11111111,
+        "TLB Sys In0 (route=4) data lands in smn_output_mem_");
 
-    // Type 2: TLB App In0 - 16MB pages, route=0
+    // Type 2: TLB App In0 - 16MB pages, route=0 → NOC
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN0_0, 0, 0x80000000, 0x100);
-    ok = pcie_controller_target.write32(0x0000000000100000, 0x22222222);
+    ok = pcie_controller_target.write32(0x0000000000010000, 0x22222222);
     SCML2_ASSERT_THAT(ok,
         "TLB App In0 (16MB pages, route=0) should succeed");
+    verify_output_u32(*noc_output_mem_, 0x80000000 + 0x10000, 0x22222222,
+        "TLB App In0 (route=0) data lands in noc_output_mem_");
 
-    // Type 3: TLB App In1 - 8GB pages, route=1
+    // Type 3: TLB App In1 - 8GB pages, route=1 → NOC
     configure_tlb_entry_via_smn(SMN_TLB_APP_IN1, 0, 0x100000000000, 0x456);
     ok = pcie_controller_target.write32(0x1000000000000000, 0x33333333);
     SCML2_ASSERT_THAT(ok,
         "TLB App In1 (8GB pages, route=1) should succeed");
+    verify_output_u32(*noc_output_mem_, 0x100000000000, 0x33333333,
+        "TLB App In1 (route=1) data lands in noc_output_mem_");
   }
 
   void testDirected_InboundTlb_App0_AllInstances() {
@@ -2539,21 +2636,37 @@ private:
   }
 
   void testDirected_OutboundTlb_HighAddressRouting() {
-    // TC_OUTBOUND_APP0_001/002: High address routing to TLB App Out0
+    // TC_OUTBOUND_APP0_001/002: High address routing to TLB App Out0 with CROSS-SOCKET VERIFICATION
     // NOC-IO routes addresses with AxADDR[51:48] != 0 to TLB App Outbound
     bool ok = false;
+    uint64_t pcie_base = 0xA00000000000ULL;
 
     // Configure TLB App Out0 entry 0: 16TB pages
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA000000000, 0);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, pcie_base, 0);
+    enable_system();
+
+    // Pre-load PCIe output memory so outbound READ can be verified
+    uint32_t expected_rd = 0x1234ABCD;
+    uint64_t translated = pcie_base;  // high_addr 0x1000000000000 → entry 0, offset 0
+    write_output_u32(*pcie_output_mem_, translated, expected_rd);
 
     // Send with high address (bits [51:48] = 0x1, bits[47:44]=0 for entry 0)
     uint64_t high_addr = 0x1000000000000;  // (1<<48) → TLBAppOut0 entry 0
     bool rd_ok = false;
     uint32_t rd_data = noc_n_target.read32(high_addr, &rd_ok);
     SCML2_ASSERT_THAT(rd_ok, "High address should route to TLB App Out0");
+    SCML2_ASSERT_THAT(rd_data == expected_rd,
+        "Outbound read: NOC→PCIe cross-socket data (pre-loaded value)");
 
-    // Different high address (bits [51:48] = 0x2, small page offset)
-    uint64_t high_addr2 = 0x20001000000000;  // high bits set → TLBAppOut0
+    // Outbound WRITE then verify in pcie_output_mem_
+    uint32_t write_val = 0xDEADBEEF;
+    ok = noc_n_target.write32(high_addr, write_val);
+    SCML2_ASSERT_THAT(ok, "High address outbound write should succeed");
+    verify_output_u32(*pcie_output_mem_, translated, write_val,
+                      "Outbound write: NOC→PCIe cross-socket data integrity");
+
+    // Different high address (bits [51:48] = 0x2, entry 0, with page offset 0x3000)
+    uint64_t high_addr2 = 0x2000000003000ULL;  // bits[51:48]=2, bits[47:44]=0 → entry 0
     rd_ok = false;
     rd_data = noc_n_target.read32(high_addr2, &rd_ok);
     SCML2_ASSERT_THAT(rd_ok, "Another high address should also route correctly");
@@ -2566,12 +2679,16 @@ private:
   }
 
   void testDirected_OutboundTlb_AppOut1_Routing() {
-    // TC_OUTBOUND_APP1_001: TLB App Out1 access via NOC-IO
-    // TLB App Out1 data path: 0x18900000 (TLB App Outbound region)
+    // TC_OUTBOUND_APP1_001: TLB App Out1 access via NOC-IO (path and config verified)
+    // TLB App Out1 data path: 0x18900000 (TLB App Outbound region). Routing and write
+    // success are asserted; cross-socket verify in pcie_output_mem_ is not used here
+    // because translation/routing for 0x189xxxxx may not land on the same initiator
+    // socket as TLB App Out0 in this harness.
     bool ok = false;
 
     // Configure TLB App Out1 entry 0: 64KB pages
     configure_tlb_entry_via_smn(SMN_TLB_APP_OUT1, 0, 0x9000000000, 0);
+    enable_system();
 
     // Access via NOC address in TLB App Outbound range
     uint64_t noc_addr = 0x18900000 + 0x8000;
@@ -2580,10 +2697,151 @@ private:
     SCML2_ASSERT_THAT(rd_ok,
         "TLB App Out1 via NOC-IO should succeed");
 
-    // Write test
+    // Write test: path exercised
     ok = noc_n_target.write32(noc_addr + 0x100, 0xDEADC0DE);
     SCML2_ASSERT_THAT(ok,
         "TLB App Out1 write via NOC-IO should succeed");
+  }
+
+  //===========================================================================
+  // DIRECTED TESTS: Bus Master Enable (Section 2.5.8.1, Table 33/34)
+  //===========================================================================
+
+  void testDirected_BME_EpMemTlpBlockedWhenBmeDisabled() {
+    // TC_BME_001: EP mode, outbound_enable=1, BME=0 → Memory TLPs get DECERR
+    // Per Table 33 row: outbound=1, EP, BME=0 → Mem TLP = DECERR
+    bool ok = false;
+
+    // Configure TLB App Out0 entry 0 with memory TLP attributes (AxUSER TLP Type [4:0] = 0)
+    // TLP Type 0 = MRd/MWr (memory), no DBI bit
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, 0x00000000);
+    enable_system();
+
+    // Set EP mode (default) and BME=0
+    this->modelUnderTest->set_bus_master_enable(false);
+
+    // Send outbound traffic through TLBAppOut0 (high address, memory TLP)
+    uint64_t high_addr = 0x1000000000000;  // AxADDR[51:48]!=0 → TLBAppOut0
+    bool rd_ok = false;
+    uint32_t rd_data = noc_n_target.read32(high_addr, &rd_ok);
+    SCML2_ASSERT_THAT(!rd_ok,
+        "BME=0 EP mode: memory TLP via TLBAppOut0 should get DECERR");
+
+    ok = noc_n_target.write32(high_addr, 0xDEADBEEF);
+    SCML2_ASSERT_THAT(!ok,
+        "BME=0 EP mode: memory write TLP via TLBAppOut0 should get DECERR");
+
+    // Restore BME for other tests
+    this->modelUnderTest->set_bus_master_enable(true);
+  }
+
+  void testDirected_BME_EpDbiAllowedWhenBmeDisabled() {
+    // TC_BME_002: EP mode, outbound_enable=1, BME=0 → DBI TLPs pass (not affected by BME)
+    // Per Table 33: DBI column = OKAY when outbound=1, EP, BME=0
+    bool ok = false;
+
+    // Configure TLB App Out1 entry 0 with DBI attributes
+    // AxUSER bit [21] = DBI indicator. ATTR value: (1 << 21) = 0x200000
+    uint32_t dbi_attr = (1u << 21);  // DBI bit set in AxUSER
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT1, 0, 0x9000000000, dbi_attr);
+    enable_system();
+
+    // Set EP mode (default) and BME=0
+    this->modelUnderTest->set_bus_master_enable(false);
+
+    // Send outbound DBI traffic through TLBAppOut1 (NOC-IO DBI range)
+    uint64_t noc_addr = 0x18900000 + 0x8000;
+    bool rd_ok = false;
+    uint32_t rd_data = noc_n_target.read32(noc_addr, &rd_ok);
+    SCML2_ASSERT_THAT(rd_ok,
+        "BME=0 EP mode: DBI TLP via TLBAppOut1 should be allowed");
+
+    ok = noc_n_target.write32(noc_addr + 0x100, 0xCAFEBABE);
+    SCML2_ASSERT_THAT(ok,
+        "BME=0 EP mode: DBI write TLP via TLBAppOut1 should be allowed");
+
+    // Restore BME for other tests
+    this->modelUnderTest->set_bus_master_enable(true);
+  }
+
+  void testDirected_BME_EpCfgTlpAllowedWhenBmeDisabled() {
+    // TC_BME_003: EP mode, outbound_enable=1, BME=0 → Cfg TLPs pass (Table 34: CfgRd/Wr exempt)
+    // Per Table 33: Cfg TLP column = OKAY when outbound=1, EP, BME=0
+    // CfgRd0/CfgWr0: TYPE[4:0] = 00100 = 4
+    bool ok = false;
+
+    // Configure TLB App Out0 entry 0 with Cfg TLP type in AxUSER
+    // AxUSER TLP Type [4:0] = 4 (CfgRd0/CfgWr0)
+    uint32_t cfg_attr = 0x04;  // TYPE[4:0] = 00100 = CfgRd0/CfgWr0
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, cfg_attr);
+    enable_system();
+
+    // Set EP mode and BME=0
+    this->modelUnderTest->set_bus_master_enable(false);
+
+    // Send outbound Cfg TLP through TLBAppOut0
+    uint64_t high_addr = 0x1000000000000;
+    bool rd_ok = false;
+    uint32_t rd_data = noc_n_target.read32(high_addr, &rd_ok);
+    SCML2_ASSERT_THAT(rd_ok,
+        "BME=0 EP mode: CfgRd TLP via TLBAppOut0 should be allowed (Table 34 exempt)");
+
+    // Restore BME
+    this->modelUnderTest->set_bus_master_enable(true);
+  }
+
+  void testDirected_BME_EpAllTrafficAllowedWhenBmeEnabled() {
+    // TC_BME_004: EP mode, outbound_enable=1, BME=1 → All TLPs pass
+    // Per Table 33 row: outbound=1, EP, BME=1 → Mem/Cfg/DBI all OKAY
+    bool ok = false;
+
+    // Configure TLB App Out0 entry 0 with memory TLP (TYPE=0, no DBI)
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, 0x00000000);
+    enable_system();
+
+    // Set EP mode and BME=1
+    this->modelUnderTest->set_bus_master_enable(true);
+
+    // Memory TLP should pass
+    uint64_t high_addr = 0x1000000000000;
+    bool rd_ok = false;
+    uint32_t rd_data = noc_n_target.read32(high_addr, &rd_ok);
+    SCML2_ASSERT_THAT(rd_ok,
+        "BME=1 EP mode: memory TLP via TLBAppOut0 should be allowed");
+
+    ok = noc_n_target.write32(high_addr, 0x12345678);
+    SCML2_ASSERT_THAT(ok,
+        "BME=1 EP mode: memory write TLP via TLBAppOut0 should be allowed");
+  }
+
+  void testDirected_BME_RpAllTrafficAllowedRegardlessOfBme() {
+    // TC_BME_005: RP mode, outbound_enable=1, BME=0 → All TLPs pass
+    // Per Table 33 row: outbound=1, RP, x → all OKAY (BME not checked in RP mode)
+    bool ok = false;
+
+    // Configure TLB App Out0 entry 0 with memory TLP (TYPE=0)
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA00000000000ULL, 0x00000000);
+    enable_system();
+
+    // Set RP mode via SII: write device_type = 4 (RP) to SII CORE_CONTROL
+    ok = smn_n_target.write32(SMN_SII_BASE, 0x04);  // CORE_CONTROL offset 0, device_type=RP
+    SCML2_ASSERT_THAT(ok, "SII device_type write to RP should succeed");
+    sc_core::wait(sc_core::SC_ZERO_TIME);  // Propagate signal_update_process
+
+    // Set BME=0 — should not matter in RP mode
+    this->modelUnderTest->set_bus_master_enable(false);
+
+    // Memory TLP should still pass (RP mode ignores BME)
+    uint64_t high_addr = 0x1000000000000;
+    bool rd_ok = false;
+    uint32_t rd_data = noc_n_target.read32(high_addr, &rd_ok);
+    SCML2_ASSERT_THAT(rd_ok,
+        "RP mode: memory TLP should be allowed regardless of BME=0");
+
+    // Restore EP mode and BME for other tests
+    ok = smn_n_target.write32(SMN_SII_BASE, 0x00);  // device_type=EP
+    sc_core::wait(sc_core::SC_ZERO_TIME);
+    this->modelUnderTest->set_bus_master_enable(true);
   }
 
   //===========================================================================
@@ -2687,12 +2945,12 @@ private:
     SCML2_ASSERT_THAT(true,
         "MSI input path exercised for vector 15");
 
-    // Step 3: Trigger MSI from PCIe inbound side (noc_pcie_switch MSI path)
-    // Address prefix 0x4 routes to MSI relay in noc_pcie_switch
+    // Step 3: PCIe inbound with route 0x4 (TLB Sys In0 path, not MSI relay)
+    // NOC-PCIE switch route 4 = TLB_SYS → TLB Sys In0 → SmnIoSwitch.
+    // MSI relay is triggered from NOC side (e.g. 0x18800000), not from PCIe route 4.
     ok = pcie_controller_target.write32(0x4000000000000000, 0x0000);
-    // Whether this reaches MSI relay depends on NOC-PCIE switch routing
     SCML2_ASSERT_THAT(true,
-        "PCIe inbound MSI path exercised (routing to relay attempted)");
+        "PCIe inbound route=4 (TLB Sys In0) path exercised");
 
     // Step 4: Verify no spurious MSI output
     // Since PBA bits are never set and msix_enable_=false, no MSI should fire.
@@ -3403,18 +3661,23 @@ private:
   }
 
   void testDirected_Integration_BidirectionalVerified() {
-    // TC_INTEGRATION_003/004: Concurrent bidirectional traffic with assertions
+    // TC_INTEGRATION_003/004: Concurrent bidirectional traffic with CROSS-SOCKET VERIFICATION
     bool ok = false;
+    uint64_t noc_base = 0x100000000000ULL;
+    uint64_t pcie_base = 0xA00000000000ULL;
 
     // Configure inbound and outbound TLBs
-    configure_tlb_entry_via_smn(SMN_TLB_APP_IN1, 0, 0x100000000000, 0x456);
-    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, 0xA000000000, 0);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_IN1, 0, noc_base, 0x456);
+    configure_tlb_entry_via_smn(SMN_TLB_APP_OUT0, 0, pcie_base, 0);
+    enable_system();
 
     // Inbound: PCIe -> TLB App In1 -> NOC
     ok = pcie_controller_target.write32(0x1000000000000000, 0xAAAA1111);
     SCML2_ASSERT_THAT(ok, "Inbound write should succeed");
+    verify_output_u32(*noc_output_mem_, noc_base, 0xAAAA1111,
+                      "Integration: inbound PCIe→NOC data integrity");
 
-    // Outbound: NOC -> TLB App Out0 -> PCIe
+    // Outbound: NOC -> TLB App Out0 -> PCIe (read pre-loaded, then write)
     bool rd_ok = false;
     uint32_t rd = noc_n_target.read32(0x1000000000000, &rd_ok);
     SCML2_ASSERT_THAT(rd_ok, "Outbound read should succeed");
@@ -3424,17 +3687,21 @@ private:
     rd = pcie_controller_target.read32(0x1000000000000000, &rd_ok);
     SCML2_ASSERT_THAT(rd_ok, "Inbound read should succeed");
     
-    // Outbound write
+    // Outbound write and CROSS-SOCKET VERIFY
     ok = noc_n_target.write32(0x1000000000000, 0xBBBB2222);
     SCML2_ASSERT_THAT(ok, "Outbound write should succeed");
+    verify_output_u32(*pcie_output_mem_, pcie_base, 0xBBBB2222,
+                      "Integration: outbound NOC→PCIe data integrity");
 
     // SMN config path during active traffic (config reg block range)
     ok = smn_n_target.write32(0x18000100, 0x0305);
     SCML2_ASSERT_THAT(ok, "SMN config during active traffic should succeed");
 
-    // Bypass path concurrent with TLB path
+    // Bypass path concurrent with TLB path + CROSS-SOCKET VERIFY
     ok = pcie_controller_target.write32(0x8000000000001000, 0xCCCC3333);
     SCML2_ASSERT_THAT(ok, "Bypass concurrent with TLB traffic should succeed");
+    verify_output_u32(*noc_output_mem_, 0x1000, 0xCCCC3333,
+                      "Integration: bypass PCIe→NOC data integrity");
 
     // MSI relay input concurrent (address passthrough: NOC-IO passes full
     // address to MSI relay, which rejects non-zero offsets)
@@ -3508,9 +3775,9 @@ private:
   void testDirected_Switch_StatusRegRoute0xF() {
     // TC_SWITCH_NOC_PCIE_005: Status register access via route 0xF.
     //
-    // The is_status_register_access() function accepts BOTH route 0xE and
-    // route 0xF for READ operations when system_ready_=true.
-    // Only route 0xE was tested before; this test covers 0xF.
+    // Per spec Table 32 + Section 2.5.8.2:
+    //   Route 0xF: ALWAYS status register (read or write, no system_ready gate)
+    //   Route 0xE: status register when AxADDR[59:7]==0 && read
     bool ok = false;
 
     // Step 1: Read status register via route 0xE (existing behavior)
@@ -3533,31 +3800,33 @@ private:
   }
 
   void testDirected_Switch_StatusRegWriteRejection() {
-    // TC_SWITCH_NOC_PCIE_006: Write to status register route should NOT
-    // be treated as status register access.
+    // TC_SWITCH_NOC_PCIE_006: Route 0xE/0xF write behavior per spec Table 32.
     //
-    // is_status_register_access() requires is_read=true.
-    // A WRITE to route 0xE or 0xF should fall through to route_address()
-    // which returns NocPcieRoute::DECERR_2 for route bits 0xE and 0xF,
-    // resulting in TLM_ADDRESS_ERROR_RESPONSE.
+    // Per spec:
+    //   Route 0xE write → TLB Sys0 (not status register, not DECERR)
+    //   Route 0xF (read or write) → Status Register (always OK)
+    //   Route 0xE read with AxADDR[59:7]==0 → Status Register
     bool ok = false;
 
-    // Step 1: Write to route 0xE address
+    // Step 1: Write to route 0xE address (AxADDR[59:7]==0)
+    // Per Table 32: route 0xE with write → routes to TLB Sys0.
+    // TLBSysIn0 entry 0 is valid by default, so write goes through to SMN.
     ok = pcie_controller_target.write32(0xE000000000000000, 0x12345678);
-    SCML2_ASSERT_THAT(!ok,
-        "Write to route 0xE rejected (DECERR, not status access)");
+    SCML2_ASSERT_THAT(ok,
+        "Write to route 0xE routes to TLB Sys0 (per Table 32)");
 
     // Step 2: Write to route 0xF address
+    // Per Table 32: route 0xF always → Status Register (read or write OK)
     ok = pcie_controller_target.write32(0xF000000000000000, 0xABCDEF01);
-    SCML2_ASSERT_THAT(!ok,
-        "Write to route 0xF rejected (DECERR, not status access)");
+    SCML2_ASSERT_THAT(ok,
+        "Write to route 0xF accepted (status register, per Table 32)");
 
-    // Step 3: Verify read still works after write rejection
+    // Step 3: Verify read still works
     uint32_t status = pcie_controller_target.read32(0xE000000000000000, &ok);
     SCML2_ASSERT_THAT(ok,
-        "Read via route 0xE still works after write rejection");
+        "Read via route 0xE still works after writes");
     SCML2_ASSERT_THAT((status & 0x1) == 1,
-        "system_ready=1 after write rejection (system stable)");
+        "system_ready=1 (system stable)");
   }
 
   void testDirected_Switch_BadCommandResponse() {

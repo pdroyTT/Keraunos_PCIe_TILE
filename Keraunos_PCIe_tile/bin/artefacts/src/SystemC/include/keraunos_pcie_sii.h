@@ -11,6 +11,7 @@
 #include <tlm>
 #include <sc_dt.h>
 #include <cstdint>
+#include <functional>
 
 namespace keraunos {
 namespace pcie {
@@ -42,6 +43,12 @@ public:
     bool get_device_type() const { return device_type_; }
     bool get_sys_int() const { return sys_int_; }
 
+    // Callback for immediate notification when device_type changes via APB write.
+    // This is needed because APB writes don't trigger the tile's SC_METHOD, so
+    // controller_is_ep_ in NocPcieSwitch would be stale without this callback.
+    using DeviceTypeCallback = std::function<void(bool is_rp)>;
+    void set_device_type_callback(DeviceTypeCallback cb) { device_type_cb_ = cb; }
+
 private:
     // --- CII input state ---
     bool cii_hv_;
@@ -71,6 +78,8 @@ private:
     // Core Control register fields
     static const uint32_t CORE_CONTROL_DEVICE_TYPE_MASK = 0x7;  // [2:0]
     static const uint32_t CORE_CONTROL_DEVICE_TYPE_RP   = 0x4;
+
+    DeviceTypeCallback device_type_cb_;
 };
 
 } // namespace pcie
