@@ -1494,24 +1494,23 @@ Complete architectural refactoring to eliminate all internal socket bindings whi
 <span class="kt">void</span><span class="w"> </span><span class="nf">route_from_pcie</span><span class="p">(</span><span class="n">tlm</span><span class="o">::</span><span class="n">tlm_generic_payload</span><span class="o">&amp;</span><span class="w"> </span><span class="n">trans</span><span class="p">,</span><span class="w"> </span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_time</span><span class="o">&amp;</span><span class="w"> </span><span class="n">delay</span><span class="p">);</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">process_inbound_traffic</span><span class="p">(...,</span><span class="w"> </span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_time</span><span class="o">&amp;</span><span class="w"> </span><span class="n">delay</span><span class="p">);</span>
 
-<span class="c1">// Delay propagates through callback chain</span>
+<span class="c1">// Delay propagates through callback chain (reference passed; no wait() in path)</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">NocPcieSwitch::route_from_pcie</span><span class="p">(...,</span><span class="w"> </span><span class="n">sc_core</span><span class="o">::</span><span class="n">sc_time</span><span class="o">&amp;</span><span class="w"> </span><span class="n">delay</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// Can add routing delay: delay += sc_time(2, SC_NS);</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tlb_app_inbound0_</span><span class="p">)</span><span class="w"> </span>
 <span class="w">        </span><span class="n">tlb_app_inbound0_</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span><span class="w"> </span><span class="n">delay</span><span class="p">);</span><span class="w">  </span><span class="c1">// Delay passed through</span>
 <span class="p">}</span>
 
-<span class="c1">// No wait() calls anywhere - pure LT style</span>
-<span class="c1">// Synchronization only at quantum boundaries (configurable)</span>
+<span class="c1">// No wait() calls anywhere in data path - pure LT style</span>
+<span class="c1">// Synchronization only at quantum boundaries if testbench sets global quantum</span>
 </pre></div>
 </div>
 <p><strong>Key Features:</strong></p>
 <ul class="simple">
-<li><p>✅ <strong>40+ methods</strong> with <code class="docutils literal notranslate"><span class="pre">sc_time&amp;</span> <span class="pre">delay</span></code> parameter</p></li>
-<li><p>✅ <strong>Zero <code class="docutils literal notranslate"><span class="pre">wait()</span></code> calls</strong> in transaction paths</p></li>
-<li><p>✅ <strong>Delay accumulates</strong> without synchronization</p></li>
-<li><p>✅ <strong>Quantum configurable</strong> - Trade accuracy for speed</p></li>
-<li><p>✅ <strong>10-100x faster</strong> simulation possible</p></li>
+<li><p>✅ <strong>40+ methods</strong> with <code class="docutils literal notranslate"><span class="pre">sc_time&amp;</span> <span class="pre">delay</span></code> parameter (LT-compliant signature)</p></li>
+<li><p>✅ <strong>Zero <code class="docutils literal notranslate"><span class="pre">wait()</span></code> calls</strong> in transaction paths (TLBs, switches, config, MSI relay)</p></li>
+<li><p>✅ <strong>Delay is passed by reference</strong> through the entire chain; initiator can advance time via <code class="docutils literal notranslate"><span class="pre">wait(delay)</span></code> after return</p></li>
+<li><p>✅ <strong>Processing delay per unit:</strong> Currently <strong>no component adds to <code class="docutils literal notranslate"><span class="pre">delay</span></code></strong> (zero latency model). To add timing: each unit would do e.g. <code class="docutils literal notranslate"><span class="pre">delay</span> <span class="pre">+=</span> <span class="pre">sc_time(latency_ns,</span> <span class="pre">SC_NS)</span></code> before forwarding; total path delay = sum of per-unit latencies when initiator calls <code class="docutils literal notranslate"><span class="pre">wait(delay)</span></code>.</p></li>
+<li><p>✅ <strong>Quantum:</strong> Not set by the DUT; testbench may call <code class="docutils literal notranslate"><span class="pre">tlm_global_quantum::instance().set(sc_time(quantum_ns,</span> <span class="pre">SC_NS))</span></code> and use a quantum keeper for temporal decoupling.</p></li>
 </ul>
 </section>
 <hr class="docutils" />
@@ -6528,9 +6527,10 @@ Result: 100% PASS RATE
 <h3>13.1 Current Limitations<a class="headerlink" href="#current-limitations" title="Permalink to this heading"></a></h3>
 <p><strong>1. Zero-Time Model:</strong></p>
 <ul class="simple">
-<li><p>Current implementation: All transactions complete in zero time</p></li>
+<li><p>Current implementation: All transactions complete in zero time; <strong>no unit adds to <code class="docutils literal notranslate"><span class="pre">delay</span></code></strong> (processing delay is 0 for every component).</p></li>
+<li><p><strong>How processing delay would be calculated:</strong> In LT style, the initiator passes <code class="docutils literal notranslate"><span class="pre">sc_time&amp;</span> <span class="pre">delay</span></code> (e.g. initially <code class="docutils literal notranslate"><span class="pre">SC_ZERO_TIME</span></code>). Each target may add its latency: <code class="docutils literal notranslate"><span class="pre">delay</span> <span class="pre">+=</span> <span class="pre">sc_core::sc_time(latency_ns,</span> <span class="pre">sc_core::SC_NS)</span></code>. The same <code class="docutils literal notranslate"><span class="pre">delay</span></code> is passed by reference through the chain (switch → TLB → next switch → …). When the call returns, the initiator does <code class="docutils literal notranslate"><span class="pre">wait(delay)</span></code> to advance its local time. So total path delay = sum of all <code class="docutils literal notranslate"><span class="pre">delay</span> <span class="pre">+=</span></code> along the path. Today no component adds, so effective path delay is zero.</p></li>
 <li><p>Impact: No timing accuracy for performance analysis</p></li>
-<li><p>Mitigation: Can add <code class="docutils literal notranslate"><span class="pre">delay</span> <span class="pre">+=</span></code> statements as needed</p></li>
+<li><p>Mitigation: Can add <code class="docutils literal notranslate"><span class="pre">delay</span> <span class="pre">+=</span></code> per component (e.g. 1–2 ns per TLB/switch) as needed</p></li>
 <li><p>Future: Add component-specific timing parameters</p></li>
 </ul>
 <p><strong>2. Test Implementation Level:</strong></p>

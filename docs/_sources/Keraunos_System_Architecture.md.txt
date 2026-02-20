@@ -313,8 +313,8 @@ graph LR
 
 | Tile port | Direction | Width | Connected to (EP side) | Description |
 |-----------|-----------|-------|------------------------|-------------|
-| `pcie_controller_target` | Target (in) | 64-bit | EP AXI/TLM initiator | Inbound TLPs from host: EP pushes Memory Read/Write to tile |
-| `pcie_controller_initiator` | Initiator (out) | 64-bit | EP AXI/TLM target | Outbound TLPs to host: tile pushes Memory Read/Write/Completion to EP |
+| `pcie_controller_target` | Target (in) | 64-bit | **EP BusMaster** (TLM master) | Inbound TLPs from host: EP pushes Memory Read/Write to tile |
+| `pcie_controller_initiator` | Initiator (out) | 64-bit | **EP AXI_Slave** (TLM slave) | Outbound TLPs to host: tile pushes Memory Read/Write/Completion to EP |
 | `noc_n_target` | Target (in) | 64-bit | NOC fabric | Outbound path: NOC traffic destined for PCIe |
 | `noc_n_initiator` | Initiator (out) | 64-bit | NOC fabric | Inbound path: tile forwards translated traffic to NOC |
 | `smn_n_target` | Target (in) | 64-bit | SMN fabric | Outbound path: SMN traffic destined for PCIe |
@@ -412,7 +412,7 @@ graph TB
 
 **Integration notes:**
 
-- **Inband:** Connect the EP’s AXI or TLM initiator to the tile’s `pcie_controller_target`, and the EP’s AXI/TLM target to the tile’s `pcie_controller_initiator`. Traffic from the host (RC) arrives at the EP over the PCIe link; the EP presents it to the tile on the target socket. Traffic from the tile to the host is sent via the initiator socket to the EP, which sends TLPs over the link to the RC.
+- **Inband:** Connect the EP’s **BusMaster** (TLM master) to the tile’s `pcie_controller_target` — the EP delivers inbound TLPs from the host to the tile. Connect the tile’s `pcie_controller_initiator` to the EP’s **AXI_Slave** (TLM slave) — the tile sends outbound TLPs to the EP, which forwards them over the link to the RC.
 - **Sideband:** Drive all tile `sc_in` ports from the EP model or system (clocks, resets, CII, FLR, hot_reset, ras_error, dma_completion, pcie_misc_int; plus cold_reset_n, warm_reset_n, isolate_req, axi_clk from system). Connect all tile `sc_out` ports to the EP or system as required by the EP datasheet and platform design.
 
 ### 3.5 VDK Integration: PCIe Tile and Synopsys PCIe Controller in the Virtualizer
@@ -502,7 +502,7 @@ graph TB
 - **PCIe_EP_1:** AXI_Slave, AXI_DBI, BusMaster bound to Secondary_Chiplet_1 **SharedMemoryMap**; **PCIMem** / **PCIMem_Slave** bound to **PCIeSwitch** DSP ports (TLP traffic to/from RC).  
 
 **When adding the Keraunos PCIe Tile:**  
-- The EP’s application-facing TLM ports that today go to SharedMemoryMap (or that represent “inbound TLPs to device” and “outbound TLPs from device”) are redirected to the tile’s **pcie_controller_target** and **pcie_controller_initiator**.  
+- Connect EP **BusMaster** to the tile’s **pcie_controller_target** (inbound TLPs from host). Connect the tile’s **pcie_controller_initiator** to EP **AXI_Slave** (outbound TLPs to host). EP **PCIMem** / **PCIMem_Slave** remain connected to the link (RC or PCIeSwitch).  
 - The tile’s **noc_n_target** / **noc_n_initiator** and **smn_n_target** / **smn_n_initiator** connect to NOC/SMN models or stubs in the VDK (e.g. simple memory or existing NoC/SMN subsystems if available).
 
 #### 3.5.4 Signal- and Interface-Level Mapping (EP ↔ PCIe Tile)
@@ -513,13 +513,13 @@ The Synopsys DesignWare PCIe model (PCIe_2_0) exposes the following interface gr
 
 | DesignWare EP interface (VDK) | Direction | PCIe Tile port | Description |
 |-------------------------------|-----------|----------------|-------------|
-| AXI_Slave                     | Slave (in)  | —              | Config/MMIO from system; in VDK often to SharedMemoryMap. When using tile, system config can still be via SMN → tile `smn_n_target`. |
+| AXI_Slave                     | Slave (in)  | **pcie_controller_initiator** | Outbound TLPs: tile sends Memory Read/Write/Completion to EP; EP receives on AXI_Slave and sends over link to RC. |
 | AXI_DBI                       | Slave (in)  | —              | DBI/config; may remain to SharedMemoryMap or be routed per platform. |
-| BusMaster                     | Master (out)| **pcie_controller_initiator** | Outbound TLPs (EP as master): tile sends Memory Read/Write/Completion to EP. |
-| PCIMem                        | Master (out)| —              | EP as master toward link (in VDK, to PCIeSwitch). Not connected to tile. |
-| PCIMem_Slave                  | Slave (in)  | **pcie_controller_target**    | Inbound TLPs from link: host → RC → Switch → EP; EP pushes to tile. |
+| BusMaster                     | Master (out)| **pcie_controller_target**    | Inbound TLPs: EP delivers host Memory Read/Write to tile (EP BusMaster → tile target). |
+| PCIMem                        | Master (out)| —              | EP as master toward link (in VDK, to RC or PCIeSwitch). Not connected to tile. |
+| PCIMem_Slave                  | Slave (in)  | —              | Inbound TLPs from link (RC → EP); connects to RC/PCIeSwitch, not to tile. |
 
-So: **PCIMem_Slave (EP)** ↔ **pcie_controller_target (Tile)** for inbound; **BusMaster (EP)** ↔ **pcie_controller_initiator (Tile)** for outbound. AXI_Slave/AXI_DBI stay on the system/SharedMemoryMap side unless explicitly routed through the tile (e.g. via SMN).
+So: **BusMaster (EP)** → **pcie_controller_target (Tile)** for inbound TLPs; **pcie_controller_initiator (Tile)** → **AXI_Slave (EP)** for outbound TLPs. PCIMem/PCIMem_Slave stay on the link side (EP ↔ RC or PCIeSwitch). AXI_DBI can remain to SharedMemoryMap.
 
 **Sideband — DesignWare EP ↔ PCIe Tile (sc_in / sc_out):**
 
@@ -595,8 +595,8 @@ graph LR
 
     RC -->|PCIMem direct| EP_PCIMemSlave
     EP_PCIMem -->|PCIMem direct| RC
-    EP_PCIMemSlave -->|TLM inbound| T_tgt
-    EP_BusM -->|TLM outbound| T_init
+    EP_BusM -->|TLM inbound| T_tgt
+    T_init -->|TLM outbound| EP_AXI_S
     EP_RST --> T_sc_in
     EP_CLK --> T_sc_in
     EP_SB --> T_sc_in
@@ -614,7 +614,7 @@ graph LR
 
 **Integration checklist:**
 
-1. **Inband:** Bind EP **PCIMem_Slave** (inbound TLPs) to the tile’s **pcie_controller_target**. Bind EP **BusMaster** (outbound TLPs) to the tile’s **pcie_controller_initiator**. Keep EP **PCIMem** / **PCIMem_Slave** connection to PCIeSwitch for link traffic.  
+1. **Inband:** Bind EP **BusMaster** (inbound TLPs to device) to the tile’s **pcie_controller_target**. Bind the tile’s **pcie_controller_initiator** (outbound TLPs to host) to EP **AXI_Slave**. Keep EP **PCIMem** / **PCIMem_Slave** connected to the link (RC or PCIeSwitch).  
 2. **Sideband:** Connect all EP and system reset/clock/sideband outputs to the tile’s **sc_in**; connect all tile **sc_out** to the EP (and system) inputs as in the table above.  
 3. **NOC/SMN:** Connect tile **noc_n_target** / **noc_n_initiator** and **smn_n_target** / **smn_n_initiator** to the VDK’s NOC and SMN models (or stubs) for the Keraunos chiplet.  
 4. **RC–EP link:** For **Keraunos** (single EP), use a **direct** link: bind **RC PCIMem** to **EP PCIMem_Slave** and **RC PCIMem_Slave** to **EP PCIMem**. Omit the PCIeSwitch. When modeling multiple EPs, keep **PCIe_RC** connected to PCIeSwitch USP and each EP to the switch DSP. No change is required for the tile, which only attaches to the EP.
@@ -632,8 +632,8 @@ Each row shows which PCIe Tile port connects to which DesignWare PCIe EP port. C
 | PCIe Tile (signal / interface) | DesignWare PCIe EP (signal / interface) |
 |--------------------------------|----------------------------------------|
 | **TLM** | |
-| `pcie_controller_target` (TLM target) | `PCIMem_Slave` (TLM slave) — inbound TLPs from link to tile |
-| `pcie_controller_initiator` (TLM initiator) | `BusMaster` (TLM master) — outbound TLPs from tile to EP |
+| `pcie_controller_target` (TLM target) | `BusMaster` (EP TLM master) — EP delivers inbound TLPs from host to tile |
+| `pcie_controller_initiator` (TLM initiator) | `AXI_Slave` (EP TLM slave) — tile sends outbound TLPs to EP |
 | **Clocks (tile sc_in)** | |
 | `pcie_core_clk` | `cc_core_clk` |
 | `axi_clk` | `cc_dbi_aclk` (or system SYSCLK) |
@@ -667,7 +667,7 @@ Each row shows which PCIe Tile port connects to which DesignWare PCIe EP port. C
 | `controller_misc_int` | To EP misc interrupt input |
 | `noc_timeout` | To EP or system (NOC timeout status) |
 
-*Note:* EP interfaces **AXI_Slave**, **AXI_DBI**, **PCIMem**, **ELBIMaster** are not connected to the PCIe Tile: AXI_Slave/AXI_DBI go to SharedMemoryMap; PCIMem/PCIMem_Slave go to the PCIe link (RC or PCIeSwitch). Tile ports **noc_n_target**, **noc_n_initiator**, **smn_n_target**, **smn_n_initiator** connect to NOC/SMN fabric, not to the EP.
+*Note:* EP **AXI_Slave** is connected to the tile’s **pcie_controller_initiator** (outbound path). EP **AXI_DBI**, **PCIMem**, **ELBIMaster** are not connected to the tile: AXI_DBI can go to SharedMemoryMap; PCIMem/PCIMem_Slave go to the PCIe link (RC or PCIeSwitch). Tile ports **noc_n_target**, **noc_n_initiator**, **smn_n_target**, **smn_n_initiator** connect to NOC/SMN fabric, not to the EP.
 
 ---
 
@@ -705,12 +705,12 @@ Each row shows which Host- or system-side element connects to which DesignWare P
 
 | Category | DesignWare EP interface (vdksys) | Connect to PCIe Tile | Connect to system / other | Stub | Notes |
 |----------|----------------------------------|----------------------|---------------------------|------|--------|
-| **TLM** | AXI_Slave | — | SharedMemoryMap (config space) or SMN | — | Config/MMIO; can remain to memory map. |
+| **TLM** | AXI_Slave | **pcie_controller_initiator** | — | — | Outbound TLPs: tile → EP (tile initiates to EP AXI_Slave). |
 | **TLM** | AXI_DBI | — | SharedMemoryMap (DBI region) | — | DBI/config. |
-| **TLM** | BusMaster | **pcie_controller_initiator** | — | — | Outbound TLPs: tile → EP → link. |
+| **TLM** | BusMaster | **pcie_controller_target** | — | — | Inbound TLPs: EP delivers to tile (EP BusMaster → tile target). |
 | **TLM** | ELBIMaster | — | — | Yes (vdksys: auto stub) | Optional ELBI; not used for tile. |
 | **TLM** | PCIMem | — | Link (RC or PCIeSwitch) | — | EP as master toward link. |
-| **TLM** | PCIMem_Slave | **pcie_controller_target** | — | — | Inbound TLPs: link → EP → tile. |
+| **TLM** | PCIMem_Slave | — | Link (RC or PCIeSwitch) | — | EP receives from link; not connected to tile. |
 | **RESET** | pcie_axi_ares, cc_dbi_ares, cc_core_ares, cc_pwr_ares, cc_phy_ares | **pcie_controller_reset_n** (or combine) | Peripherals Reset / RST_GEN | — | Drive tile reset from same source as EP. |
 | **CLOCK** | cc_core_clk | **pcie_core_clk** (tile sc_in) | — | — | EP core clock to tile. |
 | **CLOCK** | cc_dbi_aclk | — | SYSCLK (bound in vdksys) | — | DBI clock; also usable as axi_clk for tile. |
@@ -746,7 +746,7 @@ The RC has the same DesignWare PCIe_2_0 interface set. There is **no PCIe Tile**
 
 **C. Summary**
 
-- **EP:** Connect to **PCIe Tile**: PCIMem_Slave → pcie_controller_target; BusMaster → pcie_controller_initiator; resets and cc_core_clk (and optionally cc_dbi_aclk) to tile sc_in; CII, FLR, hot reset, app_bus_num, app_dev_num, device_type, sys_int, dma_completion, ras_error to/from tile sc_in/sc_out as in Section 3.4. Connect to **system**: AXI_Slave, AXI_DBI to SharedMemoryMap; cc_dbi_aclk to SYSCLK; msi_ctrl_int to APLIC. **Stub**: ELBIMaster; optional/PHY clocks (cc_pipe_clk, etc.); power/L1/L2 and other optional sideband.
+- **EP:** Connect to **PCIe Tile**: EP **BusMaster** → tile **pcie_controller_target** (inbound); tile **pcie_controller_initiator** → EP **AXI_Slave** (outbound). Resets and cc_core_clk (and optionally cc_dbi_aclk) to tile sc_in; CII, FLR, hot reset, app_bus_num, app_dev_num, device_type, sys_int, dma_completion, ras_error to/from tile sc_in/sc_out as in Section 3.4. Connect to **system**: AXI_DBI to SharedMemoryMap; cc_dbi_aclk to SYSCLK; msi_ctrl_int to APLIC. **Stub**: ELBIMaster; optional/PHY clocks (cc_pipe_clk, etc.); power/L1/L2 and other optional sideband.
 - **RC:** Connect to **link**: PCIMem, PCIMem_Slave to EP (or PCIeSwitch). Connect to **system**: AXI_Slave, AXI_DBI, BusMaster to SharedMemoryMap; clocks to SYSCLK; msi_ctrl_int to APLIC. **Stub**: All optional sideband and PHY clocks as in vdksys.
 
 ---
