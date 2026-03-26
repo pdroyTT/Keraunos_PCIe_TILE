@@ -84,7 +84,7 @@ graph TB
 
 ### 2.2 PCIe Link Wiring
 
-The PCIe link uses direct peer-to-peer binding (no PCIeSwitch):
+The PCIe link uses direct peer-to-peer binding:
 
 | Source | Destination | Purpose |
 |--------|-------------|---------|
