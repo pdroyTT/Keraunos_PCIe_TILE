@@ -10,6 +10,14 @@ SmnIoSwitch::SmnIoSwitch()
 void SmnIoSwitch::route_from_smn(tlm::tlm_generic_payload& trans, sc_core::sc_time& delay) {
     uint32_t addr = static_cast<uint32_t>(trans.get_address());
     
+    // The VDK bus router may strip the SMN base address (0x18000000)
+    // before forwarding to the target socket.  Normalize to full address
+    // so all routing checks below work regardless of bus router behaviour.
+    if (addr < 0x18000000) {
+        addr += 0x18000000;
+        trans.set_address(static_cast<uint64_t>(addr));
+    }
+    
     if (isolate_req_) {
         trans.set_response_status(tlm::TLM_ADDRESS_ERROR_RESPONSE);
         timeout_ = true;
@@ -116,7 +124,10 @@ void SmnIoSwitch::route_from_smn(tlm::tlm_generic_payload& trans, sc_core::sc_ti
     // SerDes AHB0: 0x18080000 - 0x180BFFFF (256KB)
     if (addr >= 0x18080000 && addr < 0x180C0000) {
         if (serdes_ahb_) {
+            uint64_t offset = addr - 0x18080000;
+            trans.set_address(offset);
             serdes_ahb_(trans, delay);
+            trans.set_address(addr);
         } else {
             trans.set_response_status(tlm::TLM_OK_RESPONSE);
         }
@@ -126,7 +137,10 @@ void SmnIoSwitch::route_from_smn(tlm::tlm_generic_payload& trans, sc_core::sc_ti
     // SerDes APB0: 0x180C0000 - 0x180FFFFF (256KB)
     if (addr >= 0x180C0000 && addr < 0x18100000) {
         if (serdes_apb_) {
+            uint64_t offset = addr - 0x180C0000;
+            trans.set_address(offset);
             serdes_apb_(trans, delay);
+            trans.set_address(addr);
         } else {
             trans.set_response_status(tlm::TLM_OK_RESPONSE);
         }

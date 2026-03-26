@@ -44,8 +44,8 @@ public:
     
     // PCIe Controller CII (Configuration Intercept Interface) signals
     sc_core::sc_in<bool> pcie_cii_hv;                          // CII Header Valid (from PCIe Controller)
-    sc_core::sc_in<sc_dt::sc_bv<5> > pcie_cii_hdr_type;       // CII Header Type [4:0] (from PCIe Controller)
-    sc_core::sc_in<sc_dt::sc_bv<12> > pcie_cii_hdr_addr;      // CII Header Address [11:0] (from PCIe Controller)
+    sc_core::sc_in<unsigned int> pcie_cii_hdr_type;             // CII Header Type [4:0] (from PCIe Controller)
+    sc_core::sc_in<unsigned int> pcie_cii_hdr_addr;            // CII Header Address [11:0] (from PCIe Controller)
     
     // PCIe Controller clock/reset (from PCIe Controller)
     sc_core::sc_in<bool> pcie_core_clk;                       // PCIe core clock from controller
@@ -79,7 +79,7 @@ public:
     sc_core::sc_out<bool> ras_error;                    // RAS error
     sc_core::sc_out<bool> dma_completion;               // DMA completion
     sc_core::sc_out<bool> controller_misc_int;          // Controller misc interrupt
-    sc_core::sc_out<sc_dt::sc_bv<3> > noc_timeout;      // NOC timeout (3-bit)
+    sc_core::sc_out<unsigned int> noc_timeout;            // NOC timeout (3-bit)
     
     SC_HAS_PROCESS(KeraunosPcieTile);
     

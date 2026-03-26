@@ -22,10 +22,10 @@
 #include <tlm_utils/simple_target_socket.h>
 #include <tlm_utils/simple_initiator_socket.h>
 #include <sc_dt.h>
+#include <scml2.h>
+#include "scml2/tagged_message_macros.h"
 #include <memory>
 #include <array>
-#include <fstream>
-#include <cstdio>
 
 namespace keraunos {
 namespace pcie {
@@ -57,8 +57,8 @@ public:
     sc_core::sc_in<bool> warm_reset_n;
     sc_core::sc_in<bool> isolate_req;
     sc_core::sc_in<bool> pcie_cii_hv;
-    sc_core::sc_in<sc_dt::sc_bv<5>> pcie_cii_hdr_type;
-    sc_core::sc_in<sc_dt::sc_bv<12>> pcie_cii_hdr_addr;
+    sc_core::sc_in<unsigned int> pcie_cii_hdr_type;
+    sc_core::sc_in<unsigned int> pcie_cii_hdr_addr;
     sc_core::sc_in<bool> pcie_core_clk;
     sc_core::sc_in<bool> pcie_controller_reset_n;
     sc_core::sc_in<bool> pcie_flr_request;
@@ -79,31 +79,49 @@ public:
     sc_core::sc_out<bool> ras_error;
     sc_core::sc_out<bool> dma_completion;
     sc_core::sc_out<bool> controller_misc_int;
-    sc_core::sc_out<sc_dt::sc_bv<3>> noc_timeout;
+    sc_core::sc_out<unsigned int> noc_timeout;
     
     SC_HAS_PROCESS(KeraunosPcieTile);
     
+    /**
+     * @brief Constructor for Keraunos PCIe Tile
+     * @param name SystemC module name for hierarchy
+     */
     KeraunosPcieTile(sc_core::sc_module_name name);
-    ~KeraunosPcieTile() override;  // override keyword for clarity
     
-    void end_of_elaboration() override;  // override keyword
+    /**
+     * @brief Destructor - automatic cleanup via unique_ptr (RAII)
+     */
+    ~KeraunosPcieTile() override;
     
-    // BME control — models PCIe controller's Bus Master Enable output (Table 33)
-    // In real HW, BME comes from controller's Command Register bit 2.
-    // Call this from testbench or parent module to set the BME state.
-    // Inline to avoid hidden-visibility link issues with the shared library.
+    void end_of_elaboration() override;
+    
+    /**
+     * @brief Enable or disable FastTrack debug logging
+     * @param enable true to enable debug logs, false to disable
+     */
+    void set_debug_logging_enabled(bool enable) { debug_logging_enabled_ = enable; }
+    
+    /**
+     * @brief Get current debug logging state
+     * @return true if debug logging is enabled
+     */
+    [[nodiscard]] bool is_debug_logging_enabled() const noexcept { return debug_logging_enabled_; }
+    
+    /**
+     * @brief Set Bus Master Enable state for PCIe controller
+     * @param val Bus Master Enable state (from controller Command Register bit 2)
+     * @note Models PCIe controller's BME output per Table 33
+     */
     void set_bus_master_enable(bool val) {
         if (noc_pcie_switch_) {
             noc_pcie_switch_->set_bus_master_enable(val);
-            // #region agent log
-            {
-                std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
-                char buf[128];
-                snprintf(buf, sizeof(buf), "set_bus_master_enable(%d) called, get=%d\n",
-                    (int)val, (int)noc_pcie_switch_->get_bus_master_enable());
-                f << buf;
+            if (debug_logging_enabled_) {
+                SCML2_INFO(CONFIGURATION_INFO) 
+                    << "Bus Master Enable set to " << (val ? "enabled" : "disabled")
+                    << ", current state=" << (noc_pcie_switch_->get_bus_master_enable() ? "enabled" : "disabled")
+                    << std::endl;
             }
-            // #endregion
         }
     }
     
@@ -151,6 +169,14 @@ protected:
     sc_core::sc_signal<bool> ref_clock_;
     sc_core::sc_signal<bool> pcie_sii_reset_ctrl_;
     sc_core::sc_signal<bool> pcie_reset_ctrl_;
+    
+    // FastTrack debug logging control
+    bool debug_logging_enabled_;
+    
+    // Guards first-run initialization of output ports inside signal_update_process()
+    // so that all port writes originate from a single SC_METHOD process context,
+    // avoiding E521 (sc_signal cannot have more than one driver).
+    bool outputs_initialized_;
     
     void wire_components();
 };

@@ -41,8 +41,8 @@ public:
     
     // CII interface signals (from PCIe Controller, PCIe core clock domain)
     sc_core::sc_in<bool> cii_hv;                        // CII Header Valid
-    sc_core::sc_in<sc_dt::sc_bv<5> > cii_hdr_type;     // CII Header Type [4:0]
-    sc_core::sc_in<sc_dt::sc_bv<12> > cii_hdr_addr;    // CII Header Address [11:0]
+    sc_core::sc_in<unsigned int> cii_hdr_type;           // CII Header Type [4:0]
+    sc_core::sc_in<unsigned int> cii_hdr_addr;          // CII Header Address [11:0]
     
     // Clock inputs
     sc_core::sc_in<bool> pcie_core_clk;                // PCIe core clock (from controller)

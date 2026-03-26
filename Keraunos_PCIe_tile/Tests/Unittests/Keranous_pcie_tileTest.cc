@@ -1392,8 +1392,8 @@ private:
     ok = smn_n_target.write32(SMN_CONFIG_BASE + 0x0FFF8, 0x10001);   // enable inbound+outbound
     
     // Step 1: Read the noc_timeout output signal initial state
-    // noc_timeout is sc_bv<3> - 3 bits for NOC-PCIE, NOC-IO, SMN-IO timeouts
-    sc_bv<3> timeout_initial = noc_timeout_signal.read();
+    // noc_timeout is unsigned int - 3 bits for NOC-PCIE, NOC-IO, SMN-IO timeouts
+    unsigned int timeout_initial = noc_timeout_signal.read();
     
     // Step 2: Assert isolation to simulate a scenario where downstream
     // cannot respond (all switches will reject with DECERR)
@@ -1405,7 +1405,7 @@ private:
     uint32_t dummy = pcie_controller_target.read32(0x0000000000001000, &trans_ok);
     
     // Step 4: Read noc_timeout output to check if timeout bits were asserted
-    sc_bv<3> timeout_after = noc_timeout_signal.read();
+    unsigned int timeout_after = noc_timeout_signal.read();
     
     // Step 5: Send NOC-N transaction during isolation (tests NOC-IO timeout path)
     trans_ok = false;
@@ -1461,8 +1461,8 @@ private:
     // CII: configuration indirect input from PCIe controller
     // cii_hv=1, type=0x04 (config write), addr in first 128B
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00100"));  // Type 0x04
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000010000"));  // Addr=0x010
+    pcie_cii_hdr_type_signal.write(0x04u);  // Type 0x04
+    pcie_cii_hdr_addr_signal.write(0x010u);  // Addr=0x010
     
     // Step 6: Check config_update output (interrupt generated to axi_clk domain)
     bool config_upd = config_update_signal.read();
@@ -3131,8 +3131,8 @@ private:
     // This writes to register index 4 (addr[6:2] = 0x010>>2 = 4)
     // within the first 128B of config space
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00100"));         // Type 0x04 = config write
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000010000")); // Addr=0x010
+    pcie_cii_hdr_type_signal.write(0x04u);         // Type 0x04 = config write
+    pcie_cii_hdr_addr_signal.write(0x010u); // Addr=0x010
     sc_core::wait(sc_core::SC_ZERO_TIME);  // Input signals propagate to tile SC_METHOD
     sc_core::wait(sc_core::SC_ZERO_TIME);  // SII update() runs, output propagates
 
@@ -3154,7 +3154,7 @@ private:
 
     // Step 6: Assert CII for a different register - addr=0x004 (reg index 1)
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000000100")); // Addr=0x004
+    pcie_cii_hdr_addr_signal.write(0x004u); // Addr=0x004
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
 
@@ -3199,8 +3199,8 @@ private:
 
     // Step 3: Assert CII to set cfg_modified (type=0x04, addr=0x020, reg index 8)
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00100"));
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000100000"));  // addr=0x020
+    pcie_cii_hdr_type_signal.write(0x04u);
+    pcie_cii_hdr_addr_signal.write(0x020u);  // addr=0x020
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
 
@@ -3273,8 +3273,8 @@ private:
 
     // --- Edge case 1: Wrong CII type (type=0x00, memory read) ---
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00000"));   // Type 0x00
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000010000"));  // Valid addr
+    pcie_cii_hdr_type_signal.write(0x00u);   // Type 0x00
+    pcie_cii_hdr_addr_signal.write(0x010u);  // Valid addr
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     bool edge1 = config_update_signal.read();
@@ -3287,8 +3287,8 @@ private:
 
     // --- Edge case 2: Wrong CII type (type=0x05, config read) ---
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00101"));   // Type 0x05
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000010000"));
+    pcie_cii_hdr_type_signal.write(0x05u);   // Type 0x05
+    pcie_cii_hdr_addr_signal.write(0x010u);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     bool edge2 = config_update_signal.read();
@@ -3302,8 +3302,8 @@ private:
     // --- Edge case 3: Address in second 128B (addr[11:7] != 0) ---
     // addr = 0x080 → addr[11:7] = 0x080 >> 7 = 1 (not 0)
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00100"));   // Type 0x04 (correct)
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000010000000"));  // Addr=0x080
+    pcie_cii_hdr_type_signal.write(0x04u);   // Type 0x04 (correct)
+    pcie_cii_hdr_addr_signal.write(0x080u);  // Addr=0x080
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     bool edge3 = config_update_signal.read();
@@ -3317,8 +3317,8 @@ private:
     // --- Edge case 4: Address in high config space (addr=0x400) ---
     // addr = 0x400 → addr[11:7] = 0x400 >> 7 = 8 (not 0)
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00100"));   // Type 0x04
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("010000000000"));  // Addr=0x400
+    pcie_cii_hdr_type_signal.write(0x04u);   // Type 0x04
+    pcie_cii_hdr_addr_signal.write(0x400u);  // Addr=0x400
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     bool edge4 = config_update_signal.read();
@@ -3332,8 +3332,8 @@ private:
     // --- Edge case 5: cii_hv=false (header not valid) ---
     // Even with correct type and address, hv=false should not trigger
     pcie_cii_hv_signal.write(false);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00100"));   // Type 0x04
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000010000"));  // Valid addr
+    pcie_cii_hdr_type_signal.write(0x04u);   // Type 0x04
+    pcie_cii_hdr_addr_signal.write(0x010u);  // Valid addr
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     bool edge5 = config_update_signal.read();
@@ -3342,8 +3342,8 @@ private:
 
     // --- Positive control: valid CII should trigger ---
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00100"));   // Type 0x04
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000001000"));  // Addr=0x008, reg 2
+    pcie_cii_hdr_type_signal.write(0x04u);   // Type 0x04
+    pcie_cii_hdr_addr_signal.write(0x008u);  // Addr=0x008, reg 2
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     bool positive = config_update_signal.read();
@@ -3390,8 +3390,8 @@ private:
 
     // Step 2: First CII event (addr=0x000, reg index 0)
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00100"));
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000000000"));  // Addr=0x000
+    pcie_cii_hdr_type_signal.write(0x04u);
+    pcie_cii_hdr_addr_signal.write(0x000u);  // Addr=0x000
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     bool step2 = config_update_signal.read();
@@ -3399,7 +3399,7 @@ private:
         "Step 2: config_update asserted (reg 0 modified)");
 
     // Step 3: Second CII event (addr=0x03C, reg index 15 — last in first 128B)
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000111100"));  // Addr=0x03C
+    pcie_cii_hdr_addr_signal.write(0x03Cu);  // Addr=0x03C
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     bool step3 = config_update_signal.read();
@@ -3424,8 +3424,8 @@ private:
     sc_core::wait(sc_core::SC_ZERO_TIME);
 
     pcie_cii_hv_signal.write(true);
-    pcie_cii_hdr_type_signal.write(sc_bv<5>("00100"));
-    pcie_cii_hdr_addr_signal.write(sc_bv<12>("000000011000"));  // Addr=0x018, reg 6
+    pcie_cii_hdr_type_signal.write(0x04u);
+    pcie_cii_hdr_addr_signal.write(0x018u);  // Addr=0x018, reg 6
     sc_core::wait(sc_core::SC_ZERO_TIME);
     sc_core::wait(sc_core::SC_ZERO_TIME);
     bool step5 = config_update_signal.read();

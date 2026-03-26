@@ -6,6 +6,7 @@ namespace pcie {
 
 SiiBlock::SiiBlock()
     : cii_hv_(false), reset_n_(false)
+    , cii_hdr_type_(0), cii_hdr_addr_(0)
     , config_int_(false), device_type_(false), sys_int_(false)
     , app_bus_num_(0), app_dev_num_(0)
     , cfg_modified_(0), cii_clear_(0)
@@ -51,10 +52,10 @@ void SiiBlock::update() {
     uint32_t cii_new_bits = 0;
 
     if (cii_hv_ &&
-        (cii_hdr_type_.to_uint() == 0x04) &&            // config write
-        ((cii_hdr_addr_.to_uint() >> 7) == 0)) {        // first 128B
+        (cii_hdr_type_ == 0x04) &&                      // config write
+        ((cii_hdr_addr_ >> 7) == 0)) {                   // first 128B
         // Register index = address[6:2] (each 32-bit register is 4 bytes)
-        uint8_t reg_index = (cii_hdr_addr_.to_uint() >> 2) & 0x1F;
+        uint8_t reg_index = (cii_hdr_addr_ >> 2) & 0x1F;
         cii_new_bits = (1u << reg_index);
     }
 
@@ -86,15 +87,10 @@ void SiiBlock::update() {
 /**
  * process_apb_access() -- handles TLM read/write from the SMN-IO switch.
  *
- * Register map (relative offsets within 64KB SII space):
- *   0x0000  CORE_CONTROL   -- [2:0] device_type (0=EP, 4=RP)
- *   0x0004  CFG_MODIFIED   -- RW1C: config-modified bitmask
- *   0x0008  BUS_DEV_NUM    -- [15:8] bus number, [7:0] device number
- *
- * Note: the SMN-IO switch currently passes the full SMN address to this
- * callback (address passthrough), so offsets >64KB will return
- * TLM_ADDRESS_ERROR_RESPONSE.  When the switch is fixed to strip the
- * base address, all registers will be accessible.
+ * Register map (relative offsets within 64KB SII space, matching firmware):
+ *   0x4000  CORE_CONTROL   -- [2:0] device_type (0=EP, 4=RP)
+ *   0x4004  CFG_MODIFIED   -- RW1C: config-modified bitmask
+ *   0x4008  BUS_DEV_NUM    -- [15:8] bus number, [7:0] device number
  */
 void SiiBlock::process_apb_access(tlm::tlm_generic_payload& trans,
                                    sc_core::sc_time& delay) {
@@ -133,6 +129,20 @@ void SiiBlock::process_apb_access(tlm::tlm_generic_payload& trans,
                     // Notify tile immediately so NocPcieSwitch controller_is_ep_
                     // is updated without waiting for signal_update_process.
                     if (device_type_cb_) device_type_cb_(new_type);
+
+                    // When LTSSM enable (bit 0) is set, simulate immediate
+                    // link-up by writing L0 (0x11) into the POWER_MANAGEMENT
+                    // register at bits [14:9].  Real hardware would transition
+                    // through DETECT→POLLING→CONFIG→L0 over time; the VP
+                    // short-circuits this since the DWC PCIe models handle
+                    // link training internally.
+                    if (wdata & CORE_CONTROL_LTSSM_ENABLE) {
+                        uint32_t pm_val = LTSSM_L0 << PM_LTSSM_SHIFT;
+                        for (unsigned i = 0; i < sizeof(uint32_t); i++) {
+                            sii_memory_[POWER_MANAGEMENT_OFFSET + i] =
+                                static_cast<uint8_t>((pm_val >> (i * 8)) & 0xFF);
+                        }
+                    }
                 }
                 else if (offset == CFG_MODIFIED_OFFSET) {
                     // RW1C: bits written as 1 schedule a clear of the

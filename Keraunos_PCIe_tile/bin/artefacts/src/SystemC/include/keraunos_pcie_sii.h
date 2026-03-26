@@ -26,8 +26,8 @@ public:
 
     // --- Input setters (called by tile SC_METHOD on signal change) ---
     void set_cii_hv(bool val) { cii_hv_ = val; }
-    void set_cii_hdr_type(sc_dt::sc_bv<5> val) { cii_hdr_type_ = val; }
-    void set_cii_hdr_addr(sc_dt::sc_bv<12> val) { cii_hdr_addr_ = val; }
+    void set_cii_hdr_type(unsigned int val) { cii_hdr_type_ = val; }
+    void set_cii_hdr_addr(unsigned int val) { cii_hdr_addr_ = val; }
     void set_reset_n(bool val) { reset_n_ = val; }
 
     // Process all inputs and update outputs.
@@ -53,8 +53,8 @@ private:
     // --- CII input state ---
     bool cii_hv_;
     bool reset_n_;
-    sc_dt::sc_bv<5> cii_hdr_type_;
-    sc_dt::sc_bv<12> cii_hdr_addr_;
+    unsigned int cii_hdr_type_;
+    unsigned int cii_hdr_addr_;
 
     // --- Output state ---
     bool config_int_;                   // config_update interrupt (to SMC PLIC)
@@ -70,14 +70,21 @@ private:
     // --- SCML2 memory for APB register space (64KB) ---
     scml2::memory<uint8_t> sii_memory_;
 
-    // Register offsets within SII APB space
-    static const uint32_t CORE_CONTROL_OFFSET = 0x0000;
-    static const uint32_t CFG_MODIFIED_OFFSET = 0x0004;
-    static const uint32_t BUS_DEV_NUM_OFFSET  = 0x0008;
+    // Register offsets within SII APB space (matching firmware register map)
+    static const uint32_t CORE_CONTROL_OFFSET      = 0x4000;
+    static const uint32_t CFG_MODIFIED_OFFSET      = 0x4004;
+    static const uint32_t BUS_DEV_NUM_OFFSET       = 0x4008;
+    static const uint32_t POWER_MANAGEMENT_OFFSET  = 0x4024;
 
     // Core Control register fields
     static const uint32_t CORE_CONTROL_DEVICE_TYPE_MASK = 0x7;  // [2:0]
     static const uint32_t CORE_CONTROL_DEVICE_TYPE_RP   = 0x4;
+    static const uint32_t CORE_CONTROL_LTSSM_ENABLE     = 0x1;  // bit 0
+
+    // POWER_MANAGEMENT register: LTSSM state in bits [14:9]
+    static const uint32_t PM_LTSSM_SHIFT = 9;
+    static const uint32_t PM_LTSSM_MASK  = 0x3F << 9;  // bits [14:9]
+    static const uint32_t LTSSM_L0       = 0x11;
 
     DeviceTypeCallback device_type_cb_;
 };

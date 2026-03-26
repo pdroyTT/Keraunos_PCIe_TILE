@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <pct_data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schema.xsd">
 <version>3.0</version>
-<fingerprint>f68148acf82d160b69e01f9973ebe083041067df</fingerprint>
+<fingerprint>acd1b0d28eecfe49f7743bdcacb4f28942f557fb</fingerprint>
 <library>
 <name>Keranous_pcie_tile</name>
 <examples/>
@@ -928,7 +928,7 @@
 <bca_port>
 <name>noc_timeout</name>
 <datatype>
-<value>sc_bv&lt;3 ></value>
+<value>unsigned</value>
 </datatype>
 <sc_port_type_regular_port/>
 <out/>
@@ -944,7 +944,7 @@
 <bca_port>
 <name>pcie_cii_hdr_type</name>
 <datatype>
-<value>sc_bv&lt;5 ></value>
+<value>unsigned</value>
 </datatype>
 <sc_port_type_regular_port/>
 <in/>
@@ -952,7 +952,7 @@
 <bca_port>
 <name>pcie_cii_hdr_addr</name>
 <datatype>
-<value>sc_bv&lt;12 ></value>
+<value>unsigned</value>
 </datatype>
 <sc_port_type_regular_port/>
 <in/>
@@ -1520,7 +1520,7 @@
 <parameters_value>
 <name>Protocol Common Parameters</name>
 <parameter_list>
-<parameter_value name="data_type" value="sc_bv&lt;3 >" read_only="true"/>
+<parameter_value name="data_type" value="unsigned" read_only="true"/>
 </parameter_list>
 </parameters_value>
 </parameters_set>
@@ -1553,7 +1553,7 @@
 <parameters_value>
 <name>Protocol Common Parameters</name>
 <parameter_list>
-<parameter_value name="data_type" value="sc_bv&lt;5 >" read_only="true"/>
+<parameter_value name="data_type" value="unsigned" read_only="true"/>
 </parameter_list>
 </parameters_value>
 </parameters_set>
@@ -1569,7 +1569,7 @@
 <parameters_value>
 <name>Protocol Common Parameters</name>
 <parameter_list>
-<parameter_value name="data_type" value="sc_bv&lt;12 >" read_only="true"/>
+<parameter_value name="data_type" value="unsigned" read_only="true"/>
 </parameter_list>
 </parameters_value>
 </parameters_set>
@@ -1876,19 +1876,11 @@
 </setting_value>
 <setting_value>
 <value>port</value>
-<value>sc_in&lt;sc_bv&lt;12> ></value>
-</setting_value>
-<setting_value>
-<value>port</value>
-<value>sc_in&lt;sc_bv&lt;3> ></value>
-</setting_value>
-<setting_value>
-<value>port</value>
-<value>sc_in&lt;sc_bv&lt;5> ></value>
-</setting_value>
-<setting_value>
-<value>port</value>
 <value>sc_in&lt;unsigned char></value>
+</setting_value>
+<setting_value>
+<value>port</value>
+<value>sc_in&lt;unsigned int></value>
 </setting_value>
 <setting_value>
 <value>port</value>
@@ -1896,19 +1888,11 @@
 </setting_value>
 <setting_value>
 <value>port</value>
-<value>sc_inout&lt;sc_bv&lt;12> ></value>
-</setting_value>
-<setting_value>
-<value>port</value>
-<value>sc_inout&lt;sc_bv&lt;3> ></value>
-</setting_value>
-<setting_value>
-<value>port</value>
-<value>sc_inout&lt;sc_bv&lt;5> ></value>
-</setting_value>
-<setting_value>
-<value>port</value>
 <value>sc_inout&lt;unsigned char></value>
+</setting_value>
+<setting_value>
+<value>port</value>
+<value>sc_inout&lt;unsigned int></value>
 </setting_value>
 <setting_value>
 <value>port</value>
@@ -1916,19 +1900,11 @@
 </setting_value>
 <setting_value>
 <value>port</value>
-<value>sc_out&lt;sc_bv&lt;12> ></value>
-</setting_value>
-<setting_value>
-<value>port</value>
-<value>sc_out&lt;sc_bv&lt;3> ></value>
-</setting_value>
-<setting_value>
-<value>port</value>
-<value>sc_out&lt;sc_bv&lt;5> ></value>
-</setting_value>
-<setting_value>
-<value>port</value>
 <value>sc_out&lt;unsigned char></value>
+</setting_value>
+<setting_value>
+<value>port</value>
+<value>sc_out&lt;unsigned int></value>
 </setting_value>
 <setting_value>
 <value>primitive_channel</value>
@@ -1936,19 +1912,11 @@
 </setting_value>
 <setting_value>
 <value>primitive_channel</value>
-<value>sc_signal&lt;sc_bv&lt;12> ></value>
-</setting_value>
-<setting_value>
-<value>primitive_channel</value>
-<value>sc_signal&lt;sc_bv&lt;3> ></value>
-</setting_value>
-<setting_value>
-<value>primitive_channel</value>
-<value>sc_signal&lt;sc_bv&lt;5> ></value>
-</setting_value>
-<setting_value>
-<value>primitive_channel</value>
 <value>sc_signal&lt;unsigned char></value>
+</setting_value>
+<setting_value>
+<value>primitive_channel</value>
+<value>sc_signal&lt;unsigned int></value>
 </setting_value>
 <setting_value>
 <value>target_socket</value>

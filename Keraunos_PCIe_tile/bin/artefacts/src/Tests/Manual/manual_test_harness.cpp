@@ -64,8 +64,8 @@ SC_MODULE(ManualTestBench) {
     
     // PCIe Controller Interface signals
     sc_core::sc_signal<bool> pcie_cii_hv;
-    sc_core::sc_signal<sc_dt::sc_bv<5>> pcie_cii_hdr_type;
-    sc_core::sc_signal<sc_dt::sc_bv<12>> pcie_cii_hdr_addr;
+    sc_core::sc_signal<unsigned int> pcie_cii_hdr_type;
+    sc_core::sc_signal<unsigned int> pcie_cii_hdr_addr;
     sc_core::sc_signal<bool> pcie_flr_request;
     sc_core::sc_signal<bool> pcie_hot_reset;
     sc_core::sc_signal<bool> pcie_ras_error;
@@ -79,7 +79,7 @@ SC_MODULE(ManualTestBench) {
     sc_core::sc_signal<bool> ras_error;
     sc_core::sc_signal<bool> dma_completion;
     sc_core::sc_signal<bool> controller_misc_int;
-    sc_core::sc_signal<sc_dt::sc_bv<3>> noc_timeout;
+    sc_core::sc_signal<unsigned int> noc_timeout;
     sc_core::sc_signal<uint8_t> pcie_app_bus_num;
     sc_core::sc_signal<uint8_t> pcie_app_dev_num;
     sc_core::sc_signal<bool> pcie_device_type;

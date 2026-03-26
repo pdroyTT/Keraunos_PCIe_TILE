@@ -1,13 +1,12 @@
 #include "keraunos_pcie_noc_pcie_switch.h"
-#include <fstream>
-#include <cstdio>
 
 namespace keraunos {
 namespace pcie {
 
 NocPcieSwitch::NocPcieSwitch()
     : isolate_req_(false), pcie_outbound_enable_(true), pcie_inbound_enable_(true), system_ready_(true)
-    , bus_master_enable_(true), controller_is_ep_(true)  // Keraunos is EP-only (Table 6)
+    , bus_master_enable_(true), controller_is_ep_(true)
+    , debug_logging_enabled_(true), parent_module_(nullptr)
     , next_request_id_(1)
 {}
 
@@ -15,8 +14,18 @@ void NocPcieSwitch::route_from_pcie(tlm::tlm_generic_payload& trans, sc_core::sc
     uint64_t addr = trans.get_address();
     bool is_read = (trans.get_command() == tlm::TLM_READ_COMMAND);
     
+    if (debug_logging_enabled_ && parent_module_) {
+        SCML2_INFO_TO(parent_module_, FUNCTIONAL_LOG) 
+            << "NocPcieSwitch: PCIe inbound routing addr=0x" << std::hex << addr << std::dec
+            << " cmd=" << (is_read ? "READ" : "WRITE") << std::endl;
+    }
+    
     // Step 1: Isolation blocks ALL traffic (physical AXI tie-off per Section 2.2.1.5)
     if (isolate_req_) {
+        if (debug_logging_enabled_ && parent_module_) {
+            SCML2_WARNING_TO(parent_module_, GENERIC_WARNING) 
+                << "Transaction blocked: isolation active" << std::endl;
+        }
         trans.set_response_status(tlm::TLM_ADDRESS_ERROR_RESPONSE);
         return;
     }
@@ -28,16 +37,39 @@ void NocPcieSwitch::route_from_pcie(tlm::tlm_generic_payload& trans, sc_core::sc
         uint32_t* data_ptr = reinterpret_cast<uint32_t*>(trans.get_data_ptr());
         *data_ptr = get_status_reg_value();
         trans.set_response_status(tlm::TLM_OK_RESPONSE);
+        if (debug_logging_enabled_ && parent_module_) {
+            SCML2_INFO_TO(parent_module_, FUNCTIONAL_LOG) 
+                << "Status register access: value=0x" << std::hex << *data_ptr << std::dec << std::endl;
+        }
         return;
     }
     
     // Step 3: Check inbound enable for normal application traffic
     if (!pcie_inbound_enable_) {
+        if (debug_logging_enabled_ && parent_module_) {
+            SCML2_WARNING_TO(parent_module_, GENERIC_WARNING) 
+                << "Transaction blocked: PCIe inbound disabled" << std::endl;
+        }
         trans.set_response_status(tlm::TLM_ADDRESS_ERROR_RESPONSE);
         return;
     }
     
     NocPcieRoute route = route_address(addr, is_read);
+    
+    if (debug_logging_enabled_ && parent_module_) {
+        const char* route_name = "UNKNOWN";
+        switch(route) {
+            case NocPcieRoute::TLB_APP_0: route_name = "TLB_APP_0"; break;
+            case NocPcieRoute::TLB_APP_1: route_name = "TLB_APP_1"; break;
+            case NocPcieRoute::TLB_SYS: route_name = "TLB_SYS"; break;
+            case NocPcieRoute::BYPASS_APP: route_name = "BYPASS_APP"; break;
+            case NocPcieRoute::BYPASS_SYS: route_name = "BYPASS_SYS"; break;
+            default: route_name = "DECERR"; break;
+        }
+        SCML2_INFO_TO(parent_module_, FUNCTIONAL_LOG) 
+            << "Routing decision: " << route_name << " (route bits=0x" 
+            << std::hex << ((addr >> 60) & 0xF) << std::dec << ")" << std::endl;
+    }
     
     // Strip routing bits [63:60] before forwarding to TLBs
     uint64_t data_addr = addr & 0x0FFFFFFFFFFFFFFFULL;
@@ -57,8 +89,11 @@ void NocPcieSwitch::route_from_pcie(tlm::tlm_generic_payload& trans, sc_core::sc
             else trans.set_response_status(tlm::TLM_OK_RESPONSE);
             break;
         case NocPcieRoute::BYPASS_APP:
-            // Bypass path requires system_ready (Section 2.3.1)
             if (!system_ready_) {
+                if (debug_logging_enabled_ && parent_module_) {
+                    SCML2_WARNING_TO(parent_module_, GENERIC_WARNING) 
+                        << "Bypass APP blocked: system not ready" << std::endl;
+                }
                 trans.set_response_status(tlm::TLM_ADDRESS_ERROR_RESPONSE);
             } else if (noc_io_) {
                 noc_io_(trans, delay);
@@ -67,8 +102,11 @@ void NocPcieSwitch::route_from_pcie(tlm::tlm_generic_payload& trans, sc_core::sc
             }
             break;
         case NocPcieRoute::BYPASS_SYS:
-            // Bypass path requires system_ready (Section 2.3.1)
             if (!system_ready_) {
+                if (debug_logging_enabled_ && parent_module_) {
+                    SCML2_WARNING_TO(parent_module_, GENERIC_WARNING) 
+                        << "Bypass SYS blocked: system not ready" << std::endl;
+                }
                 trans.set_response_status(tlm::TLM_ADDRESS_ERROR_RESPONSE);
             } else if (smn_io_) {
                 smn_io_(trans, delay);
@@ -77,6 +115,10 @@ void NocPcieSwitch::route_from_pcie(tlm::tlm_generic_payload& trans, sc_core::sc
             }
             break;
         default:
+            if (debug_logging_enabled_ && parent_module_) {
+                SCML2_ERROR_TO(parent_module_, FUNCTIONAL_ERROR) 
+                    << "Invalid routing bits: 0x" << std::hex << ((addr >> 60) & 0xF) << std::dec << std::endl;
+            }
             trans.set_response_status(tlm::TLM_ADDRESS_ERROR_RESPONSE);
             break;
     }
@@ -91,53 +133,62 @@ void NocPcieSwitch::route_from_pcie(tlm::tlm_generic_payload& trans, sc_core::sc
 }
 
 void NocPcieSwitch::route_to_pcie(tlm::tlm_generic_payload& trans, sc_core::sc_time& delay) {
-    // No AxUSER provided — delegate with zero AxUSER (treated as memory TLP for BME)
-    // #region agent log
-    {
-        std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
-        f << "route_to_pcie 2-arg called (NO axuser) addr=0x" << std::hex << trans.get_address() << std::dec << "\n";
+    if (debug_logging_enabled_ && parent_module_) {
+        SCML2_INFO_TO(parent_module_, FUNCTIONAL_LOG) 
+            << "NocPcieSwitch: route_to_pcie (no AxUSER) addr=0x" << std::hex << trans.get_address() 
+            << std::dec << " - treating as memory TLP" << std::endl;
     }
-    // #endregion
     sc_dt::sc_bv<256> zero_axuser(0);
     route_to_pcie(trans, delay, zero_axuser);
 }
 
 void NocPcieSwitch::route_to_pcie(tlm::tlm_generic_payload& trans, sc_core::sc_time& delay,
                                    const sc_dt::sc_bv<256>& axuser) {
+    uint64_t addr = trans.get_address();
+    
     // Step 1: Isolation blocks all outbound traffic (Section 2.2.1.5)
     if (isolate_req_) {
+        if (debug_logging_enabled_ && parent_module_) {
+            SCML2_WARNING_TO(parent_module_, GENERIC_WARNING) 
+                << "Outbound transaction blocked: isolation active" << std::endl;
+        }
         trans.set_response_status(tlm::TLM_ADDRESS_ERROR_RESPONSE);
         return;
     }
 
     // Step 2: Outbound enable check (Table 33, rows with outbound_enable=0)
     if (!pcie_outbound_enable_) {
+        if (debug_logging_enabled_ && parent_module_) {
+            SCML2_WARNING_TO(parent_module_, GENERIC_WARNING) 
+                << "Outbound transaction blocked: PCIe outbound disabled" << std::endl;
+        }
         trans.set_response_status(tlm::TLM_ADDRESS_ERROR_RESPONSE);
         return;
     }
 
     // Step 3: Bus Master Enable qualification (Table 33, Section 2.5.8.1)
-    //  - RP mode: BME is not checked (all traffic passes when outbound=1)
-    //  - EP mode, BME=1: all traffic passes
-    //  - EP mode, BME=0: only BME-exempt TLPs pass (Cfg, Msg, DBI); Mem TLPs get DECERR
     if (controller_is_ep_ && !bus_master_enable_) {
         bool exempt = is_bme_exempt(axuser);
-        // #region agent log
-        {
-            std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
-            char buf[512];
+        
+        if (debug_logging_enabled_ && parent_module_) {
             uint32_t tlp_type = 0;
             for (int i = 0; i < 5; i++) { if (axuser[i].to_bool()) tlp_type |= (1u << i); }
             bool dbi = axuser[21].to_bool();
-            snprintf(buf, sizeof(buf),
-                "route_to_pcie BME CHECK: ep=%d bme=%d exempt=%d tlp_type=%u dbi=%d addr=0x%lx cmd=%d\n",
-                (int)controller_is_ep_, (int)bus_master_enable_, (int)exempt,
-                tlp_type, (int)dbi, (unsigned long)trans.get_address(),
-                (int)trans.get_command());
-            f << buf;
+            
+            SCML2_INFO_TO(parent_module_, FUNCTIONAL_LOG_VERBOSE) 
+                << "BME qualification check: EP_mode=" << controller_is_ep_
+                << " BME=" << bus_master_enable_
+                << " exempt=" << exempt
+                << " TLP_type=0x" << std::hex << tlp_type << std::dec
+                << " DBI=" << dbi
+                << " addr=0x" << std::hex << addr << std::dec << std::endl;
         }
-        // #endregion
+        
         if (!exempt) {
+            if (debug_logging_enabled_ && parent_module_) {
+                SCML2_ERROR_TO(parent_module_, ACCESS_PERMISSION_CHECK_FAIL) 
+                    << "Transaction blocked: BME disabled and TLP not exempt" << std::endl;
+            }
             trans.set_response_status(tlm::TLM_ADDRESS_ERROR_RESPONSE);
             return;
         }
@@ -145,6 +196,10 @@ void NocPcieSwitch::route_to_pcie(tlm::tlm_generic_payload& trans, sc_core::sc_t
 
     // Step 4: Forward to PCIe controller
     if (pcie_controller_) {
+        if (debug_logging_enabled_ && parent_module_) {
+            SCML2_INFO_TO(parent_module_, FUNCTIONAL_LOG) 
+                << "Forwarding to PCIe controller: addr=0x" << std::hex << addr << std::dec << std::endl;
+        }
         pcie_controller_(trans, delay);
     } else {
         trans.set_response_status(tlm::TLM_OK_RESPONSE);

@@ -366,7 +366,7 @@ TLM Creator will extract the model properties from the C++ source code. </docume
     </interface>
     <interface>
       <name>noc_timeout</name>
-      <type>sc_core::sc_out&lt;sc_bv&lt;3 &gt;&gt;</type>
+      <type>sc_core::sc_out&lt;unsigned&gt;</type>
       <category>Control</category>
       <attributes>
         <attribute>
@@ -390,7 +390,7 @@ TLM Creator will extract the model properties from the C++ source code. </docume
     </interface>
     <interface>
       <name>pcie_cii_hdr_type</name>
-      <type>sc_core::sc_in&lt;sc_bv&lt;5 &gt;&gt;</type>
+      <type>sc_core::sc_in&lt;unsigned&gt;</type>
       <category>Control</category>
       <attributes>
         <attribute>
@@ -402,7 +402,7 @@ TLM Creator will extract the model properties from the C++ source code. </docume
     </interface>
     <interface>
       <name>pcie_cii_hdr_addr</name>
-      <type>sc_core::sc_in&lt;sc_bv&lt;12 &gt;&gt;</type>
+      <type>sc_core::sc_in&lt;unsigned&gt;</type>
       <category>Control</category>
       <attributes>
         <attribute>
@@ -937,7 +937,7 @@ TLM Creator will extract the model properties from the C++ source code. </docume
         </interface>
         <interface>
           <name>noc_timeout</name>
-          <type>sc_core::sc_out&lt;sc_bv&lt;3 &gt;&gt;</type>
+          <type>sc_core::sc_out&lt;unsigned&gt;</type>
           <category>Control</category>
           <attributes>
             <attribute>
@@ -961,7 +961,7 @@ TLM Creator will extract the model properties from the C++ source code. </docume
         </interface>
         <interface>
           <name>pcie_cii_hdr_type</name>
-          <type>sc_core::sc_in&lt;sc_bv&lt;5 &gt;&gt;</type>
+          <type>sc_core::sc_in&lt;unsigned&gt;</type>
           <category>Control</category>
           <attributes>
             <attribute>
@@ -973,7 +973,7 @@ TLM Creator will extract the model properties from the C++ source code. </docume
         </interface>
         <interface>
           <name>pcie_cii_hdr_addr</name>
-          <type>sc_core::sc_in&lt;sc_bv&lt;12 &gt;&gt;</type>
+          <type>sc_core::sc_in&lt;unsigned&gt;</type>
           <category>Control</category>
           <attributes>
             <attribute>
@@ -1496,7 +1496,7 @@ TLM Creator will extract the model properties from the C++ source code. </docume
         </interface>
         <interface>
           <name>pcie_cii_hdr_type</name>
-          <type>sc_core::sc_in&lt;sc_bv&lt;5 &gt;&gt;</type>
+          <type>sc_core::sc_in&lt;unsigned&gt;</type>
           <category>Control</category>
           <attributes>
             <attribute>
@@ -1508,7 +1508,7 @@ TLM Creator will extract the model properties from the C++ source code. </docume
         </interface>
         <interface>
           <name>pcie_cii_hdr_addr</name>
-          <type>sc_core::sc_in&lt;sc_bv&lt;12 &gt;&gt;</type>
+          <type>sc_core::sc_in&lt;unsigned&gt;</type>
           <category>Control</category>
           <attributes>
             <attribute>
@@ -1736,7 +1736,7 @@ TLM Creator will extract the model properties from the C++ source code. </docume
         </interface>
         <interface>
           <name>noc_timeout</name>
-          <type>sc_core::sc_out&lt;sc_bv&lt;3 &gt;&gt;</type>
+          <type>sc_core::sc_out&lt;unsigned&gt;</type>
           <category>Control</category>
           <attributes>
             <attribute>

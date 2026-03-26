@@ -28,9 +28,9 @@
 <td class="bgc0">Failed</td></tr>
 <tr class="noBorder"><td/><td/></tr>
 <tr><td><span title="These are coverpoints that are not fully covered. Either create a test that exercises them, or assign an exemption."># Coverpoints to be reviewed</span></td><td class="bgc0">
-<a href="#Keranous_pcie_tile_holes_in_reviewed_coverage">4</a></td><td align="right"><span title="This is the percentage of coverpoints that have been reviewed or are covered by tests.">Reviewed Coverage:</span></td><td align="right">84%</td></tr>
+<a href="#Keranous_pcie_tile_holes_in_reviewed_coverage">7</a></td><td align="right"><span title="This is the percentage of coverpoints that have been reviewed or are covered by tests.">Reviewed Coverage:</span></td><td align="right">72%</td></tr>
 <tr><td><span title="These are coverpoints that have been reviewed as being untested and still require a test."># Coverpoints to be tested</span></td><td class="bgc5">
-0</td><td align="right"><span title="This is the percentage of coverpoints that have been reviewed and don't require a test or are covered by tests.">Tested Coverage:</span></td><td align="right">84%</td></tr>
+0</td><td align="right"><span title="This is the percentage of coverpoints that have been reviewed and don't require a test or are covered by tests.">Tested Coverage:</span></td><td align="right">72%</td></tr>
 <tr><td><span title="These are the coverpoints that have been reviewed and don't require test coverage.">Exempt # Coverpoints</span></td><td class="bgc10">
 0</td></tr>
 <tr><td>Total # Coverpoints</td>
@@ -41,6 +41,9 @@
 <tr><td><a href="#pcie_core_clk">pcie_core_clk</a></td><td>0%</td></tr>
 <tr><td><a href="#axi_clk">axi_clk</a></td><td>0%</td></tr>
 <tr><td><a href="#noc_timeout">noc_timeout</a></td><td>0%</td></tr>
+<tr><td><a href="#pcie_app_bus_num">pcie_app_bus_num</a></td><td>0%</td></tr>
+<tr><td><a href="#pcie_app_dev_num">pcie_app_dev_num</a></td><td>0%</td></tr>
+<tr><td><a href="#pcie_device_type">pcie_device_type</a></td><td>0%</td></tr>
 <tr><td><a href="#pcie_sys_int">pcie_sys_int</a></td><td>0%</td></tr>
 </table><p/>
   <table  id="Keranous_pcie_tile_details">
@@ -60,9 +63,9 @@
    <tr><td><a href="#pcie_ras_error">pcie_ras_error</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc10">100</td><td align="right">2</td><td></td></tr>
    <tr><td><a href="#pcie_dma_completion">pcie_dma_completion</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc10">100</td><td align="right">2</td><td></td></tr>
    <tr><td><a href="#pcie_misc_int">pcie_misc_int</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc10">100</td><td align="right">2</td><td></td></tr>
-   <tr><td><a href="#pcie_app_bus_num">pcie_app_bus_num</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc10">100</td><td align="right">2</td><td></td></tr>
-   <tr><td><a href="#pcie_app_dev_num">pcie_app_dev_num</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc10">100</td><td align="right">3</td><td></td></tr>
-   <tr><td><a href="#pcie_device_type">pcie_device_type</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc10">100</td><td align="right">1</td><td></td></tr>
+   <tr><td><a href="#pcie_app_bus_num">pcie_app_bus_num</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc0">0</td><td align="right">0</td><td></td></tr>
+   <tr><td><a href="#pcie_app_dev_num">pcie_app_dev_num</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc0">0</td><td align="right">0</td><td></td></tr>
+   <tr><td><a href="#pcie_device_type">pcie_device_type</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc0">0</td><td align="right">0</td><td></td></tr>
    <tr><td><a href="#pcie_sys_int">pcie_sys_int</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc0">0</td><td align="right">0</td><td></td></tr>
    <tr><td><a href="#cold_reset_n">cold_reset_n</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc10">100</td><td align="right">12</td><td></td></tr>
    <tr><td><a href="#warm_reset_n">warm_reset_n</a></td><td style="color:rgb(0,0,0)">YES</td><td class="bgc10">100</td><td align="right">2</td><td></td></tr>
@@ -90,13 +93,13 @@
     <tr><td id="controller_misc_int">controller_misc_int</td><td></td><td class="bgc10">100%</td><td align="right">2</td><td></td><td></td></tr>
      <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">2</td>      <td>(0 - 1)</td>      <td></td>     </tr>
     <tr><td id="noc_timeout">noc_timeout</td><td></td><td class="bgc0">0%</td><td align="right">0</td><td></td><td></td></tr>
-     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(255,0,0)">no</td>      <td align="right">0</td>      <td>f0()</td>      <td></td>     </tr>
+     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(255,0,0)">no</td>      <td align="right">0</td>      <td>(0 - 4294967295)</td>      <td></td>     </tr>
     <tr><td id="pcie_cii_hv">pcie_cii_hv</td><td></td><td class="bgc10">100%</td><td align="right">20</td><td></td><td></td></tr>
      <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">20</td>      <td>(0 - 1)</td>      <td></td>     </tr>
     <tr><td id="pcie_cii_hdr_type">pcie_cii_hdr_type</td><td></td><td class="bgc10">100%</td><td align="right">4</td><td></td><td></td></tr>
-     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">4</td>      <td>f0()</td>      <td></td>     </tr>
+     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">4</td>      <td>(0 - 4294967295)</td>      <td></td>     </tr>
     <tr><td id="pcie_cii_hdr_addr">pcie_cii_hdr_addr</td><td></td><td class="bgc10">100%</td><td align="right">11</td><td></td><td></td></tr>
-     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">11</td>      <td>f0()</td>      <td></td>     </tr>
+     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">11</td>      <td>(0 - 4294967295)</td>      <td></td>     </tr>
     <tr><td id="pcie_flr_request">pcie_flr_request</td><td></td><td class="bgc10">100%</td><td align="right">2</td><td></td><td></td></tr>
      <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">2</td>      <td>(0 - 1)</td>      <td></td>     </tr>
     <tr><td id="pcie_ras_error">pcie_ras_error</td><td></td><td class="bgc10">100%</td><td align="right">2</td><td></td><td></td></tr>
@@ -105,12 +108,12 @@
      <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">2</td>      <td>(0 - 1)</td>      <td></td>     </tr>
     <tr><td id="pcie_misc_int">pcie_misc_int</td><td></td><td class="bgc10">100%</td><td align="right">2</td><td></td><td></td></tr>
      <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">2</td>      <td>(0 - 1)</td>      <td></td>     </tr>
-    <tr><td id="pcie_app_bus_num">pcie_app_bus_num</td><td></td><td class="bgc10">100%</td><td align="right">2</td><td></td><td></td></tr>
-     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">2</td>      <td>(0 - 255)</td>      <td></td>     </tr>
-    <tr><td id="pcie_app_dev_num">pcie_app_dev_num</td><td></td><td class="bgc10">100%</td><td align="right">3</td><td></td><td></td></tr>
-     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">3</td>      <td>(0 - 255)</td>      <td></td>     </tr>
-    <tr><td id="pcie_device_type">pcie_device_type</td><td></td><td class="bgc10">100%</td><td align="right">1</td><td></td><td></td></tr>
-     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(0,255,0)">yes</td>      <td align="right">1</td>      <td>(0 - 1)</td>      <td></td>     </tr>
+    <tr><td id="pcie_app_bus_num">pcie_app_bus_num</td><td></td><td class="bgc0">0%</td><td align="right">0</td><td></td><td></td></tr>
+     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(255,0,0)">no</td>      <td align="right">0</td>      <td>(0 - 255)</td>      <td></td>     </tr>
+    <tr><td id="pcie_app_dev_num">pcie_app_dev_num</td><td></td><td class="bgc0">0%</td><td align="right">0</td><td></td><td></td></tr>
+     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(255,0,0)">no</td>      <td align="right">0</td>      <td>(0 - 255)</td>      <td></td>     </tr>
+    <tr><td id="pcie_device_type">pcie_device_type</td><td></td><td class="bgc0">0%</td><td align="right">0</td><td></td><td></td></tr>
+     <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(255,0,0)">no</td>      <td align="right">0</td>      <td>(0 - 1)</td>      <td></td>     </tr>
     <tr><td id="pcie_sys_int">pcie_sys_int</td><td></td><td class="bgc0">0%</td><td align="right">0</td><td></td><td></td></tr>
      <tr><td></td><td>auto_bin</td> <td style="background-color:rgb(255,0,0)">no</td>      <td align="right">0</td>      <td>(0 - 1)</td>      <td></td>     </tr>
     <tr><td id="cold_reset_n">cold_reset_n</td><td></td><td class="bgc10">100%</td><td align="right">12</td><td></td><td></td></tr>

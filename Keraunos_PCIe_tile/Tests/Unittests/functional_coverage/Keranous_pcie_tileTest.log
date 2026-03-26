@@ -153,10 +153,11 @@
     <bin>
      <name>auto_bin</name>
      <description></description>
-     <definition>f0()</definition>
+     <definition>(0 - 4294967295)</definition>
      <conditional>0</conditional>
      <illegal>0</illegal>
-     <type>atomic</type>
+     <type>array</type>
+     <size>1</size>
      <count>0</count>
     </bin>
    </bins>
@@ -192,10 +193,11 @@
     <bin>
      <name>auto_bin</name>
      <description></description>
-     <definition>f0()</definition>
+     <definition>(0 - 4294967295)</definition>
      <conditional>0</conditional>
      <illegal>0</illegal>
-     <type>atomic</type>
+     <type>array</type>
+     <size>1</size>
      <count>4</count>
     </bin>
    </bins>
@@ -211,10 +213,11 @@
     <bin>
      <name>auto_bin</name>
      <description></description>
-     <definition>f0()</definition>
+     <definition>(0 - 4294967295)</definition>
      <conditional>0</conditional>
      <illegal>0</illegal>
-     <type>atomic</type>
+     <type>array</type>
+     <size>1</size>
      <count>11</count>
     </bin>
    </bins>
@@ -315,7 +318,7 @@
      <illegal>0</illegal>
      <type>array</type>
      <size>1</size>
-     <count>2</count>
+     <count>0</count>
     </bin>
    </bins>
   </coverpoint>
@@ -335,7 +338,7 @@
      <illegal>0</illegal>
      <type>array</type>
      <size>1</size>
-     <count>3</count>
+     <count>0</count>
     </bin>
    </bins>
   </coverpoint>
@@ -355,7 +358,7 @@
      <illegal>0</illegal>
      <type>array</type>
      <size>1</size>
-     <count>1</count>
+     <count>0</count>
     </bin>
    </bins>
   </coverpoint>

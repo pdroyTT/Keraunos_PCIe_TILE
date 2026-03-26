@@ -275,11 +275,10 @@ void KeraunosPcieTile::connect_components() {
 }
 
 void KeraunosPcieTile::combine_timeout_process() {
-    // Combine individual timeout signals into 3-bit noc_timeout output
-    sc_dt::sc_bv<3> timeout_bits;
-    timeout_bits[0] = noc_timeout_read_.read();
-    timeout_bits[1] = noc_timeout_write_.read();
-    timeout_bits[2] = smn_timeout_.read();
+    unsigned int timeout_bits = 0;
+    if (noc_timeout_read_.read())  timeout_bits |= (1u << 0);
+    if (noc_timeout_write_.read()) timeout_bits |= (1u << 1);
+    if (smn_timeout_.read())       timeout_bits |= (1u << 2);
     noc_timeout.write(timeout_bits);
 }
 

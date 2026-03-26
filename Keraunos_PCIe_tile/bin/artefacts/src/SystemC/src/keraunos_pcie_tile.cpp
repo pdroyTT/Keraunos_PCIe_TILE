@@ -1,6 +1,4 @@
 #include "keraunos_pcie_tile.h"
-#include <fstream>
-#include <cstdio>
 
 namespace keraunos {
 namespace pcie {
@@ -13,7 +11,11 @@ KeraunosPcieTile::KeraunosPcieTile(sc_core::sc_module_name name)
     , smn_n_initiator("smn_n_initiator")
     , pcie_controller_target("pcie_controller_target")
     , pcie_controller_initiator("pcie_controller_initiator")
+    , debug_logging_enabled_(true)
+    , outputs_initialized_(false)
 {
+    SCML2_INFO(FUNCTIONAL_LOG) << "Initializing Keraunos PCIe Tile: " << name << std::endl;
+    
     // Register callbacks for target sockets (inbound from external)
     // Initiator sockets don't need register_b_transport - they call outward via ->b_transport()
     noc_n_target.register_b_transport(this, &KeraunosPcieTile::noc_n_target_b_transport);
@@ -22,6 +24,10 @@ KeraunosPcieTile::KeraunosPcieTile(sc_core::sc_module_name name)
     
     // Instantiate internal components using std::make_unique (Modern C++ RAII)
     // No manual delete needed - unique_ptr automatically manages lifetime
+    if (debug_logging_enabled_) {
+        SCML2_INFO(FUNCTIONAL_LOG) << "Creating internal components..." << std::endl;
+    }
+    
     noc_pcie_switch_ = std::make_unique<NocPcieSwitch>();
     noc_io_switch_ = std::make_unique<NocIoSwitch>();
     smn_io_switch_ = std::make_unique<SmnIoSwitch>();
@@ -40,6 +46,10 @@ KeraunosPcieTile::KeraunosPcieTile(sc_core::sc_module_name name)
     pll_cgm_ = std::make_unique<PllCgm>();
     pcie_phy_ = std::make_unique<PciePhy>();
     
+    if (debug_logging_enabled_) {
+        SCML2_INFO(FUNCTIONAL_LOG) << "All internal components created successfully" << std::endl;
+    }
+    
     // Set up callback for config register changes
     if (config_reg_) {
         config_reg_->set_change_callback([this]() {
@@ -48,8 +58,26 @@ KeraunosPcieTile::KeraunosPcieTile(sc_core::sc_module_name name)
         });
     }
     
+    // Propagate debug logging enable and parent module to child components
+    if (config_reg_) {
+        config_reg_->set_debug_logging_enabled(debug_logging_enabled_);
+        config_reg_->set_parent_module(this);
+    }
+    if (clock_reset_ctrl_) {
+        clock_reset_ctrl_->set_debug_logging_enabled(debug_logging_enabled_);
+        clock_reset_ctrl_->set_parent_module(this);
+    }
+    if (noc_pcie_switch_) {
+        noc_pcie_switch_->set_debug_logging_enabled(debug_logging_enabled_);
+        noc_pcie_switch_->set_parent_module(this);
+    }
+    
     // Wire components with function callbacks
     wire_components();
+    
+    if (debug_logging_enabled_) {
+        SCML2_INFO(FUNCTIONAL_LOG) << "Component wiring complete" << std::endl;
+    }
     
     // Register signal update process
     SC_METHOD(signal_update_process);
@@ -66,18 +94,17 @@ KeraunosPcieTile::~KeraunosPcieTile() {
 
 void KeraunosPcieTile::end_of_elaboration() {
     sc_module::end_of_elaboration();
-    // Initialize outputs
-    pcie_app_bus_num.write(0);
-    pcie_app_dev_num.write(0);
-    pcie_device_type.write(false);
-    pcie_sys_int.write(false);
-    function_level_reset.write(false);
-    hot_reset_requested.write(false);
-    config_update.write(false);
-    ras_error.write(false);
-    dma_completion.write(false);
-    controller_misc_int.write(false);
-    noc_timeout.write(sc_dt::sc_bv<3>(0));
+    
+    SCML2_INFO(FUNCTIONAL_LOG) << "Elaboration complete" << std::endl;
+    
+    // NOTE: Output port initialization has been moved into signal_update_process()
+    // (guarded by outputs_initialized_) so that ALL writes to output ports
+    // originate from the same SC_METHOD process context, preventing E521
+    // ("sc_signal<T> cannot have more than one driver").
+    
+    if (debug_logging_enabled_) {
+        SCML2_INFO(CONFIGURATION_INFO) << "Debug logging is ENABLED" << std::endl;
+    }
 }
 
 void KeraunosPcieTile::wire_components() {
@@ -243,39 +270,46 @@ void KeraunosPcieTile::wire_components() {
     // for BME qualification per Table 33, Section 2.5.8.1
     if (tlb_sys_out0_) {
         tlb_sys_out0_->set_translated_output([this](auto& t, auto& d, const auto& attr) {
-            if (noc_pcie_switch_) noc_pcie_switch_->route_to_pcie(t, d, attr);
-            else t.set_response_status(tlm::TLM_OK_RESPONSE);
+            // AxUSER bit[21] = DBI Access Indicator (Table 24/25).
+            // DBI transactions must reach PCIe_EP0.AXI_DBI (at 0x44000000
+            // on smn_n_initiator), NOT AXI_Slave via pcie_controller_initiator.
+            bool is_dbi = attr[21].to_bool();
+            if (is_dbi) {
+                uint64_t orig = t.get_address();
+                t.set_address(0x44000000ULL | (orig & 0x3FFFFFULL));
+                smn_n_initiator->b_transport(t, d);
+                t.set_address(orig);
+            } else if (noc_pcie_switch_) {
+                noc_pcie_switch_->route_to_pcie(t, d, attr);
+            } else {
+                t.set_response_status(tlm::TLM_OK_RESPONSE);
+            }
         });
     }
     if (tlb_app_out0_) {
         tlb_app_out0_->set_translated_output([this](auto& t, auto& d, const auto& attr) {
             if (noc_pcie_switch_) {
-                // #region agent log
-                {
-                    std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
-                    char buf[512];
+                if (debug_logging_enabled_) {
                     uint32_t tlp_type = 0;
                     for (int i = 0; i < 5; i++) { if (attr[i].to_bool()) tlp_type |= (1u << i); }
                     bool dbi = attr[21].to_bool();
-                    snprintf(buf, sizeof(buf),
-                        "TLBAppOut0→route_to_pcie: addr=0x%lx bme=%d ep=%d tlp=%u dbi=%d cmd=%d\n",
-                        (unsigned long)t.get_address(),
-                        (int)noc_pcie_switch_->get_bus_master_enable(),
-                        (int)noc_pcie_switch_->get_controller_is_ep(),
-                        tlp_type, (int)dbi, (int)t.get_command());
-                    f << buf;
+                    
+                    SCML2_INFO(FUNCTIONAL_LOG)
+                        << "TLBAppOut0 -> PCIe: addr=0x" << std::hex << t.get_address() << std::dec
+                        << " BME=" << noc_pcie_switch_->get_bus_master_enable()
+                        << " EP=" << noc_pcie_switch_->get_controller_is_ep()
+                        << " TLP_TYPE=0x" << std::hex << tlp_type << std::dec
+                        << " DBI=" << dbi
+                        << " cmd=" << (t.get_command() == tlm::TLM_READ_COMMAND ? "READ" : "WRITE")
+                        << std::endl;
                 }
-                // #endregion
+                
                 noc_pcie_switch_->route_to_pcie(t, d, attr);
-                // #region agent log
-                {
-                    std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
-                    char buf[128];
-                    snprintf(buf, sizeof(buf), "  → resp after route_to_pcie: %d\n",
-                        (int)t.get_response_status());
-                    f << buf;
+                
+                if (debug_logging_enabled_) {
+                    SCML2_INFO(FUNCTIONAL_LOG) 
+                        << "TLBAppOut0 routing response: " << t.get_response_status() << std::endl;
                 }
-                // #endregion
             }
             else t.set_response_status(tlm::TLM_OK_RESPONSE);
         });
@@ -306,70 +340,121 @@ void KeraunosPcieTile::wire_components() {
 
 // Top-level socket transport methods (with null safety)
 void KeraunosPcieTile::noc_n_target_b_transport(tlm::tlm_generic_payload& trans, sc_core::sc_time& delay) {
+    if (debug_logging_enabled_) {
+        SCML2_INFO(FUNCTIONAL_LOG) 
+            << "NOC_N target received transaction: addr=0x" << std::hex << trans.get_address() 
+            << " cmd=" << (trans.get_command() == tlm::TLM_READ_COMMAND ? "READ" : "WRITE")
+            << std::dec << " len=" << trans.get_data_length() << std::endl;
+    }
+    
     if (noc_io_switch_) {
         noc_io_switch_->route_from_noc(trans, delay);
-        // #region agent log
-        {
-            std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug_bme.log", std::ios::app);
-            char buf[256];
-            snprintf(buf, sizeof(buf),
-                "noc_n_b_transport AFTER route_from_noc: addr=0x%lx resp=%d\n",
-                (unsigned long)trans.get_address(), (int)trans.get_response_status());
-            f << buf;
+        
+        if (debug_logging_enabled_) {
+            SCML2_INFO(FUNCTIONAL_LOG) 
+                << "NOC_N routing complete: response=" << trans.get_response_status() << std::endl;
         }
-        // #endregion
+        
         if (trans.get_response_status() == tlm::TLM_INCOMPLETE_RESPONSE) {
             trans.set_response_status(tlm::TLM_OK_RESPONSE);
         }
     } else {
+        SCML2_WARNING(GENERIC_WARNING) << "NOC_N switch not initialized" << std::endl;
         trans.set_response_status(tlm::TLM_OK_RESPONSE);
     }
 }
 
 void KeraunosPcieTile::smn_n_target_b_transport(tlm::tlm_generic_payload& trans, sc_core::sc_time& delay) {
     uint64_t addr = trans.get_address();
+    uint32_t len  = trans.get_data_length();
+    
+    if (debug_logging_enabled_) {
+        SCML2_INFO(FUNCTIONAL_LOG) 
+            << "SMN_N target received transaction: addr=0x" << std::hex << addr 
+            << " cmd=" << (trans.get_command() == tlm::TLM_READ_COMMAND ? "READ" : "WRITE")
+            << std::dec << " len=" << len << std::endl;
+    }
+
+    // Split 8-byte (64-bit) transactions into two 4-byte transactions.
+    // Some bus interconnects (e.g. Imperas ISS TLM bridge) generate 8-byte
+    // TLM transactions for RISC-V sd/ld instructions.  Internal sub-blocks
+    // may only handle 4-byte accesses, so we split here.
+    if (len == 8 && smn_io_switch_) {
+        uint8_t* data_ptr = trans.get_data_ptr();
+
+        // First 4 bytes (lower half)
+        trans.set_data_length(4);
+        trans.set_streaming_width(4);
+        smn_io_switch_->route_from_smn(trans, delay);
+        if (trans.get_response_status() != tlm::TLM_OK_RESPONSE &&
+            trans.get_response_status() != tlm::TLM_INCOMPLETE_RESPONSE) {
+            trans.set_data_length(len);
+            trans.set_streaming_width(len);
+            return;
+        }
+
+        // Second 4 bytes (upper half)
+        trans.set_address(addr + 4);
+        trans.set_data_ptr(data_ptr + 4);
+        smn_io_switch_->route_from_smn(trans, delay);
+
+        // Restore original transaction fields
+        trans.set_address(addr);
+        trans.set_data_ptr(data_ptr);
+        trans.set_data_length(len);
+        trans.set_streaming_width(len);
+
+        if (trans.get_response_status() == tlm::TLM_INCOMPLETE_RESPONSE) {
+            trans.set_response_status(tlm::TLM_OK_RESPONSE);
+        }
+        return;
+    }
     
     if (smn_io_switch_) {
         smn_io_switch_->route_from_smn(trans, delay);
+        
+        if (debug_logging_enabled_) {
+            SCML2_INFO(FUNCTIONAL_LOG) 
+                << "SMN_N routing complete: response=" << trans.get_response_status() << std::endl;
+        }
+        
         if (trans.get_response_status() == tlm::TLM_INCOMPLETE_RESPONSE) {
             trans.set_response_status(tlm::TLM_OK_RESPONSE);
         }
     } else {
+        SCML2_WARNING(GENERIC_WARNING) << "SMN_N switch not initialized" << std::endl;
         trans.set_response_status(tlm::TLM_OK_RESPONSE);
     }
 }
 
 void KeraunosPcieTile::pcie_controller_target_b_transport(tlm::tlm_generic_payload& trans, sc_core::sc_time& delay) {
-    // #region agent log
-    {
-        std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug.log", std::ios::app);
-        char buf[512];
-        uint64_t addr = trans.get_address();
-        snprintf(buf, sizeof(buf), "{\"location\":\"keraunos_pcie_tile.cpp:pcie_b_transport\",\"message\":\"PCIe DUT ENTRY\",\"data\":{\"addr\":\"0x%lx\",\"cmd\":\"%s\",\"has_switch\":%s},\"timestamp\":%ld,\"hypothesisId\":\"DUT_ENTRY\"}\n",
-                 addr, (trans.get_command() == tlm::TLM_READ_COMMAND ? "READ" : "WRITE"),
-                 noc_pcie_switch_ ? "true" : "false", sc_core::sc_time_stamp().value());
-        f << buf;
+    uint64_t addr = trans.get_address();
+    const char* cmd_str = (trans.get_command() == tlm::TLM_READ_COMMAND) ? "READ" : "WRITE";
+    
+    if (debug_logging_enabled_) {
+        SCML2_INFO(FUNCTIONAL_LOG) 
+            << "PCIe Controller transaction entry: addr=0x" << std::hex << addr << std::dec
+            << " cmd=" << cmd_str 
+            << " len=" << trans.get_data_length()
+            << " time=" << sc_core::sc_time_stamp() << std::endl;
     }
-    // #endregion
 
     if (noc_pcie_switch_) {
         noc_pcie_switch_->route_from_pcie(trans, delay);
+        
+        if (debug_logging_enabled_) {
+            SCML2_INFO(FUNCTIONAL_LOG) 
+                << "PCIe Controller transaction exit: response=" << trans.get_response_status()
+                << " time=" << sc_core::sc_time_stamp() << std::endl;
+        }
+        
         if (trans.get_response_status() == tlm::TLM_INCOMPLETE_RESPONSE) {
             trans.set_response_status(tlm::TLM_OK_RESPONSE);
         }
     } else {
+        SCML2_ERROR(FUNCTIONAL_ERROR) << "PCIe switch not initialized" << std::endl;
         trans.set_response_status(tlm::TLM_OK_RESPONSE);
     }
-
-    // #region agent log
-    {
-        std::ofstream f("/localdev/pdroy/keraunos_pcie_workspace/.cursor/debug.log", std::ios::app);
-        char buf[256];
-        snprintf(buf, sizeof(buf), "{\"location\":\"keraunos_pcie_tile.cpp:pcie_b_transport\",\"message\":\"PCIe DUT EXIT\",\"data\":{\"response\":%d},\"timestamp\":%ld,\"hypothesisId\":\"DUT_EXIT\"}\n",
-                 trans.get_response_status(), sc_core::sc_time_stamp().value());
-        f << buf;
-    }
-    // #endregion
 }
 
 void KeraunosPcieTile::update_config_dependent_modules() {
@@ -378,6 +463,13 @@ void KeraunosPcieTile::update_config_dependent_modules() {
         bool sys_ready = config_reg_->get_system_ready();
         bool out_enable = config_reg_->get_pcie_outbound_app_enable();
         bool in_enable = config_reg_->get_pcie_inbound_app_enable();
+        
+        if (debug_logging_enabled_) {
+            SCML2_INFO(CONFIGURATION_INFO) 
+                << "Config registers updated: system_ready=" << sys_ready
+                << " outbound_enable=" << out_enable
+                << " inbound_enable=" << in_enable << std::endl;
+        }
         
         if (noc_pcie_switch_) {
             noc_pcie_switch_->set_system_ready(sys_ready);
@@ -392,25 +484,48 @@ void KeraunosPcieTile::update_config_dependent_modules() {
 }
 
 void KeraunosPcieTile::signal_update_process() {
+    // First-run initialization: set all output ports to safe defaults.
+    // Done here (not in end_of_elaboration) so that every write to an
+    // output port originates from this single SC_METHOD, preventing E521.
+    if (!outputs_initialized_) {
+        outputs_initialized_ = true;
+        pcie_app_bus_num.write(0);
+        pcie_app_dev_num.write(0);
+        pcie_device_type.write(false);
+        pcie_sys_int.write(false);
+        function_level_reset.write(false);
+        hot_reset_requested.write(false);
+        config_update.write(false);
+        ras_error.write(false);
+        dma_completion.write(false);
+        controller_misc_int.write(false);
+        noc_timeout.write(0u);
+        return;
+    }
+    
     // Update internal component states from input signals (with null safety)
+    bool cold_rst = cold_reset_n.read();
+    bool warm_rst = warm_reset_n.read();
+    bool isolate = isolate_req.read();
+    
     if (clock_reset_ctrl_) {
-        clock_reset_ctrl_->set_cold_reset_n(cold_reset_n.read());
-        clock_reset_ctrl_->set_warm_reset_n(warm_reset_n.read());
-        clock_reset_ctrl_->set_isolate_req(isolate_req.read());
+        clock_reset_ctrl_->set_cold_reset_n(cold_rst);
+        clock_reset_ctrl_->set_warm_reset_n(warm_rst);
+        clock_reset_ctrl_->set_isolate_req(isolate);
     }
     
     if (config_reg_) {
-        config_reg_->set_isolate_req(isolate_req.read());
-        // Config-dependent updates now happen via callback
+        config_reg_->set_isolate_req(isolate);
     }
     
     if (noc_pcie_switch_) {
-        noc_pcie_switch_->set_isolate_req(isolate_req.read());
-        // Cold reset restores bus_master_enable_ to default (enabled).
-        // In real HW, BME comes from controller's Command Register, which
-        // resets to 0 on cold reset.  For our model, default is enabled=true
-        // so that existing non-BME tests work without explicitly setting it.
-        if (!cold_reset_n.read()) {
+        noc_pcie_switch_->set_isolate_req(isolate);
+        
+        if (!cold_rst) {
+            if (debug_logging_enabled_) {
+                SCML2_INFO(CONFIGURATION_INFO) 
+                    << "Cold reset asserted - restoring BME to default (enabled)" << std::endl;
+            }
             noc_pcie_switch_->set_bus_master_enable(true);
         }
     }
@@ -418,26 +533,28 @@ void KeraunosPcieTile::signal_update_process() {
     if (smn_io_switch_) smn_io_switch_->set_isolate_req(isolate_req.read());
     
     if (sii_block_) {
-        // Set CII inputs from PCIe controller signals
         sii_block_->set_cii_hv(pcie_cii_hv.read());
         sii_block_->set_cii_hdr_type(pcie_cii_hdr_type.read());
         sii_block_->set_cii_hdr_addr(pcie_cii_hdr_addr.read());
         sii_block_->set_reset_n(pcie_controller_reset_n.read());
 
-        // Process CII tracking, cfg_modified update, interrupt generation
         sii_block_->update();
 
-        // Drive outputs from SII
         pcie_app_bus_num.write(sii_block_->get_app_bus_num());
         pcie_app_dev_num.write(sii_block_->get_app_dev_num());
         bool is_rp = sii_block_->get_device_type();
         pcie_device_type.write(is_rp);
         pcie_sys_int.write(sii_block_->get_sys_int());
         config_update.write(sii_block_->get_config_int());
-        // Feed controller mode to NOC-PCIE for BME qualification (Table 33)
-        // SII device_type: true = RP, false = EP.  NocPcieSwitch: controller_is_ep_
+        
         if (noc_pcie_switch_) {
-            noc_pcie_switch_->set_controller_is_ep(!is_rp);
+            bool prev_ep = noc_pcie_switch_->get_controller_is_ep();
+            bool new_ep = !is_rp;
+            if (prev_ep != new_ep && debug_logging_enabled_) {
+                SCML2_INFO(CONFIGURATION_INFO) 
+                    << "PCIe controller mode changed to " << (new_ep ? "Endpoint" : "Root Port") << std::endl;
+            }
+            noc_pcie_switch_->set_controller_is_ep(new_ep);
         }
     }
     
@@ -456,13 +573,13 @@ void KeraunosPcieTile::signal_update_process() {
     controller_misc_int.write(pcie_misc_int.read());
     
     // Combine timeout signals (with null safety)
-    sc_dt::sc_bv<3> timeout_val;
+    unsigned int timeout_val = 0;
     if (noc_io_switch_) {
-        timeout_val[0] = noc_io_switch_->get_timeout_read();
-        timeout_val[1] = noc_io_switch_->get_timeout_write();
+        if (noc_io_switch_->get_timeout_read())  timeout_val |= (1u << 0);
+        if (noc_io_switch_->get_timeout_write()) timeout_val |= (1u << 1);
     }
     if (smn_io_switch_) {
-        timeout_val[2] = smn_io_switch_->get_timeout();
+        if (smn_io_switch_->get_timeout()) timeout_val |= (1u << 2);
     }
     noc_timeout.write(timeout_val);
     

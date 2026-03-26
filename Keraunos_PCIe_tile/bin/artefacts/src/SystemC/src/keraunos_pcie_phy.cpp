@@ -6,7 +6,7 @@ namespace pcie {
 
 PciePhy::PciePhy()
     : reset_n_(false), ref_clock_(false), phy_ready_(false)
-    , phy_memory_("phy_memory", 65536)  // 64KB SCML2 memory
+    , phy_memory_("phy_memory", 262144)  // 256KB: ICCM at 0x10000, DCCM at 0x20000
 {
 }
 
