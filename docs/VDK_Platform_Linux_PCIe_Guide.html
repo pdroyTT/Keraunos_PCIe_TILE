@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>✅ FINAL VERSION FIX - Now Compatible with Your Environment &mdash; Keraunos PCIe Tile 2.0 documentation</title>
+  <title>VDK Platform Guide: Linux-Booting Keraunos PCIe Tile &mdash; Keraunos PCIe Tile 2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
       <link rel="stylesheet" type="text/css" href="_static/custom.css" />
@@ -67,7 +67,9 @@ mermaid.initialize({
 </script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Keraunos PCIE Tile SystemC/TLM2.0 Testplan" href="Keraunos_PCIE_Tile_Testplan.html" />
+    <link rel="prev" title="Keraunos PCIE Tile SystemC/TLM2.0 Design Document" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -629,64 +631,64 @@ mermaid.initialize({
 </li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">VDK Platform &amp; Integration:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html">VDK Platform Guide: Linux-Booting Keraunos PCIe Tile</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#introduction">1. Introduction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#what-this-platform-demonstrates">1.1 What This Platform Demonstrates</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">VDK Platform Guide: Linux-Booting Keraunos PCIe Tile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">1. Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-this-platform-demonstrates">1.1 What This Platform Demonstrates</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#platform-architecture">2. Platform Architecture</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#two-chiplet-topology">2.1 Two-Chiplet Topology</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#pcie-link-wiring">2.2 PCIe Link Wiring</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#pcie-tile-interface-connections">2.3 PCIE_TILE Interface Connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#platform-architecture">2. Platform Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#two-chiplet-topology">2.1 Two-Chiplet Topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pcie-link-wiring">2.2 PCIe Link Wiring</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pcie-tile-interface-connections">2.3 PCIE_TILE Interface Connections</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#memory-maps">3. Memory Maps</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#host-chiplet-cpu-address-space">3.1 Host_Chiplet CPU Address Space</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#keraunos-pcie-chiplet-sharedmemorymap-decode">3.2 Keraunos_PCIE_Chiplet SharedMemoryMap Decode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#memory-maps">3. Memory Maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#host-chiplet-cpu-address-space">3.1 Host_Chiplet CPU Address Space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keraunos-pcie-chiplet-sharedmemorymap-decode">3.2 Keraunos_PCIE_Chiplet SharedMemoryMap Decode</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#linux-boot">4. Linux Boot</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#boot-flow">4.1 Boot Flow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#device-tree-highlights">4.2 Device Tree Highlights</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#key-boot-parameters">4.3 Key Boot Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#toolchain-requirements">4.4 Toolchain Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linux-boot">4. Linux Boot</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#boot-flow">4.1 Boot Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#device-tree-highlights">4.2 Device Tree Highlights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#key-boot-parameters">4.3 Key Boot Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#toolchain-requirements">4.4 Toolchain Requirements</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#pcie-enumeration-and-bar-assignment">5. PCIe Enumeration and BAR Assignment</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#enumeration-topology">5.1 Enumeration Topology</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#iatu-configuration">5.2 iATU Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pcie-enumeration-and-bar-assignment">5. PCIe Enumeration and BAR Assignment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enumeration-topology">5.1 Enumeration Topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#iatu-configuration">5.2 iATU Configuration</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#data-transfer-application-pcie-xfer">6. Data Transfer Application (pcie_xfer)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#purpose">6.1 Purpose</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#data-path">6.2 Data Path</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#supported-commands">6.3 Supported Commands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#ep-auto-detection">6.4 EP Auto-Detection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#building-pcie-xfer">6.5 Building pcie_xfer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-transfer-application-pcie-xfer">6. Data Transfer Application (pcie_xfer)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#purpose">6.1 Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-path">6.2 Data Path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#supported-commands">6.3 Supported Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ep-auto-detection">6.4 EP Auto-Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-pcie-xfer">6.5 Building pcie_xfer</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#bare-metal-test-pcie-e2e-test">7. Bare-Metal Test (pcie_e2e_test)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#vp-configuration-reference">8. VP Configuration Reference</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#available-configurations">8.1 Available Configurations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#critical-vpcfg-parameters">8.2 Critical VPCFG Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#image-loading">8.3 Image Loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bare-metal-test-pcie-e2e-test">7. Bare-Metal Test (pcie_e2e_test)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vp-configuration-reference">8. VP Configuration Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#available-configurations">8.1 Available Configurations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#critical-vpcfg-parameters">8.2 Critical VPCFG Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#image-loading">8.3 Image Loading</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#sideband-signal-mapping">9. Sideband Signal Mapping</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#ep-pcie-tile-sideband">9.1 EP ↔ PCIE_TILE Sideband</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#clocks-and-resets">9.2 Clocks and Resets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#msi-interrupt-path">9.3 MSI Interrupt Path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sideband-signal-mapping">9. Sideband Signal Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ep-pcie-tile-sideband">9.1 EP ↔ PCIE_TILE Sideband</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clocks-and-resets">9.2 Clocks and Resets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#msi-interrupt-path">9.3 MSI Interrupt Path</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#troubleshooting">10. Troubleshooting</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#host-crashes-or-nonsense-pc">10.1 Host Crashes or Nonsense PC</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#pcie-ep-not-detected">10.2 PCIe EP Not Detected</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#bar0-access-returns-all-ones">10.3 BAR0 Access Returns All-Ones</a></li>
-<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#data-mismatch-on-read-back">10.4 Data Mismatch on Read-Back</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">10. Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#host-crashes-or-nonsense-pc">10.1 Host Crashes or Nonsense PC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pcie-ep-not-detected">10.2 PCIe EP Not Detected</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bar0-access-returns-all-ones">10.3 BAR0 Access Returns All-Ones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-mismatch-on-read-back">10.4 Data Mismatch on Read-Back</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#related-documents">11. Related Documents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#related-documents">11. Related Documents</a></li>
 </ul>
 </li>
 </ul>
@@ -1062,9 +1064,9 @@ mermaid.initialize({
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">✅ FINAL VERSION FIX - Now Compatible with Your Environment</li>
+      <li class="breadcrumb-item active">VDK Platform Guide: Linux-Booting Keraunos PCIe Tile</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/FINAL_VERSION_FIX.md.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/VDK_Platform_Linux_PCIe_Guide.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -1072,273 +1074,800 @@ mermaid.initialize({
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="final-version-fix-now-compatible-with-your-environment">
-<h1>✅ FINAL VERSION FIX - Now Compatible with Your Environment<a class="headerlink" href="#final-version-fix-now-compatible-with-your-environment" title="Permalink to this heading"></a></h1>
-<section id="second-issue-found">
-<h2>Second Issue Found<a class="headerlink" href="#second-issue-found" title="Permalink to this heading"></a></h2>
-<p>After the Sphinx fix, another version issue was discovered:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">No</span> <span class="n">matching</span> <span class="n">distribution</span> <span class="n">found</span> <span class="k">for</span> <span class="n">myst</span><span class="o">-</span><span class="n">parser</span><span class="o">&gt;=</span><span class="mf">0.18.0</span><span class="p">,</span><span class="o">&lt;</span><span class="mf">1.0.0</span>
-<span class="n">Available</span> <span class="n">versions</span><span class="p">:</span> <span class="mf">0.3.0</span> <span class="n">through</span> <span class="mf">0.16.1</span>
-</pre></div>
-</div>
-<p>Your environment has <code class="docutils literal notranslate"><span class="pre">myst-parser</span></code> <strong>maximum version 0.16.1</strong>, not 0.18.0+.</p>
-</section>
+  <section class="tex2jax_ignore mathjax_ignore" id="vdk-platform-guide-linux-booting-keraunos-pcie-tile">
+<h1>VDK Platform Guide: Linux-Booting Keraunos PCIe Tile<a class="headerlink" href="#vdk-platform-guide-linux-booting-keraunos-pcie-tile" title="Permalink to this heading"></a></h1>
+<p><strong>Version:</strong> 1.0<br />
+<strong>Date:</strong> March 26, 2026<br />
+<strong>Author:</strong> System Architecture Team</p>
 <hr class="docutils" />
-<section id="final-solution-applied">
-<h2>✅ FINAL SOLUTION APPLIED<a class="headerlink" href="#final-solution-applied" title="Permalink to this heading"></a></h2>
-<section id="updated-requirements-now-truly-compatible">
-<h3>Updated Requirements (Now Truly Compatible!)<a class="headerlink" href="#updated-requirements-now-truly-compatible" title="Permalink to this heading"></a></h3>
-<p><strong>Previous (still incompatible):</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">myst</span><span class="o">-</span><span class="n">parser</span><span class="o">&gt;=</span><span class="mf">0.18.0</span><span class="p">,</span><span class="o">&lt;</span><span class="mf">1.0.0</span>    <span class="c1"># ❌ 0.18.0 not available</span>
-</pre></div>
-</div>
-<p><strong>Final (compatible with your env):</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">myst</span><span class="o">-</span><span class="n">parser</span><span class="o">&gt;=</span><span class="mf">0.15.0</span><span class="p">,</span><span class="o">&lt;=</span><span class="mf">0.16.1</span>  <span class="c1"># ✅ Works with available versions</span>
-</pre></div>
-</div>
-</section>
-<section id="complete-compatible-versions">
-<h3>Complete Compatible Versions<a class="headerlink" href="#complete-compatible-versions" title="Permalink to this heading"></a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sphinx</span><span class="o">&gt;=</span><span class="mf">5.0.0</span><span class="p">,</span><span class="o">&lt;</span><span class="mf">6.0.0</span>          <span class="c1"># ✅ Max 5.3.0 in your env</span>
-<span class="n">sphinx_rtd_theme</span><span class="o">&gt;=</span><span class="mf">1.0.0</span>       <span class="c1"># ✅ Already installed</span>
-<span class="n">myst</span><span class="o">-</span><span class="n">parser</span><span class="o">&gt;=</span><span class="mf">0.15.0</span><span class="p">,</span><span class="o">&lt;=</span><span class="mf">0.16.1</span>  <span class="c1"># ✅ Max 0.16.1 in your env (FIXED!)</span>
-<span class="n">sphinxcontrib</span><span class="o">-</span><span class="n">mermaid</span><span class="o">&gt;=</span><span class="mf">0.7.0</span>  <span class="c1"># ✅ Compatible</span>
-</pre></div>
-</div>
+<section id="introduction">
+<h2>1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<p>This guide documents the final validated Synopsys Virtualizer (VDK) platform that boots RISC-V Linux on the host chiplet, enumerates a PCIe Endpoint connected to the Keraunos PCIe Tile, and enables data transfer from the host to memory attached to the tile’s <code class="docutils literal notranslate"><span class="pre">noc_n_initiator</span></code> port.</p>
+<p>The reference implementation is at <code class="docutils literal notranslate"><span class="pre">/localdev/pdroy/ruchika_ws/Keraunos_PCIE_Tile</span></code>.</p>
+<section id="what-this-platform-demonstrates">
+<h3>1.1 What This Platform Demonstrates<a class="headerlink" href="#what-this-platform-demonstrates" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Full Linux boot on a RISC-V virtual CPU (TT_Rocket_LT) via OpenSBI</p></li>
+<li><p>PCIe link-up between a DesignWare Root Complex (host) and Endpoint (device)</p></li>
+<li><p>Linux kernel PCIe enumeration using the <code class="docutils literal notranslate"><span class="pre">snps,dw-pcie</span></code> driver</p></li>
+<li><p>BAR0 mapping and MMIO access from Linux userspace</p></li>
+<li><p>End-to-end data transfer: Host → RC → EP → PCIE_TILE → <code class="docutils literal notranslate"><span class="pre">noc_n_initiator</span></code> → Target_Memory</p></li>
+</ul>
 </section>
 </section>
 <hr class="docutils" />
-<section id="final-build-instructions">
-<h2>🚀 FINAL BUILD INSTRUCTIONS<a class="headerlink" href="#final-build-instructions" title="Permalink to this heading"></a></h2>
-<section id="install-compatible-dependencies">
-<h3>Install Compatible Dependencies<a class="headerlink" href="#install-compatible-dependencies" title="Permalink to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/localdev/pdroy/keraunos_pcie_workspace/doc
-pip3<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-</pre></div>
-</div>
-<p><strong>Expected output:</strong></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Requirement</span> <span class="n">already</span> <span class="n">satisfied</span><span class="p">:</span> <span class="n">sphinx</span><span class="o">&gt;=</span><span class="mf">5.0.0</span><span class="p">,</span><span class="o">&lt;</span><span class="mf">6.0.0</span>
-<span class="n">Requirement</span> <span class="n">already</span> <span class="n">satisfied</span><span class="p">:</span> <span class="n">sphinx_rtd_theme</span><span class="o">&gt;=</span><span class="mf">1.0.0</span>
-<span class="n">Collecting</span> <span class="n">myst</span><span class="o">-</span><span class="n">parser</span><span class="o">&gt;=</span><span class="mf">0.15.0</span><span class="p">,</span><span class="o">&lt;=</span><span class="mf">0.16.1</span>
-  <span class="n">Using</span> <span class="n">cached</span> <span class="n">myst</span><span class="o">-</span><span class="n">parser</span><span class="o">-</span><span class="mf">0.16.1</span>
-<span class="n">Successfully</span> <span class="n">installed</span> <span class="n">myst</span><span class="o">-</span><span class="n">parser</span><span class="o">-</span><span class="mf">0.16.1</span> <span class="n">sphinxcontrib</span><span class="o">-</span><span class="n">mermaid</span><span class="o">-</span><span class="mf">0.8.1</span>
-</pre></div>
-</div>
-</section>
-<section id="build-documentation">
-<h3>Build Documentation<a class="headerlink" href="#build-documentation" title="Permalink to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./build_docs.sh
-</pre></div>
-</div>
-<p>Or manually:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
-</pre></div>
-</div>
-</section>
-<section id="view-results">
-<h3>View Results<a class="headerlink" href="#view-results" title="Permalink to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>open<span class="w"> </span>_build/html/index.html
-</pre></div>
-</div>
-</section>
-</section>
-<hr class="docutils" />
-<section id="all-features-still-work">
-<h2>✨ All Features Still Work!<a class="headerlink" href="#all-features-still-work" title="Permalink to this heading"></a></h2>
-<p>Even with older myst-parser 0.16.1, <strong>everything works</strong>:</p>
-<p>✅ <strong>23 Mermaid Diagrams</strong> - Full support<br />
-✅ <strong>Markdown Parsing</strong> - Complete functionality<br />
-✅ <strong>Code Fences</strong> - <code class="docutils literal notranslate"><span class="pre">{mermaid}</span></code> directive works<br />
-✅ <strong>Read the Docs Theme</strong> - Beautiful output<br />
-✅ <strong>Search</strong> - Full-text search enabled<br />
-✅ <strong>Custom CSS</strong> - All styling works</p>
-</section>
-<hr class="docutils" />
-<section id="your-environment-limits">
-<h2>📦 Your Environment Limits<a class="headerlink" href="#your-environment-limits" title="Permalink to this heading"></a></h2>
+<section id="platform-architecture">
+<h2>2. Platform Architecture<a class="headerlink" href="#platform-architecture" title="Permalink to this heading"></a></h2>
+<section id="two-chiplet-topology">
+<h3>2.1 Two-Chiplet Topology<a class="headerlink" href="#two-chiplet-topology" title="Permalink to this heading"></a></h3>
+<p>The VDK instantiates two chiplet groups with a direct PCIe link:</p>
+<div class="mermaid">
+            graph TB
+    subgraph host[&quot;Host_Chiplet&quot;]
+        direction TB
+        H_CPU[&quot;TT_Rocket_LT&lt;br/&gt;RISC-V rv64imac&lt;br/&gt;Runs Linux&quot;]
+        H_SMC[&quot;SMC (CPU + Peripherals)&quot;]
+        H_DRAM[&quot;DRAM&lt;br/&gt;256 MB &#64; 0x80000000&quot;]
+        H_UART[&quot;UART &#64; 0xC000A000&quot;]
+        H_PLIC[&quot;PLIC &#64; 0xC4000000&quot;]
+        H_RC[&quot;PCIE_RC&lt;br/&gt;DesignWare PCIe 2.0&lt;br/&gt;Root Complex&quot;]
+        H_MAP[&quot;SharedMemoryMap&quot;]
+        H_CLK[&quot;CLK_GEN&quot;]
+        H_RST[&quot;RST_GEN&quot;]
+
+        H_CPU --&gt; H_SMC
+        H_SMC --&gt; H_MAP
+        H_MAP --&gt; H_DRAM
+        H_MAP --&gt; H_UART
+        H_MAP --&gt; H_PLIC
+        H_MAP --&gt;|DBI 0x44000000&lt;br/&gt;4 MB| H_RC
+        H_MAP --&gt;|AXI 0x70000000&lt;br/&gt;256 MB| H_RC
+    end
+
+    subgraph device[&quot;Keraunos_PCIE_Chiplet&quot;]
+        direction TB
+        D_CPU[&quot;TT_Rocket_LT&lt;br/&gt;RISC-V&lt;br/&gt;pcie_bringup firmware&quot;]
+        D_SMC[&quot;SMC_Configure&quot;]
+        D_EP[&quot;PCIe_EP&lt;br/&gt;DesignWare PCIe 2.0&lt;br/&gt;Endpoint&quot;]
+        D_TILE[&quot;PCIE_TILE&lt;br/&gt;Keraunos PCIe Tile&quot;]
+        D_MEM[&quot;Target_Memory&lt;br/&gt;16 MB &#64; 0x0&quot;]
+        D_MAP[&quot;SharedMemoryMap&quot;]
+        D_CLK[&quot;CLK_GEN&quot;]
+        D_RST[&quot;RST_GEN&quot;]
+
+        D_CPU --&gt; D_SMC
+        D_SMC --&gt; D_MAP
+        D_EP --&gt;|BusMaster| D_TILE
+        D_TILE --&gt;|pcie_controller_initiator| D_EP
+        D_TILE --&gt;|noc_n_initiator &#64; 0x0| D_MAP
+        D_TILE --&gt;|smn_n_initiator &#64; 0x0| D_MAP
+        D_MAP --&gt; D_MEM
+    end
+
+    H_RC &lt;--&gt;|&quot;PCIMem ↔ PCIMem_Slave&lt;br/&gt;Direct PCIe Link&quot;| D_EP
+    H_RC -.-&gt;|&quot;msi_ctrl_int → irqS[11]&quot;| H_SMC
+
+    style H_CPU fill:#e3f2fd
+    style H_RC fill:#ffcccc,stroke:#c00
+    style D_EP fill:#fff3e0
+    style D_TILE fill:#c8e6c9,stroke:#2e7d32
+    style D_MEM fill:#ffe6cc
+    style H_DRAM fill:#e1ffe1
+        </div></section>
+<section id="pcie-link-wiring">
+<h3>2.2 PCIe Link Wiring<a class="headerlink" href="#pcie-link-wiring" title="Permalink to this heading"></a></h3>
+<p>The PCIe link uses direct peer-to-peer binding (no PCIeSwitch):</p>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Package</p></th>
-<th class="head"><p>Your Max Available</p></th>
-<th class="head"><p>Now Using</p></th>
+<tr class="row-odd"><th class="head"><p>Source</p></th>
+<th class="head"><p>Destination</p></th>
+<th class="head"><p>Purpose</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>sphinx</p></td>
-<td><p>5.3.0</p></td>
-<td><p>5.0.0 - 5.9.9 ✅</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PCIE_RC.PCIMem</span></code> (master)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.PCIMem_Slave</span></code> (slave)</p></td>
+<td><p>Downstream TLPs (host → device)</p></td>
 </tr>
-<tr class="row-odd"><td><p>sphinx_rtd_theme</p></td>
-<td><p>1.3.0+</p></td>
-<td><p>1.0.0+ ✅</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.PCIMem</span></code> (master)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_RC.PCIMem_Slave</span></code> (slave)</p></td>
+<td><p>Upstream TLPs (device → host)</p></td>
 </tr>
-<tr class="row-even"><td><p>myst-parser</p></td>
-<td><p><strong>0.16.1</strong></p></td>
-<td><p>0.15.0 - 0.16.1 ✅</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PCIE_RC.BusMaster</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Host_Chiplet.SharedMemoryMap</span></code></p></td>
+<td><p>RC DMA to host memory</p></td>
 </tr>
-<tr class="row-odd"><td><p>sphinxcontrib-mermaid</p></td>
-<td><p>0.8.1+</p></td>
-<td><p>0.7.0+ ✅</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.BusMaster</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE.pcie_controller_target</span></code></p></td>
+<td><p>EP delivers inbound TLPs to tile</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE.pcie_controller_initiator</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.AXI_Slave</span></code></p></td>
+<td><p>Tile sends outbound TLPs to EP</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<hr class="docutils" />
-<section id="alternative-minimal-requirements-ultimate-fallback">
-<h2>Alternative: Minimal Requirements (Ultimate Fallback)<a class="headerlink" href="#alternative-minimal-requirements-ultimate-fallback" title="Permalink to this heading"></a></h2>
-<p>If you still have issues:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements-minimal.txt
-make<span class="w"> </span>html
-</pre></div>
-</div>
-<p>This installs whatever versions are available without any constraints.</p>
-</section>
-<hr class="docutils" />
-<section id="files-updated">
-<h2>Files Updated<a class="headerlink" href="#files-updated" title="Permalink to this heading"></a></h2>
+<section id="pcie-tile-interface-connections">
+<h3>2.3 PCIE_TILE Interface Connections<a class="headerlink" href="#pcie-tile-interface-connections" title="Permalink to this heading"></a></h3>
+<p>The Keraunos PCIe Tile connects to the chiplet’s SharedMemoryMap and EP:</p>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>File</p></th>
-<th class="head"><p>Status</p></th>
-<th class="head"><p>Change</p></th>
+<tr class="row-odd"><th class="head"><p>Tile Port</p></th>
+<th class="head"><p>Direction</p></th>
+<th class="head"><p>Connected To</p></th>
+<th class="head"><p>Address / Offset</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code></p></td>
-<td><p>✅ Updated</p></td>
-<td><p>myst-parser now &lt;=0.16.1</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_target</span></code></p></td>
+<td><p>Target (in)</p></td>
+<td><p>EP BusMaster</p></td>
+<td><p>Inbound TLPs from host</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">conf.py</span></code></p></td>
-<td><p>✅ Updated</p></td>
-<td><p>Compatible with 0.16.1</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_controller_initiator</span></code></p></td>
+<td><p>Initiator (out)</p></td>
+<td><p>EP AXI_Slave</p></td>
+<td><p>Outbound TLPs to host</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">FINAL_VERSION_FIX.md</span></code></p></td>
-<td><p>✅ Created</p></td>
-<td><p>This file</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">noc_n_initiator</span></code></p></td>
+<td><p>Initiator (out)</p></td>
+<td><p>SharedMemoryMap (left)</p></td>
+<td><p>Start 0x0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">noc_n_target</span></code></p></td>
+<td><p>Target (in)</p></td>
+<td><p>SharedMemoryMap (right)</p></td>
+<td><p>0x44400000, 16 MB</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">smn_n_initiator</span></code></p></td>
+<td><p>Initiator (out)</p></td>
+<td><p>SharedMemoryMap (left)</p></td>
+<td><p>Start 0x0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smn_n_target</span></code></p></td>
+<td><p>Target (in)</p></td>
+<td><p>SharedMemoryMap (right)</p></td>
+<td><p>0x18000000, 8 MB</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<hr class="docutils" />
-<section id="verification-after-install">
-<h2>Verification After Install<a class="headerlink" href="#verification-after-install" title="Permalink to this heading"></a></h2>
-<p>Check installed versions:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>list<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;sphinx|myst|mermaid&quot;</span>
-</pre></div>
-</div>
-<p>Expected output:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">myst</span><span class="o">-</span><span class="n">parser</span>              <span class="mf">0.16.1</span>
-<span class="n">sphinx</span>                   <span class="mf">5.3.0</span>
-<span class="n">sphinx</span><span class="o">-</span><span class="n">rtd</span><span class="o">-</span><span class="n">theme</span>         <span class="mf">1.3.0</span>
-<span class="n">sphinxcontrib</span><span class="o">-</span><span class="n">mermaid</span>    <span class="mf">0.8.1</span>
-</pre></div>
-</div>
 </section>
 <hr class="docutils" />
-<section id="ready-to-build-now">
-<h2>🎯 READY TO BUILD NOW!<a class="headerlink" href="#ready-to-build-now" title="Permalink to this heading"></a></h2>
-<p>Execute these commands:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/localdev/pdroy/keraunos_pcie_workspace/doc
-
-<span class="c1"># Install with corrected versions</span>
-pip3<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-
-<span class="c1"># Build documentation</span>
-./build_docs.sh
-
-<span class="c1"># Or use make</span>
-make<span class="w"> </span>html
-</pre></div>
-</div>
-</section>
-<hr class="docutils" />
-<section id="expected-successful-output">
-<h2>Expected Successful Output<a class="headerlink" href="#expected-successful-output" title="Permalink to this heading"></a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>========================================
-Keraunos PCIe Tile Documentation Builder
-========================================
-
-✓ Python 3 found: Python 3.6.x
-✓ pip3 found
-
-Checking dependencies...
-✓ Sphinx (5.3.0)
-✓ Read the Docs Theme (1.3.0)
-✓ MyST Parser (0.16.1)
-✓ Mermaid Extension (0.8.1)
-
-Building HTML documentation...
-----------------------------------------
-Running Sphinx v5.3.0
-loading extensions... done
-building [html]: all source files
-updating environment: 1 added, 0 changed, 0 removed
-reading sources... [100%] Keraunos_PCIE_Tile_SystemC_Design_Document
-...
-build succeeded.
-----------------------------------------
-✓ Documentation built successfully!
-
-Build Statistics:
-  Output size:      2.5M
-  Files generated:  47
-  Mermaid diagrams: 23
-
-Documentation available at:
-  file:///localdev/pdroy/keraunos_pcie_workspace/doc/_build/html/index.html
-
-✓ Done! Enjoy your beautiful documentation with Mermaid diagrams! 🎉
-</pre></div>
-</div>
-</section>
-<hr class="docutils" />
-<section id="summary">
-<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading"></a></h2>
+<section id="memory-maps">
+<h2>3. Memory Maps<a class="headerlink" href="#memory-maps" title="Permalink to this heading"></a></h2>
+<section id="host-chiplet-cpu-address-space">
+<h3>3.1 Host_Chiplet CPU Address Space<a class="headerlink" href="#host-chiplet-cpu-address-space" title="Permalink to this heading"></a></h3>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Issue</p></th>
-<th class="head"><p>Status</p></th>
+<tr class="row-odd"><th class="head"><p>Address</p></th>
+<th class="head"><p>Size</p></th>
+<th class="head"><p>Target</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Sphinx 7.0+ not available</p></td>
-<td><p>✅ Fixed - Using 5.x</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">0x02000000</span></code></p></td>
+<td><p>64 KB</p></td>
+<td><p>CLINT</p></td>
+<td><p>Machine timer and software interrupts</p></td>
 </tr>
-<tr class="row-odd"><td><p>myst-parser 0.18+ not available</p></td>
-<td><p>✅ Fixed - Using 0.16.1</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">0x44000000</span></code></p></td>
+<td><p>4 MB</p></td>
+<td><p>PCIE_RC DBI</p></td>
+<td><p>RC configuration registers (DesignWare DBI)</p></td>
 </tr>
-<tr class="row-even"><td><p>Build ready</p></td>
-<td><p>✅ Yes - All compatible</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">0x44300000</span></code></p></td>
+<td><p>128 KB</p></td>
+<td><p>PCIE_RC ATU</p></td>
+<td><p>iATU outbound/inbound (via DBI CS2 range)</p></td>
 </tr>
-<tr class="row-odd"><td><p>All features working</p></td>
-<td><p>✅ Yes - 23 diagrams ready</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">0x70000000</span></code></p></td>
+<td><p>256 MB</p></td>
+<td><p>PCIE_RC AXI_Slave</p></td>
+<td><p>PCIe outbound window</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">0x70000000–0x70FFFFFF</span></code></p></td>
+<td><p>16 MB</p></td>
+<td><p>— Config</p></td>
+<td><p>Type 0/1 Configuration TLPs (iATU-translated)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">0x71000000–0x7FFFFFFF</span></code></p></td>
+<td><p>240 MB</p></td>
+<td><p>— MEM</p></td>
+<td><p>Memory Read/Write TLPs to EP BARs</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">0x80000000</span></code></p></td>
+<td><p>256 MB</p></td>
+<td><p>DRAM</p></td>
+<td><p>Host main memory (OpenSBI + Linux + initramfs)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">0xC000A000</span></code></p></td>
+<td><p>256 B</p></td>
+<td><p>UART</p></td>
+<td><p>DW APB UART, 115.2 MHz clock, 7.2 Mbaud</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">0xC4000000</span></code></p></td>
+<td><p>2 MB</p></td>
+<td><p>PLIC</p></td>
+<td><p>RISC-V PLIC, 64 interrupt sources</p></td>
 </tr>
 </tbody>
 </table>
 </section>
+<section id="keraunos-pcie-chiplet-sharedmemorymap-decode">
+<h3>3.2 Keraunos_PCIE_Chiplet SharedMemoryMap Decode<a class="headerlink" href="#keraunos-pcie-chiplet-sharedmemorymap-decode" title="Permalink to this heading"></a></h3>
+<p>Configured via VPCFG <code class="docutils literal notranslate"><span class="pre">range_mappings</span></code>: <code class="docutils literal notranslate"><span class="pre">0x44000000:0x00400000:s;0x18000000:0x00800000;0x44400000:0x01000000;0x0:0x1000000</span></code></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Address</p></th>
+<th class="head"><p>Size</p></th>
+<th class="head"><p>Target</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">0x00000000</span></code></p></td>
+<td><p>16 MB</p></td>
+<td><p>Target_Memory (MEM)</p></td>
+<td><p>Data memory — host-accessible via EP BAR0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">0x18000000</span></code></p></td>
+<td><p>8 MB</p></td>
+<td><p>PCIE_TILE smn_n_target</p></td>
+<td><p>SMN access into tile registers</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">0x44000000</span></code></p></td>
+<td><p>4 MB</p></td>
+<td><p>PCIe_EP AXI_DBI</p></td>
+<td><p>EP DBI configuration (<code class="docutils literal notranslate"><span class="pre">:s</span></code> = secure)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">0x44400000</span></code></p></td>
+<td><p>16 MB</p></td>
+<td><p>PCIE_TILE noc_n_target</p></td>
+<td><p>NoC access into tile subsystem</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
 <hr class="docutils" />
-<section id="manual-installation-if-needed">
-<h2>Manual Installation (If Needed)<a class="headerlink" href="#manual-installation-if-needed" title="Permalink to this heading"></a></h2>
-<p>Install specific compatible versions:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span><span class="nv">sphinx</span><span class="o">==</span><span class="m">5</span>.3.0
-pip3<span class="w"> </span>install<span class="w"> </span><span class="nv">sphinx_rtd_theme</span><span class="o">==</span><span class="m">1</span>.3.0
-pip3<span class="w"> </span>install<span class="w"> </span>myst-parser<span class="o">==</span><span class="m">0</span>.16.1
-pip3<span class="w"> </span>install<span class="w"> </span>sphinxcontrib-mermaid<span class="o">==</span><span class="m">0</span>.8.1
+<section id="linux-boot">
+<h2>4. Linux Boot<a class="headerlink" href="#linux-boot" title="Permalink to this heading"></a></h2>
+<section id="boot-flow">
+<h3>4.1 Boot Flow<a class="headerlink" href="#boot-flow" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Virtualizer loads images</strong>: <code class="docutils literal notranslate"><span class="pre">fw_payload.elf</span></code> on Host_Chiplet CPU, <code class="docutils literal notranslate"><span class="pre">pcie_bringup.elf</span></code> on Device CPU</p></li>
+<li><p><strong>OpenSBI</strong> initializes M-mode on Host CPU at entry <code class="docutils literal notranslate"><span class="pre">0x80000000</span></code></p></li>
+<li><p>OpenSBI transitions to S-mode and jumps to the embedded Linux kernel</p></li>
+<li><p><strong>Linux</strong> parses the compiled device tree (<code class="docutils literal notranslate"><span class="pre">keraunos_host.dtb</span></code>)</p></li>
+<li><p>Kernel initializes CLINT (timer), PLIC (interrupts), UART (console)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">snps,dw-pcie</span></code> driver probes the PCIe RC at DBI <code class="docutils literal notranslate"><span class="pre">0x44000000</span></code></p></li>
+<li><p>Driver programs iATU outbound windows and scans bus 1</p></li>
+<li><p><strong>EP is enumerated</strong>: vendor/device ID read, BARs assigned</p></li>
+<li><p>Linux mounts initramfs and launches <code class="docutils literal notranslate"><span class="pre">/init</span></code> (BusyBox shell)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">pcie_xfer</span></code> application is available for PCIe data transfer</p></li>
+</ol>
+</section>
+<section id="device-tree-highlights">
+<h3>4.2 Device Tree Highlights<a class="headerlink" href="#device-tree-highlights" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span> <span class="p">{</span>
+    <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;tt,smc-pcie-tile&quot;</span><span class="p">;</span>
+    <span class="n">cpus</span> <span class="p">{</span> <span class="n">cpu</span><span class="o">@</span><span class="mi">0</span> <span class="p">{</span> <span class="n">riscv</span><span class="p">,</span><span class="n">isa</span> <span class="o">=</span> <span class="s2">&quot;rv64imac&quot;</span><span class="p">;</span> <span class="n">mmu</span><span class="o">-</span><span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;riscv,sv39&quot;</span><span class="p">;</span> <span class="p">};</span> <span class="p">};</span>
+    <span class="n">memory</span><span class="o">@</span><span class="mi">80000000</span> <span class="p">{</span> <span class="n">reg</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x80000000</span> <span class="mh">0x0</span> <span class="mh">0x10000000</span><span class="o">&gt;</span><span class="p">;</span> <span class="p">};</span>  <span class="o">/*</span> <span class="mi">256</span> <span class="n">MB</span> <span class="o">*/</span>
 
-make<span class="w"> </span>html
+    <span class="n">soc</span> <span class="p">{</span>
+        <span class="n">clint</span><span class="o">@</span><span class="mi">2000000</span>  <span class="p">{</span> <span class="n">reg</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x02000000</span> <span class="mh">0x0</span> <span class="mh">0x10000</span><span class="o">&gt;</span><span class="p">;</span> <span class="p">};</span>
+        <span class="n">plic</span><span class="nd">@c4000000</span>  <span class="p">{</span> <span class="n">riscv</span><span class="p">,</span><span class="n">ndev</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mi">64</span><span class="o">&gt;</span><span class="p">;</span> <span class="p">};</span>
+        <span class="n">uart</span><span class="nd">@c000a000</span>  <span class="p">{</span> <span class="n">clock</span><span class="o">-</span><span class="n">frequency</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x6DDD000</span><span class="o">&gt;</span><span class="p">;</span> <span class="p">};</span>       <span class="o">/*</span> <span class="mf">115.2</span> <span class="n">MHz</span> <span class="o">*/</span>
+
+        <span class="n">pcie</span><span class="o">@</span><span class="mi">44000000</span> <span class="p">{</span>
+            <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;snps,dw-pcie&quot;</span><span class="p">;</span>
+            <span class="n">reg</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x44000000</span> <span class="mh">0x0</span> <span class="mh">0x400000</span><span class="o">&gt;</span><span class="p">,</span>                 <span class="o">/*</span> <span class="n">DBI</span> <span class="o">*/</span>
+                  <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x70000000</span> <span class="mh">0x0</span> <span class="mh">0x01000000</span><span class="o">&gt;</span><span class="p">;</span>               <span class="o">/*</span> <span class="n">config</span> <span class="o">*/</span>
+            <span class="n">bus</span><span class="o">-</span><span class="nb">range</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x1</span><span class="o">&gt;</span><span class="p">;</span>
+            <span class="n">ranges</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x02000000</span> <span class="mh">0x0</span> <span class="mh">0x71000000</span>
+                      <span class="mh">0x0</span> <span class="mh">0x71000000</span>  <span class="mh">0x0</span> <span class="mh">0x0F000000</span><span class="o">&gt;</span><span class="p">;</span>           <span class="o">/*</span> <span class="mi">240</span> <span class="n">MB</span> <span class="n">MEM</span> <span class="o">*/</span>
+            <span class="n">interrupts</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mi">32</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="mi">33</span><span class="o">&gt;</span><span class="p">;</span>                              <span class="o">/*</span> <span class="n">MSI</span><span class="p">,</span> <span class="n">INTx</span> <span class="o">*/</span>
+            <span class="n">num</span><span class="o">-</span><span class="n">lanes</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mi">4</span><span class="o">&gt;</span><span class="p">;</span>
+        <span class="p">};</span>
+    <span class="p">};</span>
+
+    <span class="n">chosen</span> <span class="p">{</span>
+        <span class="n">bootargs</span> <span class="o">=</span> <span class="s2">&quot;console=hvc0 earlycon=sbi rdinit=/init</span>
+                    <span class="n">pci</span><span class="o">=</span><span class="n">realloc</span> <span class="n">pci</span><span class="o">=</span><span class="n">assign</span><span class="o">-</span><span class="n">busses</span> <span class="n">pci</span><span class="o">=</span><span class="n">noaer</span> <span class="n">pcie_aspm</span><span class="o">=</span><span class="n">off</span><span class="s2">&quot;;</span>
+    <span class="p">};</span>
+<span class="p">};</span>
 </pre></div>
 </div>
+</section>
+<section id="key-boot-parameters">
+<h3>4.3 Key Boot Parameters<a class="headerlink" href="#key-boot-parameters" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">console=hvc0</span></code></p></td>
+<td><p>HVC console</p></td>
+<td><p>Uses SBI console calls (fastest in VP)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">earlycon=sbi</span></code></p></td>
+<td><p>SBI earlycon</p></td>
+<td><p>Early console via OpenSBI ecall</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rdinit=/init</span></code></p></td>
+<td><p>Initramfs init</p></td>
+<td><p>Uses embedded initramfs (no disk)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pci=realloc</span></code></p></td>
+<td><p>PCI realloc</p></td>
+<td><p>Reallocate PCI resources (no BIOS pre-assignment)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pci=assign-busses</span></code></p></td>
+<td><p>Assign buses</p></td>
+<td><p>Force bus number assignment</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pci=noaer</span></code></p></td>
+<td><p>Disable AER</p></td>
+<td><p>Advanced Error Reporting not needed in VP</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pcie_aspm=off</span></code></p></td>
+<td><p>Disable ASPM</p></td>
+<td><p>Active State Power Management not modeled</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="toolchain-requirements">
+<h3>4.4 Toolchain Requirements<a class="headerlink" href="#toolchain-requirements" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Toolchain</p></th>
+<th class="head"><p>ISA</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Linux kernel</p></td>
+<td><p>ASC GCC 14 (<code class="docutils literal notranslate"><span class="pre">riscv64-unknown-linux-gnu-</span></code>)</p></td>
+<td><p>rv64imac</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CONFIG_FPU=n</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Initramfs (BusyBox)</p></td>
+<td><p>Musl (<code class="docutils literal notranslate"><span class="pre">riscv64-unknown-linux-musl-</span></code>)</p></td>
+<td><p>rv64imac / lp64</p></td>
+<td><p>Soft-float, static</p></td>
+</tr>
+<tr class="row-even"><td><p>OpenSBI</p></td>
+<td><p>ASC GCC 14</p></td>
+<td><p>rv64imac</p></td>
+<td><p>Builds <code class="docutils literal notranslate"><span class="pre">fw_payload.elf</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>pcie_bringup (device)</p></td>
+<td><p>Bare-metal GCC</p></td>
+<td><p>rv64imac</p></td>
+<td><p>No OS</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
 <hr class="docutils" />
-<p><strong>This is the FINAL fix - all version constraints are now compatible with your Python environment!</strong> ✅</p>
-<p><strong>Build command:</strong> <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">doc</span> <span class="pre">&amp;&amp;</span> <span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span> <span class="pre">&amp;&amp;</span> <span class="pre">./build_docs.sh</span></code></p>
-<p>Your documentation with 23 beautiful Mermaid diagrams is ready to generate! 🎉</p>
+<section id="pcie-enumeration-and-bar-assignment">
+<h2>5. PCIe Enumeration and BAR Assignment<a class="headerlink" href="#pcie-enumeration-and-bar-assignment" title="Permalink to this heading"></a></h2>
+<section id="enumeration-topology">
+<h3>5.1 Enumeration Topology<a class="headerlink" href="#enumeration-topology" title="Permalink to this heading"></a></h3>
+<div class="mermaid">
+            graph LR
+    subgraph bus0[&quot;PCI Bus 0&quot;]
+        RC[&quot;Root Complex&lt;br/&gt;Type 1 Header&quot;]
+    end
+
+    subgraph bus1[&quot;PCI Bus 1&quot;]
+        EP[&quot;Endpoint&lt;br/&gt;Type 0 Header&lt;br/&gt;BAR0: 16 MB&quot;]
+    end
+
+    RC --&gt;|&quot;Downstream Port&quot;| EP
+
+    style RC fill:#e3f2fd
+    style EP fill:#fff3e0
+        </div><table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Property</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>RC Bus/Dev/Fn</p></td>
+<td><p>00:00.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>EP Bus/Dev/Fn</p></td>
+<td><p>01:00.0</p></td>
+</tr>
+<tr class="row-even"><td><p>EP BAR0 size</p></td>
+<td><p>16 MB (<code class="docutils literal notranslate"><span class="pre">BAR0_MASK</span> <span class="pre">=</span> <span class="pre">0xFFFFFF</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EP BAR0 type</p></td>
+<td><p>64-bit Memory, non-prefetchable</p></td>
+</tr>
+<tr class="row-even"><td><p>Config access</p></td>
+<td><p>iATU-translated (no ECAM hardware)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Host MEM window</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x71000000–0x7FFFFFFF</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="iatu-configuration">
+<h3>5.2 iATU Configuration<a class="headerlink" href="#iatu-configuration" title="Permalink to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">dw-pcie</span></code> Linux driver programs iATU outbound windows:</p>
+<ul class="simple">
+<li><p><strong>Window 0 (Config)</strong>: Maps <code class="docutils literal notranslate"><span class="pre">0x70000000</span></code> (16 MB) → Type 0/1 config TLPs to bus 1</p></li>
+<li><p><strong>Window 1 (MEM)</strong>: Maps <code class="docutils literal notranslate"><span class="pre">0x71000000</span></code> (240 MB) → Memory TLPs targeting EP BARs</p></li>
+</ul>
+<p>Linux assigns BAR0 an address within the <code class="docutils literal notranslate"><span class="pre">0x71000000–0x7FFFFFFF</span></code> MEM window. The physical address is visible in sysfs at <code class="docutils literal notranslate"><span class="pre">/sys/bus/pci/devices/0000:01:00.0/resource</span></code>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="data-transfer-application-pcie-xfer">
+<h2>6. Data Transfer Application (pcie_xfer)<a class="headerlink" href="#data-transfer-application-pcie-xfer" title="Permalink to this heading"></a></h2>
+<section id="purpose">
+<h3>6.1 Purpose<a class="headerlink" href="#purpose" title="Permalink to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pcie_xfer</span></code> is a Linux userspace C application that maps EP BAR0 into process address space (via sysfs <code class="docutils literal notranslate"><span class="pre">resource0</span></code> or <code class="docutils literal notranslate"><span class="pre">/dev/mem</span></code>) and performs MMIO read/write operations. Each operation traverses the full data path to <code class="docutils literal notranslate"><span class="pre">Target_Memory</span></code> on the device chiplet.</p>
+</section>
+<section id="data-path">
+<h3>6.2 Data Path<a class="headerlink" href="#data-path" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Host CPU (MMIO store)
+  → RC AXI_Slave (0x70000000 window)
+    → iATU translates to Memory Write TLP
+      → RC.PCIMem → PCIe link → EP.PCIMem_Slave
+        → EP.BusMaster
+          → PCIE_TILE.pcie_controller_target
+            → Internal tile fabric
+              → noc_n_initiator
+                → SharedMemoryMap decode
+                  → Target_Memory @ 0x0 (16 MB)
+</pre></div>
+</div>
+</section>
+<section id="supported-commands">
+<h3>6.3 Supported Commands<a class="headerlink" href="#supported-commands" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command</p></th>
+<th class="head"><p>Syntax</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Write</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">write</span> <span class="pre">&lt;offset&gt;</span> <span class="pre">&lt;value&gt;</span></code></p></td>
+<td><p>Single 32-bit write at BAR0 + offset</p></td>
+</tr>
+<tr class="row-odd"><td><p>Read</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">read</span> <span class="pre">&lt;offset&gt;</span></code></p></td>
+<td><p>Single 32-bit read at BAR0 + offset</p></td>
+</tr>
+<tr class="row-even"><td><p>Fill</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fill</span> <span class="pre">&lt;offset&gt;</span> <span class="pre">&lt;count&gt;</span> <span class="pre">&lt;val&gt;</span></code></p></td>
+<td><p>Fill <code class="docutils literal notranslate"><span class="pre">count</span></code> dwords with a constant value</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dump</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dump</span> <span class="pre">&lt;offset&gt;</span> <span class="pre">&lt;count&gt;</span></code></p></td>
+<td><p>Hex dump <code class="docutils literal notranslate"><span class="pre">count</span></code> dwords from BAR0</p></td>
+</tr>
+<tr class="row-even"><td><p>Pattern</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pattern</span> <span class="pre">&lt;offset&gt;</span> <span class="pre">&lt;count&gt;</span></code></p></td>
+<td><p>Write `0xA0000000</p></td>
+</tr>
+<tr class="row-odd"><td><p>Burst</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">burst</span> <span class="pre">&lt;offset&gt;</span> <span class="pre">&lt;count&gt;</span></code></p></td>
+<td><p>Timed burst write, reports throughput</p></td>
+</tr>
+<tr class="row-even"><td><p>Verify</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">verify</span> <span class="pre">&lt;offset&gt;</span> <span class="pre">&lt;count&gt;</span> <span class="pre">&lt;val&gt;</span></code></p></td>
+<td><p>Verify memory matches expected value</p></td>
+</tr>
+<tr class="row-odd"><td><p>Send</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">send</span> <span class="pre">&lt;offset&gt;</span> <span class="pre">&lt;file&gt;</span></code></p></td>
+<td><p>Write binary file contents to BAR0</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ep-auto-detection">
+<h3>6.4 EP Auto-Detection<a class="headerlink" href="#ep-auto-detection" title="Permalink to this heading"></a></h3>
+<p>The application walks <code class="docutils literal notranslate"><span class="pre">/sys/bus/pci/devices/</span></code> to find the first non-bridge device (class != <code class="docutils literal notranslate"><span class="pre">0x0604xx</span></code> or <code class="docutils literal notranslate"><span class="pre">0x0600xx</span></code>), reads BAR0 physical address and size from the sysfs <code class="docutils literal notranslate"><span class="pre">resource</span></code> file, and maps it via <code class="docutils literal notranslate"><span class="pre">resource0</span></code> (falling back to <code class="docutils literal notranslate"><span class="pre">/dev/mem</span></code> if needed).</p>
+</section>
+<section id="building-pcie-xfer">
+<h3>6.5 Building pcie_xfer<a class="headerlink" href="#building-pcie-xfer" title="Permalink to this heading"></a></h3>
+<p>Cross-compile for the host initramfs with the musl toolchain:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>riscv64-unknown-linux-musl-gcc<span class="w"> </span>-O2<span class="w"> </span>-static<span class="w"> </span>-o<span class="w"> </span>pcie_xfer<span class="w"> </span>pcie_xfer.c
+</pre></div>
+</div>
+<p>The static binary is included in the initramfs CPIO archive.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="bare-metal-test-pcie-e2e-test">
+<h2>7. Bare-Metal Test (pcie_e2e_test)<a class="headerlink" href="#bare-metal-test-pcie-e2e-test" title="Permalink to this heading"></a></h2>
+<p>An alternative bare-metal test (<code class="docutils literal notranslate"><span class="pre">pcie_e2e_test.c</span></code>) runs on the Host_Chiplet without Linux. It provides:</p>
+<ul class="simple">
+<li><p>Trap-safe MMIO operations (catch and report access faults)</p></li>
+<li><p>RC DBI register dump (Vendor/Device ID, Command/Status, BARs, Capabilities)</p></li>
+<li><p>Port Logic register inspection</p></li>
+<li><p>iATU programming and verification</p></li>
+<li><p>End-to-end data transfer test through the PCIe link</p></li>
+<li><p>Detailed topology verification (Bus 0 RC, Bus 1 EP)</p></li>
+</ul>
+<p>This test is useful for pre-Linux validation of the PCIe link and tile connectivity.</p>
+</section>
+<hr class="docutils" />
+<section id="vp-configuration-reference">
+<h2>8. VP Configuration Reference<a class="headerlink" href="#vp-configuration-reference" title="Permalink to this heading"></a></h2>
+<section id="available-configurations">
+<h3>8.1 Available Configurations<a class="headerlink" href="#available-configurations" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Active Config Path</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>default</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">vpconfigs/default/default.vpcfg</span></code></p></td>
+<td><p>Full Linux with standard kernel, quantum 6000 ps</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>mini_riscv64_linux</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">vpconfigs/mini_riscv64_linux/mini_riscv64_linux.vpcfg</span></code></p></td>
+<td><p>Mini Linux for fast boot, quantum 1000 ps</p></td>
+</tr>
+</tbody>
+</table>
+<p>Set the active config in <code class="docutils literal notranslate"><span class="pre">snps.vpproject</span></code> → <code class="docutils literal notranslate"><span class="pre">activeConfig</span></code> attribute.</p>
+</section>
+<section id="critical-vpcfg-parameters">
+<h3>8.2 Critical VPCFG Parameters<a class="headerlink" href="#critical-vpcfg-parameters" title="Permalink to this heading"></a></h3>
+<p><strong>Host_Chiplet:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RST_GEN.active_at_start</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>Start host CPU immediately</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PCIE_RC.SHARED_DBI_ENABLED</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Separate DBI window</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PCIE_RC.cc_pipe_clk_Override</span></code></p></td>
+<td><p>250</p></td>
+<td><p>PIPE clock 250 MHz</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PCIE_RC.cc_*_Override</span></code></p></td>
+<td><p>100</p></td>
+<td><p>AXI/DBI/aux clocks 100 MHz</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">initial_image</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fw_payload.elf</span></code> (empty load addr)</p></td>
+<td><p>OpenSBI + Linux</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">quantum_value</span></code></p></td>
+<td><p>6000 (default) / 1000 (mini)</p></td>
+<td><p>Temporal decoupling quantum</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">UART_CLK</span></code></p></td>
+<td><p>115200000</p></td>
+<td><p>115.2 MHz UART clock</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Keraunos_PCIE_Chiplet:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RST_GEN.active_at_start</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>Start device CPU immediately</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.SHARED_DBI_ENABLED</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Separate DBI window</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.cc_pipe_clk_Override</span></code></p></td>
+<td><p>250</p></td>
+<td><p>PIPE clock 250 MHz</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">initial_image</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pcie_bringup.elf</span></code></p></td>
+<td><p>Bare-metal EP init firmware</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SharedMemoryMap_intf.range_mappings</span></code></p></td>
+<td><p>See Section 3.2</p></td>
+<td><p>Chiplet address decode</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="image-loading">
+<h3>8.3 Image Loading<a class="headerlink" href="#image-loading" title="Permalink to this heading"></a></h3>
+<p><strong>Critical</strong>: The host <code class="docutils literal notranslate"><span class="pre">initial_image</span></code> uses the format <code class="docutils literal notranslate"><span class="pre">{path/fw_payload.elf,,,image+symbols,}</span></code> with <strong>empty load address fields</strong>. The Virtualizer applies ELF program header addresses (entry at <code class="docutils literal notranslate"><span class="pre">0x80000000</span></code>). <strong>Never</strong> set load address to <code class="docutils literal notranslate"><span class="pre">0x0</span></code> — this breaks OpenSBI execution.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="sideband-signal-mapping">
+<h2>9. Sideband Signal Mapping<a class="headerlink" href="#sideband-signal-mapping" title="Permalink to this heading"></a></h2>
+<section id="ep-pcie-tile-sideband">
+<h3>9.1 EP ↔ PCIE_TILE Sideband<a class="headerlink" href="#ep-pcie-tile-sideband" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>VDK Connection Source</p></th>
+<th class="head"><p>VDK Connection Sink</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.edma_int</span></code> / <code class="docutils literal notranslate"><span class="pre">edma_int_*</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE.pcie_misc_int</span></code></p></td>
+<td><p>DMA interrupts</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.pcie_parc_int</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE.pcie_ras_error</span></code></p></td>
+<td><p>Parity/RAS error</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.lbc_cii_hv</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE.pcie_cii_hv</span></code></p></td>
+<td><p>CII header valid</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.lbc_cii_hdr_type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE.pcie_cii_hdr_type</span></code></p></td>
+<td><p>CII header type</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.lbc_cii_hdr_addr</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE.pcie_cii_hdr_addr</span></code></p></td>
+<td><p>CII header address</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PCIe_EP.cfg_flr_pf_active_x[0]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE.pcie_flr_request</span></code></p></td>
+<td><p>Function Level Reset</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="clocks-and-resets">
+<h3>9.2 Clocks and Resets<a class="headerlink" href="#clocks-and-resets" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Source</p></th>
+<th class="head"><p>Destination</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Chiplet.Infra.CLK_GEN</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE</span></code>, <code class="docutils literal notranslate"><span class="pre">PCIe_EP</span></code></p></td>
+<td><p>System clock</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Chiplet.Infra.RST_GEN</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_TILE</span></code>, <code class="docutils literal notranslate"><span class="pre">PCIe_EP</span></code></p></td>
+<td><p>System reset</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Host.Infra.CLK_GEN</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_RC</span></code></p></td>
+<td><p>Host clock</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Host.Infra.RST_GEN</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCIE_RC</span></code></p></td>
+<td><p>Host reset</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="msi-interrupt-path">
+<h3>9.3 MSI Interrupt Path<a class="headerlink" href="#msi-interrupt-path" title="Permalink to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>PCIE_RC.msi_ctrl_int → Host_Chiplet.SMC.irqS[11] → PLIC IRQ → Linux ISR
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="troubleshooting">
+<h2>10. Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading"></a></h2>
+<section id="host-crashes-or-nonsense-pc">
+<h3>10.1 Host Crashes or Nonsense PC<a class="headerlink" href="#host-crashes-or-nonsense-pc" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Verify <code class="docutils literal notranslate"><span class="pre">fw_payload.elf</span></code> uses ELF-header load addresses (not forced <code class="docutils literal notranslate"><span class="pre">0x0</span></code>)</p></li>
+<li><p>Check <code class="docutils literal notranslate"><span class="pre">readelf</span> <span class="pre">-l</span> <span class="pre">fw_payload.elf</span></code> — VirtAddr should show <code class="docutils literal notranslate"><span class="pre">0x8000xxxx</span></code></p></li>
+<li><p>Ensure kernel is built with <code class="docutils literal notranslate"><span class="pre">CONFIG_FPU=n</span></code> for rv64imac CPU</p></li>
+<li><p>Verify initramfs binaries are musl-compiled for rv64imac (no FPU instructions)</p></li>
+</ol>
+</section>
+<section id="pcie-ep-not-detected">
+<h3>10.2 PCIe EP Not Detected<a class="headerlink" href="#pcie-ep-not-detected" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Verify <code class="docutils literal notranslate"><span class="pre">pcie_bringup.elf</span></code> is loaded on device CPU and runs to completion</p></li>
+<li><p>Check that device <code class="docutils literal notranslate"><span class="pre">RST_GEN.active_at_start</span> <span class="pre">=</span> <span class="pre">true</span></code></p></li>
+<li><p>Confirm direct PCIe link wiring (RC.PCIMem ↔ EP.PCIMem_Slave)</p></li>
+<li><p>Verify DT <code class="docutils literal notranslate"><span class="pre">bus-range</span> <span class="pre">=</span> <span class="pre">&lt;0x0</span> <span class="pre">0x1&gt;</span></code> and bootargs include <code class="docutils literal notranslate"><span class="pre">pci=assign-busses</span></code></p></li>
+</ol>
+</section>
+<section id="bar0-access-returns-all-ones">
+<h3>10.3 BAR0 Access Returns All-Ones<a class="headerlink" href="#bar0-access-returns-all-ones" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>EP may not have BAR0 properly sized — check <code class="docutils literal notranslate"><span class="pre">pcie_bringup</span></code> programs <code class="docutils literal notranslate"><span class="pre">BAR0_MASK</span></code></p></li>
+<li><p>iATU outbound window may not cover the assigned BAR address</p></li>
+<li><p>Verify chiplet SharedMemoryMap decode includes <code class="docutils literal notranslate"><span class="pre">0x0:0x1000000</span></code> for Target_Memory</p></li>
+</ol>
+</section>
+<section id="data-mismatch-on-read-back">
+<h3>10.4 Data Mismatch on Read-Back<a class="headerlink" href="#data-mismatch-on-read-back" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Check that <code class="docutils literal notranslate"><span class="pre">noc_n_initiator</span></code> is connected to SharedMemoryMap at start 0x0</p></li>
+<li><p>Verify Target_Memory size (16 MB) covers the access offset</p></li>
+<li><p>Confirm byte-enable and data width compatibility across the path</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="related-documents">
+<h2>11. Related Documents<a class="headerlink" href="#related-documents" title="Permalink to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Document</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="Keraunos_System_Architecture.html"><span class="doc std std-doc">Keraunos System Architecture</span></a></p></td>
+<td><p>Full system architecture including chiplet ecosystem</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="Keraunos_PCIe_Tile_HLD.html"><span class="doc std std-doc">Keraunos PCIe Tile HLD</span></a></p></td>
+<td><p>High-level design of the PCIe Tile</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="Keraunos_PCIE_Tile_SystemC_Design_Document.html"><span class="doc std std-doc">SystemC Design Document</span></a></p></td>
+<td><p>Detailed SystemC implementation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html"><span class="doc std std-doc">Test Plan</span></a></p></td>
+<td><p>Verification test plan</p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<p><strong>Document Control:</strong></p>
+<ul class="simple">
+<li><p><strong>Classification:</strong> Internal Use Only</p></li>
+<li><p><strong>Distribution:</strong> Keraunos Project Team, VDK Integration Team</p></li>
+</ul>
+<hr class="docutils" />
+<p><strong>End of Document</strong></p>
 </section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Keraunos_PCIE_Tile_SystemC_Design_Document.html" class="btn btn-neutral float-left" title="Keraunos PCIE Tile SystemC/TLM2.0 Design Document" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Keraunos_PCIE_Tile_Testplan.html" class="btn btn-neutral float-right" title="Keraunos PCIE Tile SystemC/TLM2.0 Testplan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

@@ -68,7 +68,7 @@ mermaid.initialize({
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Keraunos PCIE Tile SystemC/TLM2.0 Testplan" href="Keraunos_PCIE_Tile_Testplan.html" />
+    <link rel="next" title="VDK Platform Guide: Linux-Booting Keraunos PCIe Tile" href="VDK_Platform_Linux_PCIe_Guide.html" />
     <link rel="prev" title="Keraunos PCIe Tile - High-Level Design" href="Keraunos_PCIe_Tile_HLD.html" /> 
 </head>
 
@@ -94,7 +94,7 @@ mermaid.initialize({
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Architecture &amp; Design:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="Keraunos_System_Architecture.html">Keraunos System Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#pcie-tile-integration-in-keraunos-e100-chiplet-ecosystem">PCIe Tile Integration in Keraunos-E100 Chiplet Ecosystem</a></li>
@@ -157,10 +157,24 @@ mermaid.initialize({
 <li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#use-case-4-system-management">7.4 Use Case 4: System Management</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#appendices">8. Appendices</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#acronyms-and-abbreviations">8.1 Acronyms and Abbreviations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#reference-documents">8.2 Reference Documents</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#revision-history">8.3 Revision History</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#final-vdk-platform-linux-booting-pcie-tile-integration">8. Final VDK Platform: Linux-Booting PCIe Tile Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#overview">8.1 Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#dual-chiplet-vdk-topology">8.2 Dual-Chiplet VDK Topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#host-memory-map">8.3 Host Memory Map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#device-keraunos-pcie-chiplet-memory-map">8.4 Device (Keraunos_PCIE_Chiplet) Memory Map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#end-to-end-data-path">8.5 End-to-End Data Path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#linux-boot-flow">8.6 Linux Boot Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#pcie-enumeration">8.7 PCIe Enumeration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#the-pcie-xfer-application">8.8 The pcie_xfer Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#device-side-firmware-pcie-bringup">8.9 Device-Side Firmware (pcie_bringup)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#vp-configuration">8.10 VP Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#sideband-connections-in-the-final-platform">8.11 Sideband Connections in the Final Platform</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Keraunos_System_Architecture.html#appendices">9. Appendices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#acronyms-and-abbreviations">9.1 Acronyms and Abbreviations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#reference-documents">9.2 Reference Documents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Keraunos_System_Architecture.html#revision-history">9.3 Revision History</a></li>
 </ul>
 </li>
 </ul>
@@ -615,6 +629,71 @@ mermaid.initialize({
 <li class="toctree-l2"><a class="reference internal" href="#appendix-c-acronyms-and-abbreviations">Appendix C: Acronyms and Abbreviations</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">VDK Platform &amp; Integration:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html">VDK Platform Guide: Linux-Booting Keraunos PCIe Tile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#introduction">1. Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#what-this-platform-demonstrates">1.1 What This Platform Demonstrates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#platform-architecture">2. Platform Architecture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#two-chiplet-topology">2.1 Two-Chiplet Topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#pcie-link-wiring">2.2 PCIe Link Wiring</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#pcie-tile-interface-connections">2.3 PCIE_TILE Interface Connections</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#memory-maps">3. Memory Maps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#host-chiplet-cpu-address-space">3.1 Host_Chiplet CPU Address Space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#keraunos-pcie-chiplet-sharedmemorymap-decode">3.2 Keraunos_PCIE_Chiplet SharedMemoryMap Decode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#linux-boot">4. Linux Boot</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#boot-flow">4.1 Boot Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#device-tree-highlights">4.2 Device Tree Highlights</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#key-boot-parameters">4.3 Key Boot Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#toolchain-requirements">4.4 Toolchain Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#pcie-enumeration-and-bar-assignment">5. PCIe Enumeration and BAR Assignment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#enumeration-topology">5.1 Enumeration Topology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#iatu-configuration">5.2 iATU Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#data-transfer-application-pcie-xfer">6. Data Transfer Application (pcie_xfer)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#purpose">6.1 Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#data-path">6.2 Data Path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#supported-commands">6.3 Supported Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#ep-auto-detection">6.4 EP Auto-Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#building-pcie-xfer">6.5 Building pcie_xfer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#bare-metal-test-pcie-e2e-test">7. Bare-Metal Test (pcie_e2e_test)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#vp-configuration-reference">8. VP Configuration Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#available-configurations">8.1 Available Configurations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#critical-vpcfg-parameters">8.2 Critical VPCFG Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#image-loading">8.3 Image Loading</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#sideband-signal-mapping">9. Sideband Signal Mapping</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#ep-pcie-tile-sideband">9.1 EP ↔ PCIE_TILE Sideband</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#clocks-and-resets">9.2 Clocks and Resets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#msi-interrupt-path">9.3 MSI Interrupt Path</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#troubleshooting">10. Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#host-crashes-or-nonsense-pc">10.1 Host Crashes or Nonsense PC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#pcie-ep-not-detected">10.2 PCIe EP Not Detected</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#bar0-access-returns-all-ones">10.3 BAR0 Access Returns All-Ones</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#data-mismatch-on-read-back">10.4 Data Mismatch on Read-Back</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VDK_Platform_Linux_PCIe_Guide.html#related-documents">11. Related Documents</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Verification:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html">Keraunos PCIE Tile SystemC/TLM2.0 Testplan</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#table-of-contents">Table of Contents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Keraunos_PCIE_Tile_Testplan.html#introduction">1. Introduction</a><ul>
@@ -7057,7 +7136,7 @@ Result: 100% PASS RATE
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="Keraunos_PCIe_Tile_HLD.html" class="btn btn-neutral float-left" title="Keraunos PCIe Tile - High-Level Design" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="Keraunos_PCIE_Tile_Testplan.html" class="btn btn-neutral float-right" title="Keraunos PCIE Tile SystemC/TLM2.0 Testplan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="VDK_Platform_Linux_PCIe_Guide.html" class="btn btn-neutral float-right" title="VDK Platform Guide: Linux-Booting Keraunos PCIe Tile" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
