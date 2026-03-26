@@ -5,11 +5,22 @@ Welcome to the Keraunos PCIe Tile SystemC/TLM2.0 implementation documentation.
 
 .. toctree::
    :maxdepth: 3
-   :caption: Contents:
+   :caption: Architecture & Design:
 
    Keraunos_System_Architecture.md
    Keraunos_PCIe_Tile_HLD.md
    Keraunos_PCIE_Tile_SystemC_Design_Document.md
+
+.. toctree::
+   :maxdepth: 3
+   :caption: VDK Platform & Integration:
+
+   VDK_Platform_Linux_PCIe_Guide.md
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Verification:
+
    Keraunos_PCIE_Tile_Testplan.md
    ENABLE_GATING_DESIGN.md
 
@@ -19,24 +30,40 @@ Overview
 This documentation describes the SystemC/TLM2.0 implementation of the Keraunos PCIe Tile,
 featuring:
 
-* ✅ **E126 Error Eliminated** - FastBuild compatible architecture
-* ✅ **100% Test Pass Rate** - 81/81 tests passing (41 E2E + 40 directed)
-* ✅ **Zero Memory Leaks** - Smart pointer (RAII) based design
-* ✅ **Modern C++17** - Best practices throughout
-* ✅ **SCML2 Memory** - Proper persistent storage
-* ✅ **Temporal Decoupling** - Full TLM-2.0 LT support
+* **Linux-Booting VDK Platform** - Full RISC-V Linux on host with PCIe endpoint enumeration
+* **End-to-End PCIe Data Path** - Host to Target_Memory via RC, EP, PCIE_TILE, and noc_n_initiator
+* **pcie_xfer Application** - Userspace tool for interactive BAR0 read/write operations
+* **Test Suite** - 86 tests (41 E2E + 45 directed), 344 checks, including BME (Bus Master Enable) tests
+* **Zero Memory Leaks** - Smart pointer (RAII) based design
+* **Modern C++17** - Best practices throughout
+* **SCML2 Memory** - Proper persistent storage
+* **Temporal Decoupling** - Full TLM-2.0 LT support
 
 Key Features
 ------------
 
 The refactored architecture (v2.0) introduces:
 
-1. **Function Callback-Based Communication** - Eliminates internal socket bindings
-2. **Smart Pointer Memory Management** - Zero memory leaks guaranteed
-3. **SCML2 Integration** - Proper configuration persistence
-4. **Comprehensive Testing** - 81 test cases with cross-socket data verification
-5. **Sparse Backing Memory** - Custom ``sparse_backing_memory`` with 256TB address range
-6. **Initiator Socket Architecture** - DUT output ports use ``simple_initiator_socket`` for outbound traffic
+1. **Dual-Chiplet VDK Platform** - Host_Chiplet (RC + Linux) and Keraunos_PCIE_Chiplet (EP + Tile + Memory)
+2. **Linux PCIe Stack Integration** - snps,dw-pcie driver enumerates EP, assigns BARs
+3. **Function Callback-Based Communication** - Eliminates internal socket bindings
+4. **Smart Pointer Memory Management** - Zero memory leaks guaranteed
+5. **SCML2 Integration** - Proper configuration persistence
+6. **Comprehensive Testing** - 86 test cases (incl. 5 BME tests) with cross-socket data verification
+7. **Sparse Backing Memory** - Custom ``sparse_backing_memory`` with 256TB address range
+8. **Initiator Socket Architecture** - DUT output ports use ``simple_initiator_socket`` for outbound traffic
+
+Platform Architecture
+---------------------
+
+The validated VDK platform demonstrates the complete data path::
+
+    Host CPU (Linux) → RC AXI_Slave → iATU → PCIe TLP
+      → EP PCIMem_Slave → EP BusMaster
+        → PCIE_TILE.pcie_controller_target
+          → noc_n_initiator → Target_Memory (16 MB)
+
+See :doc:`VDK_Platform_Linux_PCIe_Guide` for full platform details.
 
 Components
 ----------
@@ -55,17 +82,23 @@ The tile includes:
 Documentation Sections
 ----------------------
 
-* **Section 1**: Introduction and Refactored Architecture Overview
-* **Section 2**: System Overview
-* **Section 3**: Architecture with Mermaid Diagrams
-* **Section 4**: Detailed Component Design
-* **Section 5**: Interface Specifications
-* **Section 6**: Implementation Details
-* **Section 7**: Modeling Approach
-* **Section 8**: Performance Considerations
-* **Section 9**: Detailed Implementation Architecture
-* **Section 10**: Implementation Guide
-* **Appendices**: Component Summary, Address Maps, Acronyms
+**System Architecture** (Keraunos_System_Architecture.md):
+
+* Grendel chiplet ecosystem and Keraunos-E100 role
+* PCIe Tile position and interfaces
+* Model integration (Host-RC-EP-Tile connections)
+* VDK integration with Synopsys DesignWare PCIe
+* Final VDK platform: Linux boot, PCIe enumeration, data transfer
+
+**VDK Platform Guide** (VDK_Platform_Linux_PCIe_Guide.md):
+
+* Dual-chiplet topology and wiring
+* Memory maps (host and device)
+* Linux boot flow via OpenSBI
+* PCIe enumeration and BAR assignment
+* pcie_xfer application usage
+* VP configuration reference
+* Troubleshooting guide
 
 Indices and tables
 ==================

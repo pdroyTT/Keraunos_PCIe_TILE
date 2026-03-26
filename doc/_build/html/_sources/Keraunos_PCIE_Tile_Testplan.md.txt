@@ -1,10 +1,10 @@
 # Keraunos PCIE Tile SystemC/TLM2.0 Testplan
 
-**Version:** 2.1  
-**Date:** February 10, 2026  
+**Version:** 2.2  
+**Date:** February 11, 2026  
 **Author:** Verification Team  
 **Based on:** Keraunos PCIE Tile Specification v0.7.023  
-**Updated:** 81 tests passing, cross-socket data verification via sparse_backing_memory, DUT initiator socket architecture
+**Updated:** Added BME (Bus Master Enable) directed tests (TC_BME_001–005); 86 tests, 344 checks. SII device_type callback and cold reset BME restoration documented.
 
 ---
 
@@ -73,7 +73,15 @@ This testplan covers:
 5. Validate register access and configuration interfaces
 6. Test integration with intra-tile fabric
 
-### 1.4 References
+### 1.4 TLB Translation and Sys In/Out (Reference)
+
+- **Translation formula (all TLBs):** `page_mask = (1ULL << page_shift) - 1`;  
+  `translated_addr = ((entry.addr << 12) & ~page_mask) | (input_addr & page_mask)`.  
+  Base is page-aligned; offset is taken from the input address within the page.
+- **TLB Sys In0:** Route 0x4 → SMN (system path). Lookup is **not** gated by `system_ready`; only bypass paths (route 0x8, 0x9) are gated by `system_ready`.
+- **TLB Sys Out0:** System outbound (SMN-N → PCIe DBI). 64KB pages, 16 entries.
+
+### 1.5 References
 
 - Keraunos PCIE Tile Specification v0.7.023
 - SystemC/TLM2.0 Design Document
@@ -83,7 +91,7 @@ This testplan covers:
 
 ## 1.5 Test Traceability Matrix
 
-The following table maps test plan IDs to their implementing test functions in `Keranous_pcie_tileTest.cc`. **81 tests total: 81 passing, 0 failing. Cross-socket data verification enabled via sparse_backing_memory.** The 4 new negative enable tests verify independent control of inbound/outbound traffic gating.
+The following table maps test plan IDs to their implementing test functions in `Keranous_pcie_tileTest.cc`. **86 tests total**, 344 checks. Cross-socket data verification via sparse_backing_memory. BME (Bus Master Enable) tests verify Table 33 behavior (EP/RP mode, BME gating, exemptions).
 
 **E2E Tests (41 tests):**
 
@@ -131,30 +139,31 @@ The following table maps test plan IDs to their implementing test functions in `
 | 40 | TC_E2E_POWER_001 | `testE2E_Power_IsolationModeEntryExit()` | Power Management Isolation Entry/Exit | ✅ PASS |
 | 41 | TC_E2E_SYSTEM_002 | `testE2E_System_ShutdownSequence()` | Graceful Shutdown Sequence | ✅ PASS |
 
-**Directed Tests (28 tests):**
+**Directed Tests (24 tests):**
 
 | # | Test Plan ID(s) | Test Function (`Keranous_pcie_tileTest.cc`) | Feature Under Test | Status |
 |---|----------------|---------------------------------------------|-------------------|--------|
 | 42 | TC_SWITCH_NOC_PCIE_001 | `testDirected_Switch_RouteDecodeErrors()` | NOC-PCIE switch: 9 unmapped route values → DECERR | ✅ PASS |
 | 43 | TC_SWITCH_NOC_PCIE_003/004 + TC_CONFIG_REG_004 | `testDirected_Switch_InboundEnableGating()` | Comprehensive isolation test with `wait(SC_ZERO_TIME)`: verifies inbound/bypass/status blocked during isolation, enables permanently cleared after deassert (runs last) | ✅ PASS |
-| 44 | TC_NEGATIVE_ENABLE_001 | `testNegative_InboundDisabled_BlocksPcieToNoc()` | Inbound enable gating: pcie_inbound_app_enable=0 blocks PCIe→NOC traffic, outbound still flows | ✅ PASS |
-| 45 | TC_NEGATIVE_ENABLE_002 | `testNegative_OutboundDisabled_BlocksNocToPcie()` | Outbound enable gating: pcie_outbound_app_enable=0 blocks NOC→PCIe traffic, inbound still flows | ✅ PASS |
-| 46 | TC_NEGATIVE_ENABLE_003 | `testNegative_BothDisabled_BlocksBidirectional()` | Both enables=0: complete traffic isolation while system_ready=1 | ✅ PASS |
-| 47 | TC_NEGATIVE_ENABLE_004 | `testNegative_BothEnabled_AllowsBidirectional()` | Positive control: both enables=1 allows full bidirectional traffic with stress test | ✅ PASS |
-| 48 | TC_SWITCH_NOC_IO_001 | `testDirected_Switch_NocIoDecErrRegions()` | NOC-IO switch: 3 DECERR regions verified | ✅ PASS |
-| 49 | TC_SWITCH_NOC_PCIE_005 | `testDirected_Switch_BypassPathRouting()` | Bypass paths (route=0x8/0x9) with `wait(SC_ZERO_TIME)`: cold reset cycling harmless | ✅ PASS |
-| 50 | TC_SWITCH_SMN_IO_001/002 | `testDirected_Switch_SmnIoAllTargets()` | SMN-IO switch: all 15 routing targets exercised | ✅ PASS |
-| 51 | TC_CONFIG_REG_002 | `testDirected_ConfigReg_StatusReadback()` | Status register readback via PCIe route 0xE | ✅ PASS |
-| 52 | TC_CONFIG_REG_004 | `testDirected_ConfigReg_IsolationClearsAll()` | Config reg defaults + cold reset with `wait(SC_ZERO_TIME)`: status/data preserved across reset | ✅ PASS |
-| 53 | TC_INBOUND_SYS_002 | `testDirected_InboundTlb_InvalidEntry()` | Invalid TLB entries (1,2,63) → DECERR verified | ✅ PASS |
-| 54 | TC_INBOUND_APP1_001 | `testDirected_InboundTlb_ValidEntryVerify()` | Valid entry 0 succeeds, invalid entry 1 DECERR | ✅ PASS |
-| 55 | TC_INBOUND_SYS_003 | `testDirected_InboundTlb_MultipleEntryIndex()` | Entry index calculation: entry 0 vs 5,10,31,63 | ✅ PASS |
-| 56 | TC_INBOUND_SYS/APP0/APP1 | `testDirected_InboundTlb_AllThreeTypes()` | All 3 inbound TLB types: SysIn0, AppIn0, AppIn1 | ✅ PASS |
-| 57 | TC_INBOUND_APP0_002 | `testDirected_InboundTlb_App0_AllInstances()` | All 4 TLB App In0 instances [0]-[3] config routing | ✅ PASS |
-| 58 | TC_OUTBOUND_SYS_003 | `testDirected_OutboundTlb_SysOut0_All16Entries()` | TLB Sys Out0: entry 0 valid, entries 1-15 DECERR | ✅ PASS |
-| 59 | TC_OUTBOUND_APP0_001/002 | `testDirected_OutboundTlb_HighAddressRouting()` | NOC-IO high address routing (bits[51:48]) to TLB Out | ✅ PASS |
-| 60 | TC_OUTBOUND_APP1_001 | `testDirected_OutboundTlb_AppOut1_Routing()` | TLB App Out1 via NOC-IO data path | ✅ PASS |
-| 61 | TC_MSI_RELAY_001 | `testDirected_MsiRelay_ReceiverInput()` | MSI relay input/CSR routing paths exercised | ✅ PASS |
+| 44 | TC_SWITCH_NOC_IO_001 | `testDirected_Switch_NocIoDecErrRegions()` | NOC-IO switch: 3 DECERR regions verified | ✅ PASS |
+| 45 | TC_SWITCH_NOC_PCIE_005 | `testDirected_Switch_BypassPathRouting()` | Bypass paths (route=0x8/0x9) with `wait(SC_ZERO_TIME)`: cold reset cycling harmless | ✅ PASS |
+| 46 | TC_SWITCH_SMN_IO_001/002 | `testDirected_Switch_SmnIoAllTargets()` | SMN-IO switch: all 15 routing targets exercised | ✅ PASS |
+| 47 | TC_CONFIG_REG_002 | `testDirected_ConfigReg_StatusReadback()` | Status register readback via PCIe route 0xE | ✅ PASS |
+| 48 | TC_CONFIG_REG_004 | `testDirected_ConfigReg_IsolationClearsAll()` | Config reg defaults + cold reset with `wait(SC_ZERO_TIME)`: status/data preserved across reset | ✅ PASS |
+| 49 | TC_INBOUND_SYS_002 | `testDirected_InboundTlb_InvalidEntry()` | Invalid TLB entries (1,2,63) → DECERR verified | ✅ PASS |
+| 50 | TC_INBOUND_APP1_001 | `testDirected_InboundTlb_ValidEntryVerify()` | Valid entry 0 succeeds, invalid entry 1 DECERR | ✅ PASS |
+| 51 | TC_INBOUND_SYS_003 | `testDirected_InboundTlb_MultipleEntryIndex()` | Entry index calculation: entry 0 vs 5,10,31,63 | ✅ PASS |
+| 52 | TC_INBOUND_SYS/APP0/APP1 | `testDirected_InboundTlb_AllThreeTypes()` | All 3 inbound TLB types: SysIn0, AppIn0, AppIn1 | ✅ PASS |
+| 53 | TC_INBOUND_APP0_002 | `testDirected_InboundTlb_App0_AllInstances()` | All 4 TLB App In0 instances [0]-[3] config routing | ✅ PASS |
+| 54 | TC_OUTBOUND_SYS_003 | `testDirected_OutboundTlb_SysOut0_All16Entries()` | TLB Sys Out0: entry 0 valid, entries 1-15 DECERR | ✅ PASS |
+| 55 | TC_OUTBOUND_APP0_001/002 | `testDirected_OutboundTlb_HighAddressRouting()` | NOC-IO high address routing (bits[51:48]) to TLB Out | ✅ PASS |
+| 56 | TC_OUTBOUND_APP1_001 | `testDirected_OutboundTlb_AppOut1_Routing()` | TLB App Out1 via NOC-IO data path | ✅ PASS |
+| 57 | TC_BME_001 | `testDirected_BME_EpMemTlpBlockedWhenBmeDisabled()` | EP mode, BME=0: memory TLP blocked (DECERR) | ✅ PASS |
+| 58 | TC_BME_002 | `testDirected_BME_EpDbiAllowedWhenBmeDisabled()` | EP mode, BME=0: DBI TLP allowed | ✅ PASS |
+| 59 | TC_BME_003 | `testDirected_BME_EpCfgTlpAllowedWhenBmeDisabled()` | EP mode, BME=0: Config TLP allowed | ✅ PASS |
+| 60 | TC_BME_004 | `testDirected_BME_EpAllTrafficAllowedWhenBmeEnabled()` | EP mode, BME=1: all traffic allowed | ✅ PASS |
+| 61 | TC_BME_005 | `testDirected_BME_RpAllTrafficAllowedRegardlessOfBme()` | RP mode: all traffic allowed regardless of BME | ✅ PASS |
+| 62 | TC_MSI_RELAY_001 | `testDirected_MsiRelay_ReceiverInput()` | MSI relay input/CSR routing paths exercised | ✅ PASS |
 | 62 | TC_MSI_RELAY_011 | `testDirected_MsiRelay_MultiVectorConfig()` | All 16 MSI-X vector config + trigger | ✅ PASS |
 | 63 | TC_SII_003 | `testDirected_SII_BusDevNumberOutput()` | SII bus/dev number config path + output signals | ✅ PASS |
 | 64 | TC_SII_002 | `testDirected_SII_CiiConfigUpdate()` | CII tracking + interrupt: asserts CII config write (type=0x04, addr in first 128B), verifies config_update=true, confirms cfg_modified sticky bits across multiple CII events | ✅ PASS |
@@ -181,12 +190,10 @@ The following table maps test plan IDs to their implementing test functions in `
 2. **Address Passthrough (MSI Relay):** MSI relay `process_msi_input()` and `process_csr_access()` receive full addresses from switches, preventing register matching. Fix: strip base address.
 3. **Address Passthrough (SII):** Same issue as MSI relay for SII config register access.
 4. **Signal Propagation (RESOLVED):** sc_signal writes require delta cycles to propagate in SystemC. This is now handled by calling `sc_core::wait(sc_core::SC_ZERO_TIME)` after signal writes to advance delta cycles. Tests that use this technique directly verify isolation blocking, interrupt signal forwarding (FLR, hot reset, RAS, DMA, misc), cold/warm reset signal cycling, and CII input propagation.
-5. **Config Register Block (RESOLVED):** SMN-IO switch now correctly routes config writes within 0x18040000-0x1804FFFF to the ConfigRegBlock callback. System ready (offset 0xFFFC) and enable registers (offset 0xFFF8) are functional via SMN writes.
-6. **Isolation Enable Recovery:** `ConfigRegBlock::set_isolate_req(true)` clears `system_ready`, `pcie_inbound_app_enable`, and `pcie_outbound_app_enable`. `set_isolate_req(false)` only clears the `isolate_req_` flag but does NOT restore the enables. However, tests can recover by writing to enable registers via SMN (0x18040000+0xFFF8 and 0x18040000+0xFFFC) after cold reset, since the config register callback is now functional.
+5. **Config Register Block:** SMN-IO switch range 0x18000000-0x18100000 returns TLM_OK_RESPONSE without forwarding to the ConfigRegBlock callback. Config register reads/writes via SMN have no effect on internal state.
+6. **Isolation Enable Recovery:** `ConfigRegBlock::set_isolate_req(true)` clears `system_ready`, `pcie_inbound_app_enable`, and `pcie_outbound_app_enable`. `set_isolate_req(false)` only clears the `isolate_req_` flag but does NOT restore the enables. Cold reset also does not restore enables (no reset handler). This means the DUT cannot recover from isolation without external software reconfiguration, which is not possible in the current test environment (SMN-IO switch absorbs config writes).
 7. **CII Processing (RESOLVED):** The SII block's CII tracking, CDC synchronization, and interrupt generation logic has been restored via the `SiiBlock::update()` method. This single method replaces the three SC_METHODs from the backup_original (`cii_tracking_process`, `cfg_modified_update_process`, `cdc_pcie_to_apb`). CII config-space write detection (type 0x04, first 128B), cfg_modified bitmask accumulation with RW1C clear support, and `config_update` interrupt assertion are all functional. The tile's `signal_update_process` calls `sii_block_->update()` between setters and getters to process CII inputs each delta cycle.
 8. **MSI Relay Interrupt Output Not Verifiable:** The MSI relay's interrupt output path cannot be fully exercised because: (a) `process_msi_input` requires `offset==0` but receives the full NOC-IO address `0x18800000` (address passthrough), so PBA bits are never set; (b) `msix_enable_` is an internal `sc_signal` (not exposed as a tile port), defaulting to `false`; (c) per-vector masks default to `true` (masked) and cannot be cleared via SMN CSR writes (address passthrough). The MSI routing paths, PBA read, and global mask configuration paths are exercised in tests TC_MSI_RELAY_012/013/014, which document the specific address passthrough offsets and verify system stability.
-9. **DUT Initiator Socket Architecture (NEW):** The three output ports (`noc_n_initiator`, `smn_n_initiator`, `pcie_controller_initiator`) have been changed from `tlm_utils::simple_target_socket` (stubs) to `tlm_utils::simple_initiator_socket`. Outbound traffic now flows through these sockets to the testbench's `sparse_backing_memory` instances, enabling full cross-socket data verification. Data written via one input port (e.g., PCIe) can be verified at the output port's backing memory (e.g., NOC), confirming end-to-end data integrity through the DUT.
-10. **Sparse Backing Memory (NEW):** The testbench uses a custom `sparse_backing_memory` class instead of `scml2::testing::test_memory` (which had an internal bug with name derivation). The custom class uses `std::map<uint64_t, uint8_t>` for truly sparse storage covering a 256TB address range with zero allocation overhead, eliminating the previous 1GB memory size constraint.
 
 ---
 
@@ -194,45 +201,35 @@ The following table maps test plan IDs to their implementing test functions in `
 
 ### 2.1 Testbench Structure
 
-The testbench uses the Synopsys SCML2 test framework with `scml2::testing::initiator_socket_proxy` for DUT output ports. A custom `sparse_backing_memory` class provides truly sparse memory backing using `std::map<uint64_t, uint8_t>`, enabling cross-socket data verification without allocation overhead.
+> **Updated Feb 2026:** The testbench now uses `scml2::testing::initiator_socket_proxy` for DUT output ports with custom `sparse_backing_memory` (std::map-based) for cross-socket data verification. DUT output ports are `tlm_utils::simple_initiator_socket<64>` types.
 
-**Architecture:**
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     SCML2 Test Harness                           │
-│                                                                  │
-│  target_socket_proxy ──► DUT Input Ports                         │
-│   (noc_n_target)          (noc_n_target)                         │
-│   (smn_n_target)          (smn_n_target)                         │
-│   (pcie_controller_target)(pcie_controller_target)               │
-│                                                                  │
-│  initiator_socket_proxy ◄── DUT Output Ports (Initiator Sockets) │
-│   (noc_n_initiator)        (noc_n_initiator)                     │
-│   (smn_n_initiator)        (smn_n_initiator)                     │
-│   (pcie_controller_init.)  (pcie_controller_initiator)           │
-│        │                                                         │
-│        ▼                                                         │
-│  sparse_backing_memory (std::map<uint64_t, uint8_t>)             │
-│   - noc_output_mem_    (256TB range, zero overhead)              │
-│   - smn_output_mem_    (256TB range, zero overhead)              │
-│   - pcie_output_mem_   (256TB range, zero overhead)              │
-│                                                                  │
-│  Cross-Socket Verification:                                      │
-│   1. Write via input port (e.g., pcie_controller_target)         │
-│   2. DUT routes through TLB, forwards via initiator socket       │
-│   3. sparse_backing_memory captures data                         │
-│   4. Test reads backing memory to verify data integrity          │
-└─────────────────────────────────────────────────────────────────┘
+```{mermaid}
+graph TB
+    Top["Testbench Top Level"]
+    
+    Stimulus["Stimulus<br/>Generator"]
+    Monitor["Monitor<br/>& Checker"]
+    DUT["Device Under Test (DUT)<br/>- TLBs<br/>- MSI Relay"]
+    RefModel["Reference Model<br/>(Golden Model)"]
+    
+    Stimulus --> DUT
+    Monitor --> DUT
+    DUT --> RefModel
+    
+    style Top fill:#e1f5ff
+    style Stimulus fill:#fff4e1
+    style Monitor fill:#fff4e1
+    style DUT fill:#e8f5e9
+    style RefModel fill:#fce4ec
 ```
 
 ### 2.2 Test Components
 
-- **SCML2 Target Socket Proxy:** Sends transactions to DUT input ports
-- **SCML2 Initiator Socket Proxy:** Receives transactions from DUT output ports (initiator sockets)
-- **sparse_backing_memory:** Custom class implementing `scml2::mappable_if` and `scml2::testing::memory_if`, using `std::map<uint64_t, uint8_t>` for fully sparse storage with 256TB address range
-- **Cross-Socket Data Verification:** Helper methods `verify_output_u32()`, `read_output_u32()`, `write_output_u32()` for verifying data written on one DUT port appears correctly at another port's backing memory
-- **SCML2_ASSERT_THAT:** Assertion macro for test pass/fail reporting
+- **Stimulus Generator:** Creates TLM transactions and register accesses
+- **Monitor:** Captures transactions and responses
+- **Checker:** Compares DUT output with reference model
+- **Reference Model:** Golden model implementing specification algorithms
+- **Scoreboard:** Tracks test progress and coverage
 
 ### 2.3 Test Tools
 
@@ -959,143 +956,6 @@ The testbench uses the Synopsys SCML2 test framework with `scml2::testing::initi
 
 ---
 
-### 8.4 Enable Gating Test Cases (NEW - Feb 2026)
-
-#### TC_NEGATIVE_ENABLE_001: Inbound Enable Blocks PCIe→NOC Traffic
-
-> **Test Function:** `testNegative_InboundDisabled_BlocksPcieToNoc()` | **Feature:** Inbound Enable Independent Control | **Status:** ✅ PASS
-
-**Objective:** Verify `pcie_inbound_app_enable=0` blocks PCIe→NOC application traffic while outbound traffic flows normally
-
-**Steps:**
-1. Verify default state: both enables=1, traffic flows bidirectionally
-2. Configure outbound TLB for NOC→PCIe path
-3. Write to config register 0x18000000+0x0FFF8 with value 0x1 (outbound=1, inbound=0)
-4. Call `wait(SC_ZERO_TIME)` to propagate config change via callback
-5. Verify inbound traffic (PCIe→NOC) returns DECERR for both read and write
-6. Verify outbound traffic (NOC→PCIe) still succeeds
-7. Cold reset and restore both enables
-8. Verify full recovery
-
-**Expected Result:** Inbound traffic blocked, outbound flows, recovery successful
-
-**Coverage:** Inbound enable gate, independent control, status register bypass
-
-**Implementation Detail:** ConfigRegBlock callback propagates enable bit changes to NocPcieSwitch
-
----
-
-#### TC_NEGATIVE_ENABLE_002: Outbound Enable Blocks NOC→PCIe Traffic
-
-> **Test Function:** `testNegative_OutboundDisabled_BlocksNocToPcie()` | **Feature:** Outbound Enable Independent Control | **Status:** ✅ PASS
-
-**Objective:** Verify `pcie_outbound_app_enable=0` blocks NOC→PCIe application traffic while inbound traffic flows normally
-
-**Steps:**
-1. Configure outbound TLB and verify default state works
-2. Verify inbound traffic succeeds with default enables
-3. Write to config register 0x18000000+0x0FFF8 with value 0x10000 (outbound=0, inbound=1)
-4. Call `wait(SC_ZERO_TIME)` to propagate config change
-5. Verify outbound traffic (NOC→PCIe) returns DECERR for both read and write
-6. Verify inbound traffic (PCIe→NOC) still succeeds
-7. Cold reset and restore both enables
-8. Verify outbound traffic restored
-
-**Expected Result:** Outbound traffic blocked, inbound flows, recovery successful
-
-**Coverage:** Outbound enable gate, independent control, address range 0x18900000
-
-**Implementation Detail:** Uses NOC-IO address range (0x18900000) to avoid SCML2 framework high-address interception
-
----
-
-#### TC_NEGATIVE_ENABLE_003: Both Enables Disabled - Complete Isolation
-
-> **Test Function:** `testNegative_BothDisabled_BlocksBidirectional()` | **Feature:** Dual Enable Complete Traffic Isolation | **Status:** ✅ PASS
-
-**Objective:** Verify both enables=0 blocks all application traffic while system_ready=1
-
-**Steps:**
-1. Verify default state: traffic flows both directions
-2. Keep system_ready=1 but disable both enables: write 0x0 to PCIE_ENABLE register
-3. Call `wait(SC_ZERO_TIME)` to propagate config change
-4. Verify inbound traffic (PCIe→NOC) returns DECERR
-5. Verify outbound traffic (NOC→PCIe) returns DECERR
-6. Verify status register bypass still works (system_ready=1 allows monitoring)
-7. Cold reset and restore both enables
-8. Verify full bidirectional recovery
-
-**Expected Result:** Both directions blocked, status register accessible, recovery successful
-
-**Coverage:** Complete isolation mode, status register bypass during traffic block
-
-**Key Feature:** Status register (route 0xE) checked BEFORE enable bits, allowing monitoring even when traffic is disabled
-
----
-
-#### TC_NEGATIVE_ENABLE_004: Both Enables Active - Positive Control
-
-> **Test Function:** `testNegative_BothEnabled_AllowsBidirectional()` | **Feature:** Enable Gating Positive Control Test | **Status:** ✅ PASS
-
-**Objective:** Positive control test - verify both enables=1 allows full bidirectional traffic
-
-**Steps:**
-1. Explicitly set both enables to 1: write 0x10001 to PCIE_ENABLE register
-2. Configure TLBs for bidirectional traffic (inbound and outbound)
-3. Verify inbound path succeeds (write + read)
-4. Verify outbound path succeeds (write + read)
-5. Stress test: 10 rapid bidirectional transactions
-6. Verify all complete successfully
-7. Verify status register accessible
-
-**Expected Result:** Full bidirectional traffic flows, 24 checks pass
-
-**Coverage:** Enable logic doesn't false-positive block, stress test confirms stability
-
-**Implementation:** Uses working address ranges (0x80000000 for inbound, 0x18900000 for outbound) compatible with SCML2 framework
-
----
-
-### 8.5 Enable Gating Implementation Architecture
-
-The enable gating feature uses a callback-based signal propagation mechanism:
-
-```
-APB Write to PCIE_ENABLE (0x18000000 + 0x0FFF8)
-    ↓
-ConfigRegBlock::process_write()
-    → Updates pcie_outbound_app_enable_ (bit 0)
-    → Updates pcie_inbound_app_enable_ (bit 16)
-    → Invokes change_callback_()
-    ↓
-KeraunosPcieTile::update_config_dependent_modules()
-    → Reads enable values from ConfigRegBlock
-    → Calls NocPcieSwitch::set_pcie_outbound_app_enable()
-    → Calls NocPcieSwitch::set_pcie_inbound_app_enable()
-    ↓
-NocPcieSwitch::route_from_pcie() / route_to_pcie()
-    → Checks enable bits
-    → Returns DECERR if disabled
-    → Routes normally if enabled
-```
-
-**Key Design Features:**
-1. **Status Register Bypass:** Status register access (routes 0xE/0xF) checked BEFORE enable bits, allowing system monitoring even when traffic is disabled
-2. **Callback Mechanism:** ConfigRegBlock uses `std::function` callback to notify KeraunosPcieTile of register changes, avoiding complex SystemC signal dependencies
-3. **Independent Control:** Each enable bit controls one direction independently
-4. **Recovery Support:** Cold reset restores default enables, allowing full recovery
-
-**Register Format (0x18000000 + 0x0FFF8):**
-- Bit 0: `pcie_outbound_app_enable` (controls NOC→PCIe traffic)
-- Bit 16: `pcie_inbound_app_enable` (controls PCIe→NOC traffic)
-- Example values:
-  - `0x10001` = Both enabled (default)
-  - `0x10000` = Inbound only
-  - `0x00001` = Outbound only
-  - `0x00000` = Both disabled (isolation mode)
-
----
-
 #### TC_SWITCH_NOC_PCIE_005: Bypass Path Routing
 
 **Objective:** Verify bypass path (AxADDR[63:60] = 0x8 or 0x9)
@@ -1200,7 +1060,93 @@ NocPcieSwitch::route_from_pcie() / route_to_pcie()
 
 ---
 
-### 8.3 SMN-IO Switch Test Cases
+### 8.3 Bus Master Enable (BME) Test Cases
+
+These tests verify NOC-PCIE switch behavior per specification Table 33 (Bus Master Enable qualification). Controller mode (EP/RP) is from SII CORE_CONTROL; BME is set via `set_bus_master_enable()`. Outbound TLBs pass AxUSER (TLP type, DBI) for exemption decoding.
+
+#### TC_BME_001: EP Mode, BME=0 — Memory TLP Blocked
+
+**Implementing Test:** `testDirected_BME_EpMemTlpBlockedWhenBmeDisabled()` | **Status:** ✅ PASS
+
+**Objective:** In Endpoint mode with Bus Master Enable disabled, outbound memory TLPs must be blocked (DECERR).
+
+**Steps:**
+1. Configure TLB App Out0, enable system, leave SII in EP mode (default).
+2. Call `set_bus_master_enable(false)`.
+3. Send outbound memory read/write via `noc_n_target` (TLBAppOut0 path).
+4. Verify response is not OK (DECERR / TLM_ADDRESS_ERROR_RESPONSE).
+
+**Expected Result:** Memory TLPs blocked when EP and BME=0.
+
+**Coverage:** BME gating, EP mode.
+
+#### TC_BME_002: EP Mode, BME=0 — DBI TLP Allowed
+
+**Implementing Test:** `testDirected_BME_EpDbiAllowedWhenBmeDisabled()` | **Status:** ✅ PASS
+
+**Objective:** DBI TLPs are exempt; must be allowed when BME=0 in EP mode.
+
+**Steps:**
+1. Set EP mode, BME=0.
+2. Send outbound DBI-type transaction (AxUSER indicates DBI).
+3. Verify TLM_OK_RESPONSE.
+
+**Expected Result:** DBI allowed when BME=0 in EP mode.
+
+**Coverage:** BME exemption (DBI).
+
+#### TC_BME_003: EP Mode, BME=0 — Config TLP Allowed
+
+**Implementing Test:** `testDirected_BME_EpCfgTlpAllowedWhenBmeDisabled()` | **Status:** ✅ PASS
+
+**Objective:** Config TLPs are exempt; must be allowed when BME=0 in EP mode.
+
+**Steps:**
+1. Set EP mode, BME=0.
+2. Send outbound Config-type transaction (AxUSER indicates Config).
+3. Verify TLM_OK_RESPONSE.
+
+**Expected Result:** Config TLP allowed when BME=0 in EP mode.
+
+**Coverage:** BME exemption (Config).
+
+#### TC_BME_004: EP Mode, BME=1 — All Traffic Allowed
+
+**Implementing Test:** `testDirected_BME_EpAllTrafficAllowedWhenBmeEnabled()` | **Status:** ✅ PASS
+
+**Objective:** When BME=1 in EP mode, all outbound TLPs (including memory) are allowed.
+
+**Steps:**
+1. Set EP mode, BME=1.
+2. Send outbound memory read and write via TLBAppOut0.
+3. Verify both complete with TLM_OK_RESPONSE.
+
+**Expected Result:** All traffic allowed when BME=1 in EP mode.
+
+**Coverage:** BME enabled path.
+
+#### TC_BME_005: RP Mode — All Traffic Allowed Regardless of BME
+
+**Implementing Test:** `testDirected_BME_RpAllTrafficAllowedRegardlessOfBme()` | **Status:** ✅ PASS
+
+**Objective:** In Root Port mode, BME is not checked; memory TLPs must be allowed even when BME=0.
+
+**Steps:**
+1. Write SII CORE_CONTROL to set device_type=RP (0x04).
+2. Call `set_bus_master_enable(false)`.
+3. Send outbound memory read via `noc_n_target` (TLBAppOut0 path).
+4. Verify TLM_OK_RESPONSE.
+5. Restore EP mode and BME=1 for subsequent tests.
+
+**Expected Result:** RP mode ignores BME; all TLPs allowed.
+
+**Coverage:** Controller mode (RP), BME not applied.
+
+**Implementation note:** SII CORE_CONTROL is written via SMN; the SII block’s device_type callback updates NOC-PCIE switch’s controller_is_ep_ immediately so RP mode is in effect for the outbound transaction.
+
+---
+
+### 8.4 SMN-IO Switch Test Cases
 
 #### TC_SWITCH_SMN_IO_001: Address-Based Routing
 
@@ -2804,7 +2750,7 @@ class TlbReferenceModel {
 | TC_E2E_POWER_001 | `testE2E_Power_IsolationModeEntryExit()` | Isolation Entry/Exit | P1 | ✅ PASS |
 | TC_E2E_SYSTEM_002 | `testE2E_System_ShutdownSequence()` | Graceful Shutdown | P1 | ✅ PASS |
 
-**All E2E test cases are now implemented. No remaining gaps.**
+**All E2E test cases are implemented. Directed tests include 5 BME tests (TC_BME_001–005). Total 86 tests, 344 checks.**
 
 ---
 

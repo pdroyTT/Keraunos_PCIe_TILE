@@ -12,9 +12,10 @@ __pycache__/
 *.exe
 FastBuild/
 
-# Exclude all markdown files except docs/
+# Exclude all markdown files except docs/ and doc/
 *.md
 !docs/**/*.md
+!doc/**/*.md
 
 # Exclude compiled test binaries
 *Tests.gcc-*
