@@ -228,7 +228,8 @@ mermaid.initialize({
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#detailed-block-diagram">4. Detailed Block Diagram</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#complete-system-architecture">3.1 Complete System Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#complete-system-architecture">4.1 Complete System Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enhanced-architecture-block-diagram">4.2 Comprehensive Architecture Block Diagram</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#data-flow-paths">5. Data Flow Paths</a><ul>
@@ -2912,6 +2913,345 @@ mermaid.initialize({
     style CLK2 fill:#f5e1e1
     style CLK3 fill:#f5e1e1
         </div></section>
+<section id="enhanced-architecture-block-diagram">
+<h3>4.2 Comprehensive Architecture Block Diagram<a class="headerlink" href="#enhanced-architecture-block-diagram" title="Permalink to this heading"></a></h3>
+<p>The diagram below provides a fully detailed, color-coded view of <code class="docutils literal notranslate"><span class="pre">KeraunosPcieTile</span></code> internal architecture. Solid arrows represent data-plane paths; dashed arrows show configuration/control paths. Hover over any block for additional details.</p>
+<div style="overflow-x:auto;margin:24px 0;background:#f4f6f8;border:1px solid #cfd8dc;border-radius:10px;padding:20px;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1090 780" style="width:100%;max-width:1090px;font-family:'Segoe UI',Arial,sans-serif;font-size:11px;">
+  <defs>
+    <marker id="arr-blk" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#37474f"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#1565c0"/>
+    </marker>
+    <marker id="arr-orange" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#e65100"/>
+    </marker>
+    <marker id="arr-gray" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#78909c"/>
+    </marker>
+    <marker id="arr-red" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,9 3.5,0 7" fill="#b71c1c"/>
+    </marker>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- EXTERNAL INTERFACES                                             -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- NOC Network (left) -->
+  <g>
+    <rect x="8" y="10" width="215" height="60" rx="6" fill="#1565c0" stroke="#0d47a1" stroke-width="2"/>
+    <text x="115" y="32" text-anchor="middle" fill="white" font-weight="bold" font-size="13">NOC Network</text>
+    <text x="115" y="48" text-anchor="middle" fill="#bbdefb" font-size="9">noc_n_target  (64-bit TLM)</text>
+    <text x="115" y="62" text-anchor="middle" fill="#bbdefb" font-size="9">noc_n_initiator  (64-bit TLM)</text>
+    <title>NOC Network Interconnect&#10;Bidirectional TLM-2.0 64-bit sockets&#10;Target: receives NOC→Tile traffic (DMA inbound, MSI requests)&#10;Initiator: forwards Tile→NOC traffic (inbound DMA after TLB, MSI relay)</title>
+  </g>
+
+  <!-- PCIe Controller (center) -->
+  <g>
+    <rect x="436" y="10" width="218" height="60" rx="6" fill="#1565c0" stroke="#0d47a1" stroke-width="2"/>
+    <text x="545" y="30" text-anchor="middle" fill="white" font-weight="bold" font-size="12">PCIe Controller</text>
+    <text x="545" y="45" text-anchor="middle" fill="#bbdefb" font-size="9">pcie_controller_target</text>
+    <text x="545" y="59" text-anchor="middle" fill="#bbdefb" font-size="9">pcie_controller_initiator</text>
+    <title>Synopsys DesignWare PCIe Controller&#10;Bidirectional TLM-2.0 64-bit sockets&#10;Target: receives PCIe inbound transactions&#10;Initiator: drives PCIe outbound transactions (DMA to host)</title>
+  </g>
+
+  <!-- SMN Network (right) -->
+  <g>
+    <rect x="858" y="10" width="218" height="60" rx="6" fill="#1565c0" stroke="#0d47a1" stroke-width="2"/>
+    <text x="967" y="32" text-anchor="middle" fill="white" font-weight="bold" font-size="13">SMN Network</text>
+    <text x="967" y="48" text-anchor="middle" fill="#bbdefb" font-size="9">smn_n_target  (64-bit TLM)</text>
+    <text x="967" y="62" text-anchor="middle" fill="#bbdefb" font-size="9">smn_n_initiator  (64-bit TLM)</text>
+    <title>SMN (System Management Network)&#10;Bidirectional TLM-2.0 64-bit sockets&#10;Target: receives configuration/management traffic&#10;Initiator: forwards SMN fabric egress transactions&#10;SMN accesses are optionally split into two 4-byte operations</title>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- TILE BOUNDARY                                                   -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <rect x="4" y="80" width="1082" height="608" rx="10" fill="#eceff1" stroke="#90a4ae" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="545" y="99" text-anchor="middle" fill="#37474f" font-weight="bold" font-size="14">KeraunosPcieTile  (keraunos::pcie::KeraunosPcieTile : sc_core::sc_module)</text>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SWITCH LAYER                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- NOC-IO Switch -->
+  <g>
+    <rect x="10" y="108" width="210" height="68" rx="6" fill="#2e7d32" stroke="#1b5e20" stroke-width="1.5"/>
+    <text x="115" y="129" text-anchor="middle" fill="white" font-weight="bold" font-size="12">NOC-IO Switch</text>
+    <text x="115" y="144" text-anchor="middle" fill="#c8e6c9" font-size="9">route_from_noc()  route_from_tlb()</text>
+    <text x="115" y="158" text-anchor="middle" fill="#c8e6c9" font-size="9">set_noc_n_output  set_msi_relay_output</text>
+    <title>NocIoSwitch&#10;Routes NOC-domain data traffic&#10;&#10;Inbound: route_from_noc() - receives from noc_n_target&#10;  → routes to Outbound TLBs based on address [63:60]&#10;  → routes MSI traffic to MsiRelayUnit&#10;&#10;Inbound: route_from_tlb() - receives from Inbound TLBs&#10;  → forwards via noc_n_initiator to NOC&#10;&#10;Callbacks: set_noc_n_output, set_tlb_app_output, set_msi_relay_output</title>
+  </g>
+
+  <!-- NOC-PCIe Switch -->
+  <g>
+    <rect x="436" y="108" width="218" height="68" rx="6" fill="#2e7d32" stroke="#1b5e20" stroke-width="1.5"/>
+    <text x="545" y="129" text-anchor="middle" fill="white" font-weight="bold" font-size="12">NOC-PCIe Switch</text>
+    <text x="545" y="144" text-anchor="middle" fill="#c8e6c9" font-size="9">route_from_pcie()  route_to_pcie()</text>
+    <text x="545" y="158" text-anchor="middle" fill="#c8e6c9" font-size="9">decode bits[63:60] · BME control · AxUSER</text>
+    <title>NocPcieSwitch&#10;Central routing hub between PCIe and NOC domains&#10;&#10;route_from_pcie(): receives from pcie_controller_target&#10;  → decodes address bits [63:60] (NocPcieRoute enum)&#10;  → routes to: Inbound TLBs, NOC-IO, SMN-IO, Config, MSI&#10;  → routes 0xE/0xF to pcie_controller_initiator (status reg reads)&#10;&#10;route_to_pcie(): receives from Outbound TLBs&#10;  → sets AxUSER (sc_bv&lt;256&gt;) for EP/RP mode&#10;  → drives pcie_controller_initiator&#10;&#10;Bus Master Enable (BME): gates outbound DMA traffic&#10;EP/RP mode: set by SII Block device type callback</title>
+  </g>
+
+  <!-- SMN-IO Switch -->
+  <g>
+    <rect x="860" y="108" width="218" height="68" rx="6" fill="#2e7d32" stroke="#1b5e20" stroke-width="1.5"/>
+    <text x="969" y="129" text-anchor="middle" fill="white" font-weight="bold" font-size="12">SMN-IO Switch</text>
+    <text x="969" y="144" text-anchor="middle" fill="#c8e6c9" font-size="9">route_from_smn()  route_from_noc_io()</text>
+    <text x="969" y="158" text-anchor="middle" fill="#c8e6c9" font-size="9">8-byte SMN split · 8 TLB config outputs</text>
+    <title>SmnIoSwitch&#10;Routes SMN management/configuration traffic&#10;&#10;route_from_smn(): receives from smn_n_target&#10;  → splits 8-byte accesses into two 4-byte ops&#10;  → routes to: ConfigReg, SII, MsiRelay CSR/data,&#10;     PciePhy APB/AHB, TLBs (8 instances), smn_n_initiator&#10;&#10;route_from_noc_io(): path from NOC-IO switch&#10;&#10;Outputs via callbacks: set_smn_fabric_output,&#10;  set_config_reg_output, set_sii_output,&#10;  set_msi_csr/data_output, set_phy_apb/ahb_output,&#10;  set_tlb_config_output (×8)</title>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- INBOUND TLBs (left zone)                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <rect x="10" y="192" width="210" height="218" rx="6" fill="#fff8e1" stroke="#e65100" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="115" y="210" text-anchor="middle" fill="#bf360c" font-weight="bold" font-size="10">INBOUND TLBs  (PCIe → NOC)</text>
+
+  <g>
+    <rect x="16" y="216" width="198" height="46" rx="4" fill="#e64a19" stroke="#bf360c" stroke-width="1"/>
+    <text x="115" y="234" text-anchor="middle" fill="white" font-weight="bold" font-size="10">TLBSysIn0</text>
+    <text x="115" y="248" text-anchor="middle" fill="#ffe0b2" font-size="9">System TLB · page=16KB · 64 entries</text>
+    <title>TLBSysIn0&#10;System Inbound TLB&#10;Page size: 16 KB&#10;64 TLB entries (scml2::memory&lt;uint8_t&gt;)&#10;Used for system-side PCIe inbound traffic&#10;Translated output → SMN-IO switch route_from_smn</title>
+  </g>
+
+  <g>
+    <rect x="16" y="270" width="198" height="46" rx="4" fill="#e64a19" stroke="#bf360c" stroke-width="1"/>
+    <text x="115" y="288" text-anchor="middle" fill="white" font-weight="bold" font-size="10">TLBAppIn0  [0 … 3]</text>
+    <text x="115" y="302" text-anchor="middle" fill="#ffe0b2" font-size="9">App TLB · page=16MB · 64 entries · 4 instances</text>
+    <title>TLBAppIn0 (4 instances via std::array)&#10;Application Inbound TLB&#10;Page size: 16 MB&#10;64 TLB entries per instance&#10;4 parallel instances for bandwidth&#10;Translated output → NOC-IO switch route_from_tlb</title>
+  </g>
+
+  <g>
+    <rect x="16" y="324" width="198" height="46" rx="4" fill="#e64a19" stroke="#bf360c" stroke-width="1"/>
+    <text x="115" y="342" text-anchor="middle" fill="white" font-weight="bold" font-size="10">TLBAppIn1</text>
+    <text x="115" y="356" text-anchor="middle" fill="#ffe0b2" font-size="9">App TLB · page=8GB · 64 entries</text>
+    <title>TLBAppIn1&#10;Application Inbound TLB (large-page)&#10;Page size: 8 GB&#10;64 TLB entries&#10;For large contiguous memory regions&#10;Translated output → NOC-IO switch route_from_tlb</title>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- OUTBOUND TLBs (centre-left zone)                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <rect x="232" y="192" width="192" height="218" rx="6" fill="#fff8e1" stroke="#e65100" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="328" y="210" text-anchor="middle" fill="#bf360c" font-weight="bold" font-size="10">OUTBOUND TLBs  (NOC → PCIe)</text>
+
+  <g>
+    <rect x="238" y="216" width="180" height="46" rx="4" fill="#e64a19" stroke="#bf360c" stroke-width="1"/>
+    <text x="328" y="234" text-anchor="middle" fill="white" font-weight="bold" font-size="10">TLBSysOut0</text>
+    <text x="328" y="248" text-anchor="middle" fill="#ffe0b2" font-size="9">System TLB · page=64KB · DBI mode</text>
+    <title>TLBSysOut0&#10;System Outbound TLB&#10;Page size: 64 KB&#10;DBI bit in ATTR → remap to 0x44000000 + smn_n_initiator&#10;Otherwise → NOC-PCIe switch route_to_pcie with AxUSER ATTR</title>
+  </g>
+
+  <g>
+    <rect x="238" y="270" width="180" height="46" rx="4" fill="#e64a19" stroke="#bf360c" stroke-width="1"/>
+    <text x="328" y="288" text-anchor="middle" fill="white" font-weight="bold" font-size="10">TLBAppOut0</text>
+    <text x="328" y="302" text-anchor="middle" fill="#ffe0b2" font-size="9">App TLB · page=16MB</text>
+    <title>TLBAppOut0&#10;Application Outbound TLB&#10;Page size: 16 MB&#10;Translated output → NOC-PCIe switch route_to_pcie</title>
+  </g>
+
+  <g>
+    <rect x="238" y="324" width="180" height="46" rx="4" fill="#e64a19" stroke="#bf360c" stroke-width="1"/>
+    <text x="328" y="342" text-anchor="middle" fill="white" font-weight="bold" font-size="10">TLBAppOut1</text>
+    <text x="328" y="356" text-anchor="middle" fill="#ffe0b2" font-size="9">App TLB · page=8GB</text>
+    <title>TLBAppOut1&#10;Application Outbound TLB (large-page)&#10;Page size: 8 GB&#10;Translated output → NOC-PCIe switch route_to_pcie</title>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- CONTROL / STATUS BLOCKS                                         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- Config Reg Block -->
+  <g>
+    <rect x="436" y="192" width="194" height="58" rx="5" fill="#6a1b9a" stroke="#4a148c" stroke-width="1.5"/>
+    <text x="533" y="212" text-anchor="middle" fill="white" font-weight="bold" font-size="11">ConfigRegBlock</text>
+    <text x="533" y="227" text-anchor="middle" fill="#e1bee7" font-size="9">APB · base 0x18000000</text>
+    <text x="533" y="240" text-anchor="middle" fill="#e1bee7" font-size="9">System control registers</text>
+    <title>ConfigRegBlock&#10;System configuration registers (scml2::memory)&#10;Base address: 0x18000000 (4 KB range)&#10;Accessible via SMN-IO Switch&#10;Drives: pcie_outbound_app_enable_, pcie_inbound_app_enable_,&#10;  msix_enable_, msix_mask_, setip_ signals&#10;change_callback → update_config_dependent_modules()</title>
+  </g>
+
+  <!-- SII Block -->
+  <g>
+    <rect x="640" y="192" width="194" height="58" rx="5" fill="#6a1b9a" stroke="#4a148c" stroke-width="1.5"/>
+    <text x="737" y="212" text-anchor="middle" fill="white" font-weight="bold" font-size="11">SII Block</text>
+    <text x="737" y="227" text-anchor="middle" fill="#e1bee7" font-size="9">APB · base 0x18101000</text>
+    <text x="737" y="240" text-anchor="middle" fill="#e1bee7" font-size="9">CII tracking · EP/RP type</text>
+    <title>SiiBlock&#10;CII (Configuration Intercept Interface) tracker&#10;Base address: 0x18101000&#10;Receives: pcie_cii_hv, pcie_cii_hdr_type, pcie_cii_hdr_addr&#10;Drives sc_out: pcie_app_bus_num, pcie_app_dev_num,&#10;  pcie_device_type, pcie_sys_int&#10;device_type_callback → NocPcieSwitch::set_controller_is_ep()</title>
+  </g>
+
+  <!-- MSI Relay Unit -->
+  <g>
+    <rect x="844" y="192" width="230" height="58" rx="5" fill="#6a1b9a" stroke="#4a148c" stroke-width="1.5"/>
+    <text x="959" y="212" text-anchor="middle" fill="white" font-weight="bold" font-size="11">MSI Relay Unit</text>
+    <text x="959" y="227" text-anchor="middle" fill="#e1bee7" font-size="9">base 0x18800000 · 16 MSI-X vectors</text>
+    <text x="959" y="240" text-anchor="middle" fill="#e1bee7" font-size="9">PBA table · mask register</text>
+    <title>MsiRelayUnit&#10;MSI-X interrupt relay&#10;Base address: 0x18800000 (4 KB)&#10;Supports 16 MSI-X vectors&#10;PBA (Pending Bit Array) table&#10;Inputs: process_msi_input() from NOC-IO Switch&#10;Output callback: set_msi_output_callback → NOC-IO switch</title>
+  </g>
+
+  <!-- PCIe PHY -->
+  <g>
+    <rect x="436" y="262" width="194" height="58" rx="5" fill="#37474f" stroke="#263238" stroke-width="1.5"/>
+    <text x="533" y="282" text-anchor="middle" fill="white" font-weight="bold" font-size="11">PCIe PHY</text>
+    <text x="533" y="297" text-anchor="middle" fill="#b0bec5" font-size="9">APB 0x18102000 · AHB 0x18103000</text>
+    <text x="533" y="310" text-anchor="middle" fill="#b0bec5" font-size="9">Physical layer configuration</text>
+    <title>PciePhy&#10;PCIe Physical Layer block&#10;APB interface: 0x18102000&#10;AHB interface: 0x18103000&#10;Configured via SMN-IO Switch&#10;Reset: pcie_sii_reset_ctrl_ from ClockResetControl</title>
+  </g>
+
+  <!-- PLL / CGM -->
+  <g>
+    <rect x="640" y="262" width="194" height="58" rx="5" fill="#37474f" stroke="#263238" stroke-width="1.5"/>
+    <text x="737" y="282" text-anchor="middle" fill="white" font-weight="bold" font-size="11">PLL / CGM</text>
+    <text x="737" y="297" text-anchor="middle" fill="#b0bec5" font-size="9">PllCgm</text>
+    <text x="737" y="310" text-anchor="middle" fill="#b0bec5" font-size="9">Clock generation &amp; gating</text>
+    <title>PllCgm&#10;Phase-Locked Loop / Clock Gating Module&#10;Manages: pcie_clock_ and ref_clock_ signals&#10;Reset controlled via ClockResetControl</title>
+  </g>
+
+  <!-- Internal Signals region -->
+  <g>
+    <rect x="844" y="262" width="230" height="58" rx="5" fill="#455a64" stroke="#263238" stroke-width="1.5" stroke-dasharray="4,2"/>
+    <text x="959" y="282" text-anchor="middle" fill="white" font-weight="bold" font-size="10">Internal sc_signals</text>
+    <text x="959" y="295" text-anchor="middle" fill="#b0bec5" font-size="9">system_ready_  outbound_app_enable_</text>
+    <text x="959" y="308" text-anchor="middle" fill="#b0bec5" font-size="9">inbound_app_enable_  msix_enable_</text>
+    <text x="959" y="321" text-anchor="middle" fill="#b0bec5" font-size="9">msix_mask_  setip_[16]  pcie_clock_</text>
+    <title>Internal sc_signal wires&#10;system_ready_ · pcie_outbound_app_enable_&#10;pcie_inbound_app_enable_ · msix_enable_ · msix_mask_&#10;setip_&lt;sc_bv&lt;16&gt;&gt; · pcie_clock_ · ref_clock_&#10;pcie_sii_reset_ctrl_ · pcie_reset_ctrl_</title>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- CLOCK / RESET CONTROL                                           -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <g>
+    <rect x="10" y="336" width="1064" height="56" rx="6" fill="#b71c1c" stroke="#7f0000" stroke-width="1.5"/>
+    <text x="542" y="357" text-anchor="middle" fill="white" font-weight="bold" font-size="12">Clock / Reset Control  (ClockResetControl)</text>
+    <text x="542" y="374" text-anchor="middle" fill="#ffcdd2" font-size="9">cold_reset_n · warm_reset_n · pcie_core_clk · axi_clk  →  pcie_sii_reset_ctrl_  ·  pcie_reset_ctrl_</text>
+    <title>ClockResetControl&#10;Clock and reset distribution manager&#10;Inputs (sc_in): cold_reset_n, warm_reset_n, pcie_core_clk, axi_clk&#10;Outputs: pcie_sii_reset_ctrl_ → PciePhy&#10;         pcie_reset_ctrl_     → ConfigReg, PllCgm&#10;Cold reset also: clears NOC-PCIe BME flag, flushes switches</title>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- SIGNAL INTERFACES                                               -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- sc_in box -->
+  <g>
+    <rect x="10" y="404" width="530" height="88" rx="5" fill="#e8f5e9" stroke="#43a047" stroke-width="1.2"/>
+    <text x="20" y="420" fill="#1b5e20" font-weight="bold" font-size="10">sc_in&lt;bool / uint&gt; Inputs (signal_update_process SC_METHOD):</text>
+    <text x="20" y="435" fill="#2e7d32" font-size="9">cold_reset_n   warm_reset_n   isolate_req   pcie_core_clk   axi_clk</text>
+    <text x="20" y="449" fill="#2e7d32" font-size="9">pcie_controller_reset_n   pcie_flr_request   pcie_hot_reset</text>
+    <text x="20" y="463" fill="#2e7d32" font-size="9">pcie_ras_error   pcie_dma_completion   pcie_misc_int</text>
+    <text x="20" y="477" fill="#2e7d32" font-size="9">pcie_cii_hv   pcie_cii_hdr_type &lt;uint&gt;   pcie_cii_hdr_addr &lt;uint&gt;</text>
+    <title>sc_in ports driven by external environment&#10;All are connected to signal_update_process (SC_METHOD)&#10;Process updates: clock/reset control, CII tracking,&#10;interrupt forwarding, isolation gating, timeout flags</title>
+  </g>
+
+  <!-- sc_out box -->
+  <g>
+    <rect x="554" y="404" width="520" height="88" rx="5" fill="#e3f2fd" stroke="#1e88e5" stroke-width="1.2"/>
+    <text x="564" y="420" fill="#0d47a1" font-weight="bold" font-size="10">sc_out Outputs (driven by signal_update_process):</text>
+    <text x="564" y="435" fill="#1565c0" font-size="9">pcie_app_bus_num &lt;uint8_t&gt;   pcie_app_dev_num &lt;uint8_t&gt;   pcie_device_type &lt;bool&gt;</text>
+    <text x="564" y="449" fill="#1565c0" font-size="9">pcie_sys_int   function_level_reset   hot_reset_requested</text>
+    <text x="564" y="463" fill="#1565c0" font-size="9">config_update   ras_error   dma_completion   controller_misc_int</text>
+    <text x="564" y="477" fill="#1565c0" font-size="9">noc_timeout &lt;unsigned int&gt;   (NOC/SMN switch timeout bitmap)</text>
+    <title>sc_out ports driven by signal_update_process&#10;Bus/device numbers from SII block (CII tracking)&#10;Interrupt forwarding: FLR, hot_reset, RAS, DMA, misc&#10;NOC timeout: bitmask of timed-out switch paths</title>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- LEGEND                                                          -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <g>
+    <rect x="10" y="502" width="1064" height="180" rx="5" fill="#fafafa" stroke="#bdbdbd" stroke-width="1"/>
+    <text x="542" y="520" text-anchor="middle" fill="#424242" font-weight="bold" font-size="11">Legend</text>
+
+    <!-- Legend color boxes -->
+    <rect x="20" y="530" width="18" height="14" rx="2" fill="#1565c0"/>
+    <text x="44" y="542" fill="#212121" font-size="10">External Interface  (TLM target/initiator socket)</text>
+
+    <rect x="20" y="552" width="18" height="14" rx="2" fill="#2e7d32"/>
+    <text x="44" y="564" fill="#212121" font-size="10">Switch / Router  (C++ class with callback API)</text>
+
+    <rect x="20" y="574" width="18" height="14" rx="2" fill="#e64a19"/>
+    <text x="44" y="586" fill="#212121" font-size="10">Address Translation  (TLB — inbound or outbound)</text>
+
+    <rect x="20" y="596" width="18" height="14" rx="2" fill="#6a1b9a"/>
+    <text x="44" y="608" fill="#212121" font-size="10">Control / Status Block  (APB/AHB register file via scml2::memory)</text>
+
+    <rect x="20" y="618" width="18" height="14" rx="2" fill="#37474f"/>
+    <text x="44" y="630" fill="#212121" font-size="10">PHY / PLL  (Clock and physical-layer infrastructure)</text>
+
+    <rect x="20" y="640" width="18" height="14" rx="2" fill="#b71c1c"/>
+    <text x="44" y="652" fill="#212121" font-size="10">Clock / Reset Control  (drives all reset signals)</text>
+
+    <!-- Arrow type legend (right column) -->
+    <line x1="370" y1="538" x2="420" y2="538" stroke="#1565c0" stroke-width="2" marker-end="url(#arr-blue)"/>
+    <text x="428" y="542" fill="#212121" font-size="10">Data path  (solid — b_transport TLM or callback)</text>
+
+    <line x1="370" y1="560" x2="420" y2="560" stroke="#78909c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-gray)"/>
+    <text x="428" y="564" fill="#212121" font-size="10">Configuration / control path  (dashed)</text>
+
+    <line x1="370" y1="582" x2="420" y2="582" stroke="#b71c1c" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr-red)"/>
+    <text x="428" y="586" fill="#212121" font-size="10">Clock / reset distribution  (red dashed)</text>
+
+    <text x="370" y="608" fill="#424242" font-size="9">All internal blocks are C++ classes (not sc_module).</text>
+    <text x="370" y="622" fill="#424242" font-size="9">Communication is via std::function callbacks, not TLM sockets.</text>
+    <text x="370" y="636" fill="#424242" font-size="9">wire_components() in keraunos_pcie_tile.cpp wires all callbacks.</text>
+    <text x="370" y="650" fill="#424242" font-size="9">Hover over any block for detailed description.</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- DATA-PATH ARROWS                                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- NOC ↔ NOC-IO Switch (bidirectional, offset slightly) -->
+  <line x1="111" y1="70" x2="111" y2="108" stroke="#1565c0" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <line x1="120" y1="108" x2="120" y2="70" stroke="#1565c0" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <!-- PCIe Controller ↔ NOC-PCIe Switch (bidirectional) -->
+  <line x1="541" y1="70" x2="541" y2="108" stroke="#1565c0" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <line x1="550" y1="108" x2="550" y2="70" stroke="#1565c0" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <!-- SMN Network ↔ SMN-IO Switch (bidirectional) -->
+  <line x1="964" y1="70" x2="964" y2="108" stroke="#1565c0" stroke-width="2" marker-end="url(#arr-blue)"/>
+  <line x1="973" y1="108" x2="973" y2="70" stroke="#1565c0" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <!-- NOC-IO Switch → Outbound TLBs (down, data path) -->
+  <line x1="115" y1="176" x2="115" y2="192" stroke="#e65100" stroke-width="2" marker-end="url(#arr-orange)"/>
+
+  <!-- Outbound TLBs → NOC-PCIe Switch (right then up, L-shape) -->
+  <polyline points="422,342 422,400 545,400 545,176" fill="none" stroke="#e65100" stroke-width="2" marker-end="url(#arr-orange)"/>
+
+  <!-- NOC-PCIe Switch → Inbound TLBs (left then down, L-shape) -->
+  <polyline points="436,132 390,132 390,192" fill="none" stroke="#e65100" stroke-width="2" marker-end="url(#arr-orange)"/>
+
+  <!-- Inbound TLBs → NOC-IO Switch (up, translated path) -->
+  <line x1="190" y1="192" x2="190" y2="176" stroke="#37474f" stroke-width="2" marker-end="url(#arr-blk)"/>
+
+  <!-- NOC-IO ↔ NOC-PCIe Switch (horizontal, internal cross-connect) -->
+  <line x1="220" y1="134" x2="436" y2="134" stroke="#2e7d32" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arr-gray)"/>
+  <line x1="436" y1="143" x2="220" y2="143" stroke="#2e7d32" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arr-gray)"/>
+
+  <!-- SMN-IO → Config Reg (dashed config) -->
+  <polyline points="860,155 654,155 654,192" fill="none" stroke="#78909c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-gray)"/>
+
+  <!-- SMN-IO → SII Block (dashed config) -->
+  <polyline points="860,162 737,162 737,192" fill="none" stroke="#78909c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-gray)"/>
+
+  <!-- SMN-IO → MSI Relay (dashed config) -->
+  <line x1="969" y1="176" x2="969" y2="192" stroke="#78909c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-gray)"/>
+
+  <!-- SMN-IO → PCIe PHY (dashed config) -->
+  <polyline points="905,176 654,176 654,262" fill="none" stroke="#78909c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr-gray)"/>
+
+  <!-- SMN-IO → Inbound TLBs config (dashed) -->
+  <polyline points="860,170 220,170 220,410" fill="none" stroke="#78909c" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arr-gray)"/>
+
+  <!-- MSI Relay → NOC-IO Switch (interrupt relayed as NOC write) -->
+  <polyline points="844,221 420,221 420,183 220,183" fill="none" stroke="#e65100" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arr-orange)"/>
+
+  <!-- Clock/Reset → all blocks (red dashed, abbreviated representative lines) -->
+  <line x1="115" y1="336" x2="115" y2="282" stroke="#b71c1c" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arr-red)"/>
+  <line x1="545" y1="336" x2="545" y2="320" stroke="#b71c1c" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arr-red)"/>
+  <line x1="969" y1="336" x2="969" y2="250" stroke="#b71c1c" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arr-red)"/>
+
+</svg>
+</div>
+</section>
 </section>
 <hr class="docutils" />
 <section id="data-flow-paths">
